@@ -1,0 +1,45 @@
+@import "settings";
+@import "foundation";
+@import "customMixins";
+
+body {
+	font-size: rem-calc(16px);
+}
+
+.pageTitle {
+	&.desktop {
+		@include max-screen(420px){
+			display: none;
+		}
+	}
+}
+.menu-bar {
+	border-bottom: 1px solid #00558b;
+}
+.menu-bar {
+	@include max-screen(900px){
+		li a {
+			font-size: rem-calc(16px);
+			padding: 0.75rem;
+		}
+	}
+	@include max-screen(580px){
+		li a {
+			padding: 0.5rem;
+		}
+	}
+}
+
+.grid-container {
+	max-width: 90rem;
+}
+.grid-content .grid-block {
+	margin: 0;
+}
+.tab-contents {
+	padding: 1rem 0;
+}
+
+.uiview {
+	padding: 0 !important;
+}
