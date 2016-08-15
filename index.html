@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" ng-app="application">
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>RocketView</title>
+		<link href="//cdnjs.cloudflare.com/ajax/libs/ng-dialog/0.4.0/css/ngDialog.min.css" rel="stylesheet" type="text/css">
+		<link href="//cdnjs.cloudflare.com/ajax/libs/ng-dialog/0.4.0/css/ngDialog-theme-default.min.css" rel="stylesheet" type="text/css">
+		<link href="//cdnjs.cloudflare.com/ajax/libs/ng-dialog/0.4.0/css/ngDialog-theme-plain.min.css" rel="stylesheet" type="text/css">
+		<link href="./assets/css/app.css" rel="stylesheet" type="text/css">
+		<script src="./assets/js/foundation.js"></script>
+		<script src="./assets/js/templates.js"></script>
+		<script src="./assets/js/routes.js"></script>
+		<script src="./assets/js/app.js"></script>
+	</head>
+	<body>
+		<div class="grid-frame vertical"  ng-controller="mainController">
+			<div class="grid-content shrink" style="padding: 0;">
+				<ul class="primary condense menu-bar">
+					<li class="pageTitle desktop"><a href="./"><strong>RocketView</strong></a></li>
+					<li class="rbtvLink"><a href="www.rocketbeans.tv"></a></li>
+				</ul>
+			</div>
+
+			<div ui-view class="grid-content uiview">
+			</div>
+		</div>
+	</body>
+</html>
