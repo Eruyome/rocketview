@@ -43,8 +43,6 @@ var paths = {
     'bower_components/angular/angular.js',
     'node_modules/angular-ui-bootstrap/dist/ui-bootstrap.js',
     'node_modules/angular-local-storage/dist/angular-local-storage.min.js',
-    //'bower_components/ng-file-upload-shim/ng-file-upload-shim.min.js',
-    //'bower_components/ng-file-upload/ng-file-upload.min.js',
     'bower_components/angular-animate/angular-animate.js',
     'bower_components/angular-ui-router/release/angular-ui-router.js',
     'bower_components/foundation-apps/js/vendor/**/*.js',
@@ -214,7 +212,7 @@ gulp.task('default', ['server'], function () {
   gulp.watch(['./src/assets/scss/**/*', './scss/**/*'], ['sass']);
 
   // Watch JavaScript
-  gulp.watch(['./src/assets/js/**/*', './js/**/*'], ['uglify:app']);
+  gulp.watch(['./src/assets/js/**/*', './js/**/*'], ['lint', 'uglify:app']);
 
   // Watch static files
   gulp.watch(['./src/**/*.*', '!./src/templates/**/*.*', '!./src/assets/{scss,js}/**/*.*'], ['copy']);
