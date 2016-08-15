@@ -16,6 +16,7 @@ var jscs = require('gulp-jscs');
 var jshint = require('gulp-jshint');
 var gitmodified = require('gulp-gitmodified');
 var subtree = require('gulp-subtree-only');
+var shell = require('gulp-shell');
 
 // Check for --production flag
 var isProduction = !!(argv.production);
@@ -187,6 +188,10 @@ gulp.task('subtree', function () {
 	return gulp.src('dist')
 		.pipe(subtree());
 });
+
+gulp.task('deploy', shell.task([
+	'deploy.sh'
+]));
 
 // Starts a test server, which you can view at http://localhost:8079
 gulp.task('server', ['build'], function() {
