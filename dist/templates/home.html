@@ -1,12 +1,39 @@
 
 <div class="grid-container">
 	<div class="content grid-block">
-		<iframe allowfullscreen="" frameborder="0" height="270"
-				src="https://www.youtube.com/embed/fFppH4_sXBc" width="480"
-		></iframe><br />
 
-		<iframe allowfullscreen="" frameborder="0" height="270"
-				src="https://www.youtube.com/live_chat?v=fFppH4_sXBc&embed_domain=www.eruyome.github.io" width="480"
-		></iframe><br />
+		<div class="grid-block player-container">
+			<h5 class="video-title grid-block medium-12 large-12">
+				<span ng-if="data.video[0].snippet.liveBroadcastContent=='live'" class="broadcastState"
+					  title="Live Übertragung.">Live
+				</span>
+				<span ng-if="data.video[0].snippet.liveBroadcastContent!='live'" class="broadcastState"
+					  title="Video ist aufgezeichnet.">Offline
+				</span>
+				<span>{{data.video[0].snippet.title}}</span>
+			</h5>
+			<div class="float-left">
+				<div class="video grow" id="videoPlayer">
+					<div class="embed-responsive embed-responsive-16by9">
+						<ng-youtube-embed
+								url="video.url" autoplay="{{video.autoplay}}">
+						</ng-youtube-embed>
+					</div>
+				</div>
+
+				<div class="float-right chat shrink">
+					<iframe allowfullscreen="" frameborder="0" height="{{chat.height + chat.heightUnit}}"
+							width="{{chat.width + chat.widthUnit}}"	src="{{chat.url}}"
+					></iframe>
+				</div>
+			</div>
+		</div>
+
+		<div class="grid-block videolist-container">
+			<div class="grid-block videolist" ng-repeat="(key, item) in data.vList">
+				<div vlistitem></div>
+			</div>
+		</div>
+
 	</div>
 </div>
