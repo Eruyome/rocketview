@@ -46,6 +46,7 @@ var paths = {
 		'node_modules/angular-local-storage/dist/angular-local-storage.min.js',
 		'bower_components/angular-animate/angular-animate.js',
 		'bower_components/angular-ui-router/release/angular-ui-router.js',
+		'node_modules/angular-sanitize/angular-sanitize.js',
 		'bower_components/foundation-apps/js/vendor/**/*.js',
 		'bower_components/foundation-apps/js/angular/**/*.js',
 		'!bower_components/foundation-apps/js/angular/app.js',

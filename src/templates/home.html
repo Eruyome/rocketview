@@ -39,7 +39,7 @@ url: /
 
 		<div class="right chat-view" id="chatView">
 			<iframe allowfullscreen="" frameborder="0"
-				src="{{chat.url}}" width="100%" height="100%"
+					ng-src="{{trustSrc(chat.url)}}" width="100%" height="100%"
 			></iframe>
 		</div>
 	</div>

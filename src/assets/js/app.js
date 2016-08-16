@@ -8,6 +8,7 @@
 			'LocalStorageModule',
 			'youtube-embed',
 			'ngYoutubeEmbed',
+			'ngSanitize',
 			//'$window',
 
 			//foundation
@@ -41,7 +42,7 @@
 		FastClick.attach(document.body);
 	}
 
-	appModule.controller('mainController', ['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi) {
+	appModule.controller('mainController', ['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce) {
 
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
@@ -100,6 +101,11 @@
 	/*------------------------------------------------------------------------------------------------------------------
 	 * END Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
+
+		/* Trust external ressource */
+		$scope.trustSrc = function(src) {
+			return $sce.trustAsResourceUrl(src);
+		};
 
 		/* Get data from youtube api via ajax */
 		$scope.getData = function(kind) {
