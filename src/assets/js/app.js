@@ -79,9 +79,7 @@
 			this.url = this.domain + this.id;
 			this.autoplay = true;
 			this.width = 768;
-			this.widthUnit = 'px';
 			this.height = 432;
-			this.heightUnit = 'px'
 		};
 		$scope.chat = new function() {
 			this.domain = 'https://www.youtube.com/live_chat?v=';
@@ -89,10 +87,7 @@
 			this.embedDomain = 'embed_domain=' + 'eruyome.github.io';
 			this.theme = 'dark_theme=1';
 			this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme;
-			this.width = 300;
-			this.widthUnit = 'px';
-			this.height = 432;
-			this.heightUnit = 'px'
+			this.width = 400;
 		};
 		/* ng youtube embed */
 

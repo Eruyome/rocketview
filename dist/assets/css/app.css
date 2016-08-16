@@ -5948,7 +5948,7 @@ body {
   margin-top: 3px; }
 
 .grid-container {
-  max-width: 110rem;
+  max-width: 100rem;
   padding: 1rem; }
 
 .grid-content .grid-block {
@@ -5961,7 +5961,8 @@ body {
   padding: 0 !important; }
 
 .content {
-  padding: 1rem; }
+  padding: 1rem;
+  min-height: 600px; }
 
 .broadcastState {
   color: red;
@@ -5997,7 +5998,9 @@ body {
       height: 100%;
       opacity: 0;
       background-color: rgba(0, 0, 0, 0.5);
-      position: absolute; }
+      position: absolute;
+      top: 0;
+      left: 0; }
       .videolist-container .videolist-item .hover-play div {
         opacity: 1;
         width: 100%;
@@ -6083,8 +6086,8 @@ body {
   display: flex; }
 
 .right {
-  -ms-flex: 0 0 300px;
-      flex: 0 0 300px; }
+  -ms-flex: 0 0 400px;
+      flex: 0 0 400px; }
 
 .left {
   -ms-flex: 1;

@@ -84,7 +84,7 @@ body {
 }
 
 .grid-container {
-	max-width: 110rem;
+	max-width: 100rem;
 	padding: 1rem;
 }
 .grid-content .grid-block {
@@ -100,6 +100,7 @@ body {
 
 .content {
 	padding: 1rem;
+	min-height: 600px;
 }
 
 .broadcastState {
@@ -144,6 +145,8 @@ body {
 			opacity: 0;
 			background-color: rgba(0,0,0,.5);
 			position: absolute;
+			top: 0;
+			left: 0;
 			div {
 				opacity: 1;
 				width: 100%;
@@ -255,7 +258,7 @@ body {
 	display: flex;
 }
 .right {
-	flex: 0 0 300px;
+	flex: 0 0 400px;
 }
 .left {
 	flex: 1;
