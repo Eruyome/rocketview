@@ -86,7 +86,7 @@
 		$scope.chat = new function() {
 			this.domain = 'https://www.youtube.com/live_chat?v=';
 			this.id = $scope.streamVideoId;
-			this.embedDomain = 'embed_domain=' + 'www.eruyome.github.io';
+			this.embedDomain = 'embed_domain=' + 'eruyome.github.io';
 			this.theme = 'dark_theme=1';
 			this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme;
 			this.width = 300;
