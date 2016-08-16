@@ -10250,7 +10250,7 @@ return jQuery;
 
 		/* Get data from youtube api via ajax */
 		$scope.getData = function(kind) {
-			if (typeof debugDevBuild === 'undefined') {
+			if (typeof debugKey === 'undefined' || document.location.hostname != "localhost") {
 				var key = "AIzaSyDkGP7Qktvas2tkDhNIwHVLwMXvvxys50o";
 			}
 			else {

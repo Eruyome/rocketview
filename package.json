@@ -3,7 +3,8 @@
   "version": "1.2.0",
   "scripts": {
     "start": "gulp",
-    "build": "gulp build --production"
+    "build": "gulp build --production",
+    "deploy": "gulp build --production && gulp deploy"
   },
   "devDependencies": {
     "angular-local-storage": "^0.2.7",
