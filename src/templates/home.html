@@ -25,10 +25,16 @@ url: /
 				</div>
 			</div>
 
-			<a href="#" id="chad" ng-click="toggleChat()" class="toggleChatButton float-right">
-				<span class="description">Toggle Chad</span>
-				<span class="icon"><img zf-iconic="" icon="Comment-square" size="middle" class=""></span>
-			</a>
+			<div class="video-chat-controls">
+				<a href="#" id="playLive" ng-click="changeVideo(streamVideoId)" class="playLiveButton float-left">
+					Play Live-Stream
+				</a>
+				<a href="#" id="chad" ng-click="toggleChat()" class="toggleChatButton float-right">
+					<span class="description">Toggle Chad</span>
+					<span class="icon"><img zf-iconic="" icon="Comment-square" size="middle" class=""></span>
+				</a>
+			</div>
+
 		</div>
 
 		<div class="right chat-view" id="chatView">
@@ -38,12 +44,21 @@ url: /
 		</div>
 	</div>
 
-	<div zf-panel="" id="chatPanel" position="right">
-
-	</div>
-
 	<div class="content grid-block">
-		<label>Search: <input ng-model="searchText"></label>
+		<div class="grid-block">
+			<label class="vlist-controls">
+				<span class="inline-label">
+					<span class="form-label">Filter</span>
+					<input type="text" ng-model="searchText" placeholder="Search">
+					<span class="form-label">Latest Videos</span>
+					<a href="#" class="button" ng-click="getData('vList')" title="Reloads List every 5min automatically."
+					   >
+						<img zf-iconic="" icon="Reload" size="small" class="">
+					</a>
+				</span>
+			</label>
+		</div>
+
 		<div class="grid-block videolist-container">
 			<div class="grid-block videolist">
 				<div vlistitem  ng-repeat="(key, item) in data.vList | filter:{snippet:{title:searchText}}"></div>
@@ -51,5 +66,31 @@ url: /
 		</div>
 	</div>
 
+	<a class="button" href="#" title="My notification" content="Notification example" color="success"
+	   autoclose="3000" zf-notify="refresh-notifications">Dynamic Notification</a>
+	<zf-notification-set id="refresh-notifications" position="top-left"></zf-notification-set>
+
+
 	<div class="screenWidthCheck-640"></div>
+</div>
+
+<div class="footer">
+	<a zf-open="showDisclaimerModal" class="">About</a>
+</div>
+
+<!-- Show Disclaimer Modal -->
+<div zf-modal="" id="showDisclaimerModal">
+	<a zf-close="" class="close-button">×</a>
+	<h3>About</h3>
+	<p>This site is fan-made and not affiliated with Rocket BEANS Entertainment GmbH in any way. RocketView is fully open source under GNU General Public License v2.0.</p>
+
+	<zf-accordion class="">
+		<zf-accordion-item title="Image Attributions">
+			<ul>
+				<li>
+					<div>"play" icon made by <a href="http://www.flaticon.com/authors/elegant-themes" title="Elegant Themes">Elegant Themes</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+				</li>
+			</ul>
+		</zf-accordion-item>
+	</zf-accordion>
 </div>

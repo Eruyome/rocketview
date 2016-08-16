@@ -1,7 +1,8 @@
 <div class="grid-block videolist-item">
-	<a class="grid-block vimage">
+	<a class="grid-block vimage" ng-click="changeVideo(item.id.videoId)">
 		<img src="{{item.snippet.thumbnails.medium.url}}"/>
 		<span class="duration"></span>
+		<div class="hover-play"><div></div></div>
 	</a>
 	<div class="grid-block">
 		<a class="vtitle" ng-click="changeVideo(item.id.videoId)" title="{{item.snippet.title}}">

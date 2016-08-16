@@ -54,9 +54,13 @@ var paths = {
 	],
 	// These files are for your app's JavaScript
 	appJS: [
+		'src/assets/js/util.js',
 		(isProduction) ? '' : 'src/assets/js/debug.js',
 		'bower_components/jquery/dist/jquery.js',
 		'src/assets/js/app.js'
+	],
+	vendorCSS: [
+
 	]
 };
 
@@ -109,6 +113,16 @@ gulp.task('copy:foundation', function (cb) {
 	cb();
 });
 
+// Copy images
+gulp.task('copy:images', function (cb) {
+	// Asset icons
+	gulp.src('./src/assets/img/**/*.+(jpg|jpeg|gif|png|svg)')
+		.pipe(gulp.dest('./dist/assets/img/'))
+	;
+
+	cb();
+});
+
 // Compiles Sass
 gulp.task('sass', function () {
 	var minifyCss = $.if(isProduction, $.minifyCss());
@@ -127,8 +141,18 @@ gulp.task('sass', function () {
 		;
 });
 
+// Vendor CSS
+gulp.task('css', function() {
+	var minifyCss = $.if(isProduction, $.minifyCss());
+
+	return gulp.src(paths.vendorCSS)
+		.pipe($.concat('vendor.css'))
+		.pipe(minifyCss)
+		.pipe(gulp.dest('./dist/assets/css/'));
+});
+
 // Compiles and copies the Foundation for Apps JavaScript, as well as your app's custom JS
-gulp.task('uglify', ['uglify:foundation', 'uglify:app'])
+gulp.task('uglify', ['uglify:foundation', 'uglify:app']);
 
 gulp.task('uglify:foundation', function (cb) {
 	var uglify = $.if(isProduction, $.uglify()
@@ -227,4 +251,7 @@ gulp.task('default', ['server'], function () {
 
 	// Watch app templates
 	gulp.watch(['./src/templates/**/*.html'], ['copy:templates']);
+
+	// Watch Images
+	gulp.watch(['./client/assets/img/**/*', './img/**/*.+(jpg|jpeg|gif|png|svg)'], ['copy:images']);
 });

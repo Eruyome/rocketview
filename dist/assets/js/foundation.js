@@ -54162,268 +54162,6 @@ angular.module('markdown', [])
   }
 })();
 
-(function() {
-  'use strict';
-
-  angular.module('foundation.interchange', ['foundation.core', 'foundation.mediaquery'])
-    .directive('zfInterchange', zfInterchange)
-  ;
-
-  zfInterchange.$inject = [ '$compile', '$http', '$templateCache', 'FoundationApi', 'FoundationMQ'];
-
-  function zfInterchange($compile, $http, $templateCache, foundationApi, foundationMQ) {
-
-    var directive = {
-      restrict: 'EA',
-      transclude: 'element',
-      scope: {
-        position: '@'
-      },
-      replace: true,
-      template: '<div></div>',
-      link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, ctrl, transclude) {
-      var childScope, current, scenarios, innerTemplates;
-
-      var globalQueries = foundationMQ.getMediaQueries();
-
-      //setup
-      foundationApi.subscribe('resize', function(msg) {
-        transclude(function(clone, newScope) {
-          if(!scenarios || !innerTemplates) {
-            collectInformation(clone);
-          }
-
-          var ruleMatches = foundationMQ.match(scenarios);
-          var scenario = ruleMatches.length === 0 ? null : scenarios[ruleMatches[0].ind];
-
-          //this could use some love
-          if(scenario && checkScenario(scenario)) {
-            var compiled;
-
-            if(childScope) {
-              childScope.$destroy();
-              childScope = null;
-            }
-
-            if(typeof scenario.templ !== 'undefined') {
-              childScope = newScope;
-
-              //temp container
-              var tmp = document.createElement('div');
-              tmp.appendChild(innerTemplates[scenario.templ][0]);
-
-              element.html(tmp.innerHTML);
-              $compile(element.contents())(childScope);
-              current = scenario;
-            } else {
-              var loader = templateLoader(scenario.src);
-              loader.success(function(html) {
-                childScope = newScope;
-                element.html(html);
-              }).then(function(){
-                $compile(element.contents())(childScope);
-                current = scenario;
-              });
-            }
-          }
-        });
-
-      });
-
-      //init
-      foundationApi.publish('resize', 'initial resize');
-
-      function templateLoader(templateUrl) {
-        return $http.get(templateUrl, {cache: $templateCache});
-      }
-
-      function collectInformation(el) {
-        var data = foundationMQ.collectScenariosFromElement(el);
-
-        scenarios = data.scenarios;
-        innerTemplates = data.templates;
-      }
-
-      function checkScenario(scenario) {
-        return !current || current !== scenario;
-      }
-    }
-  }
-
-  angular.module('foundation.interchange')
-  /*
-   * Final directive to perform media queries, other directives set up this one
-   * (See: http://stackoverflow.com/questions/19224028/add-directives-from-directive-in-angularjs)
-   */
-    .directive('zfQuery', zfQuery)
-  /*
-   * zf-if / zf-show / zf-hide
-   */
-    .directive('zfIf', zfQueryDirective('ng-if', 'zf-if'))
-    .directive('zfShow', zfQueryDirective('ng-show', 'zf-show'))
-    .directive('zfHide', zfQueryDirective('ng-hide', 'zf-hide'))
-  ;
-
-  /*
-   * This directive will configure ng-if/ng-show/ng-hide and zf-query directives and then recompile the element
-   */
-  function zfQueryDirective(angularDirective, directiveName) {
-    return ['$compile', 'FoundationApi', function ($compile, foundationApi) {
-      // create unique scope property for media query result, must be unique to avoid collision with other zf-query directives
-      // property set upon element compilation or else all similar directives (i.e. zf-if-*/zf-show-*/zf-hide-*) will get the same value
-      var queryResult;
-
-      return {
-        priority: 1000, // must compile directive before any others
-        terminal: true, // don't compile any other directive after this
-                        // we'll fix this with a recompile
-        restrict: 'A',
-        compile: compile
-      };
-
-      // From here onward, scope[queryResult] refers to the result of running the provided query
-      function compile(element, attrs) {
-        var previousParam;
-
-        // set unique property
-        queryResult = (directiveName + foundationApi.generateUuid()).replace(/-/g,'');
-
-        // set default configuration
-        element.attr('zf-query-not', false);
-        element.attr('zf-query-only', false);
-        element.attr('zf-query-or-smaller', false);
-        element.attr('zf-query-scope-prop', queryResult);
-
-        // parse directive attribute for query parameters
-        element.attr(directiveName).split(' ').forEach(function(param) {
-          if (param) {
-            // add zf-query directive and configuration attributes
-            switch (param) {
-              case "not":
-                element.attr('zf-query-not', true);
-                element.attr('zf-query-only', true);
-                break;
-              case "only":
-                element.attr('zf-query-only', true);
-                break;
-              case "or":
-                break;
-              case "smaller":
-                // allow usage of smaller keyword if preceeded by 'or' keyword
-                if (previousParam === "or") {
-                  element.attr('zf-query-or-smaller', true);
-                }
-                break;
-              default:
-                element.attr('zf-query', param);
-                break;
-            }
-
-            previousParam = param;
-          }
-        });
-
-        // add/update angular directive
-        if (!element.attr(angularDirective)) {
-          element.attr(angularDirective, queryResult);
-        } else {
-          element.attr(angularDirective, queryResult + ' && (' + element.attr(angularDirective) + ')');
-        }
-
-        // remove directive from current element to avoid infinite recompile
-        element.removeAttr(directiveName);
-        element.removeAttr('data-' + directiveName);
-
-        return {
-          pre: function (scope, element, attrs) {
-          },
-          post: function (scope, element, attrs) {
-            // recompile
-            $compile(element)(scope);
-          }
-        };
-      }
-    }];
-  }
-
-  zfQuery.$inject = ['FoundationApi', 'FoundationMQ'];
-  function zfQuery(foundationApi, foundationMQ) {
-    return {
-      priority: 601, // must compile before ng-if (600)
-      restrict: 'A',
-      compile: function compile(element, attrs) {
-        return compileWrapper(attrs['zfQueryScopeProp'],
-                              attrs['zfQuery'],
-                              attrs['zfQueryOnly'] === "true",
-                              attrs['zfQueryNot'] === "true",
-                              attrs['zfQueryOrSmaller'] === "true");
-      }
-    };
-
-    // parameters will be populated with values provided from zf-query-* attributes
-    function compileWrapper(queryResult, namedQuery, queryOnly, queryNot, queryOrSmaller) {
-      // set defaults
-      queryOnly = queryOnly || false;
-      queryNot = queryNot || false;
-
-      return {
-        pre: preLink,
-        post: postLink
-      };
-
-      // From here onward, scope[queryResult] refers to the result of running the provided query
-      function preLink(scope, element, attrs) {
-        // initially set media query result to false
-        scope[queryResult] = false;
-      }
-
-      function postLink(scope, element, attrs) {
-        // subscribe for resize events
-        foundationApi.subscribe('resize', function() {
-          var orignalVisibilty = scope[queryResult];
-          runQuery();
-          if (orignalVisibilty != scope[queryResult]) {
-            // digest if visibility changed
-            scope.$digest();
-          }
-        });
-
-        scope.$on("$destroy", function() {
-          foundationApi.unsubscribe('resize');
-        });
-
-        // run first media query check
-        runQuery();
-
-        function runQuery() {
-          if (!queryOnly) {
-            if (!queryOrSmaller) {
-              // Check if matches media or LARGER
-              scope[queryResult] = foundationMQ.matchesMedia(namedQuery);
-            } else {
-              // Check if matches media or SMALLER
-              scope[queryResult] = foundationMQ.matchesMediaOrSmaller(namedQuery);
-            }
-          } else {
-            if (!queryNot) {
-              // Check that media ONLY matches named query and nothing else
-              scope[queryResult] = foundationMQ.matchesMediaOnly(namedQuery);
-            } else {
-              // Check that media does NOT match named query
-              scope[queryResult] = !foundationMQ.matchesMediaOnly(namedQuery);
-            }
-          }
-        }
-      }
-    }
-  }
-})();
-
 (function () {
   'use strict';
 
@@ -54688,326 +54426,263 @@ angular.module('markdown', [])
 (function() {
   'use strict';
 
-  angular.module('foundation.modal', ['foundation.core'])
-    .directive('zfModal', modalDirective)
-    .factory('ModalFactory', ModalFactory)
-    .service('FoundationModal', FoundationModal)
+  angular.module('foundation.interchange', ['foundation.core', 'foundation.mediaquery'])
+    .directive('zfInterchange', zfInterchange)
   ;
 
-  FoundationModal.$inject = ['FoundationApi', 'ModalFactory'];
+  zfInterchange.$inject = [ '$compile', '$http', '$templateCache', 'FoundationApi', 'FoundationMQ'];
 
-  function FoundationModal(foundationApi, ModalFactory) {
-    var service    = {};
-
-    service.activate = activate;
-    service.deactivate = deactivate;
-    service.newModal = newModal;
-
-    return service;
-
-    //target should be element ID
-    function activate(target) {
-      foundationApi.publish(target, 'show');
-    }
-
-    //target should be element ID
-    function deactivate(target) {
-      foundationApi.publish(target, 'hide');
-    }
-
-    //new modal has to be controlled via the new instance
-    function newModal(config) {
-      return new ModalFactory(config);
-    }
-  }
-
-  modalDirective.$inject = ['FoundationApi'];
-
-  function modalDirective(foundationApi) {
+  function zfInterchange($compile, $http, $templateCache, foundationApi, foundationMQ) {
 
     var directive = {
       restrict: 'EA',
-      templateUrl: 'components/modal/modal.html',
-      transclude: true,
-      scope: true,
+      transclude: 'element',
+      scope: {
+        position: '@'
+      },
       replace: true,
-      compile: compile
+      template: '<div></div>',
+      link: link
     };
 
     return directive;
 
-    function compile(tElement, tAttrs, transclude) {
-      var type = 'modal';
+    function link(scope, element, attrs, ctrl, transclude) {
+      var childScope, current, scenarios, innerTemplates;
+
+      var globalQueries = foundationMQ.getMediaQueries();
+
+      //setup
+      foundationApi.subscribe('resize', function(msg) {
+        transclude(function(clone, newScope) {
+          if(!scenarios || !innerTemplates) {
+            collectInformation(clone);
+          }
+
+          var ruleMatches = foundationMQ.match(scenarios);
+          var scenario = ruleMatches.length === 0 ? null : scenarios[ruleMatches[0].ind];
+
+          //this could use some love
+          if(scenario && checkScenario(scenario)) {
+            var compiled;
+
+            if(childScope) {
+              childScope.$destroy();
+              childScope = null;
+            }
+
+            if(typeof scenario.templ !== 'undefined') {
+              childScope = newScope;
+
+              //temp container
+              var tmp = document.createElement('div');
+              tmp.appendChild(innerTemplates[scenario.templ][0]);
+
+              element.html(tmp.innerHTML);
+              $compile(element.contents())(childScope);
+              current = scenario;
+            } else {
+              var loader = templateLoader(scenario.src);
+              loader.success(function(html) {
+                childScope = newScope;
+                element.html(html);
+              }).then(function(){
+                $compile(element.contents())(childScope);
+                current = scenario;
+              });
+            }
+          }
+        });
+
+      });
+
+      //init
+      foundationApi.publish('resize', 'initial resize');
+
+      function templateLoader(templateUrl) {
+        return $http.get(templateUrl, {cache: $templateCache});
+      }
+
+      function collectInformation(el) {
+        var data = foundationMQ.collectScenariosFromElement(el);
+
+        scenarios = data.scenarios;
+        innerTemplates = data.templates;
+      }
+
+      function checkScenario(scenario) {
+        return !current || current !== scenario;
+      }
+    }
+  }
+
+  angular.module('foundation.interchange')
+  /*
+   * Final directive to perform media queries, other directives set up this one
+   * (See: http://stackoverflow.com/questions/19224028/add-directives-from-directive-in-angularjs)
+   */
+    .directive('zfQuery', zfQuery)
+  /*
+   * zf-if / zf-show / zf-hide
+   */
+    .directive('zfIf', zfQueryDirective('ng-if', 'zf-if'))
+    .directive('zfShow', zfQueryDirective('ng-show', 'zf-show'))
+    .directive('zfHide', zfQueryDirective('ng-hide', 'zf-hide'))
+  ;
+
+  /*
+   * This directive will configure ng-if/ng-show/ng-hide and zf-query directives and then recompile the element
+   */
+  function zfQueryDirective(angularDirective, directiveName) {
+    return ['$compile', 'FoundationApi', function ($compile, foundationApi) {
+      // create unique scope property for media query result, must be unique to avoid collision with other zf-query directives
+      // property set upon element compilation or else all similar directives (i.e. zf-if-*/zf-show-*/zf-hide-*) will get the same value
+      var queryResult;
+
+      return {
+        priority: 1000, // must compile directive before any others
+        terminal: true, // don't compile any other directive after this
+                        // we'll fix this with a recompile
+        restrict: 'A',
+        compile: compile
+      };
+
+      // From here onward, scope[queryResult] refers to the result of running the provided query
+      function compile(element, attrs) {
+        var previousParam;
+
+        // set unique property
+        queryResult = (directiveName + foundationApi.generateUuid()).replace(/-/g,'');
+
+        // set default configuration
+        element.attr('zf-query-not', false);
+        element.attr('zf-query-only', false);
+        element.attr('zf-query-or-smaller', false);
+        element.attr('zf-query-scope-prop', queryResult);
+
+        // parse directive attribute for query parameters
+        element.attr(directiveName).split(' ').forEach(function(param) {
+          if (param) {
+            // add zf-query directive and configuration attributes
+            switch (param) {
+              case "not":
+                element.attr('zf-query-not', true);
+                element.attr('zf-query-only', true);
+                break;
+              case "only":
+                element.attr('zf-query-only', true);
+                break;
+              case "or":
+                break;
+              case "smaller":
+                // allow usage of smaller keyword if preceeded by 'or' keyword
+                if (previousParam === "or") {
+                  element.attr('zf-query-or-smaller', true);
+                }
+                break;
+              default:
+                element.attr('zf-query', param);
+                break;
+            }
+
+            previousParam = param;
+          }
+        });
+
+        // add/update angular directive
+        if (!element.attr(angularDirective)) {
+          element.attr(angularDirective, queryResult);
+        } else {
+          element.attr(angularDirective, queryResult + ' && (' + element.attr(angularDirective) + ')');
+        }
+
+        // remove directive from current element to avoid infinite recompile
+        element.removeAttr(directiveName);
+        element.removeAttr('data-' + directiveName);
+
+        return {
+          pre: function (scope, element, attrs) {
+          },
+          post: function (scope, element, attrs) {
+            // recompile
+            $compile(element)(scope);
+          }
+        };
+      }
+    }];
+  }
+
+  zfQuery.$inject = ['FoundationApi', 'FoundationMQ'];
+  function zfQuery(foundationApi, foundationMQ) {
+    return {
+      priority: 601, // must compile before ng-if (600)
+      restrict: 'A',
+      compile: function compile(element, attrs) {
+        return compileWrapper(attrs['zfQueryScopeProp'],
+                              attrs['zfQuery'],
+                              attrs['zfQueryOnly'] === "true",
+                              attrs['zfQueryNot'] === "true",
+                              attrs['zfQueryOrSmaller'] === "true");
+      }
+    };
+
+    // parameters will be populated with values provided from zf-query-* attributes
+    function compileWrapper(queryResult, namedQuery, queryOnly, queryNot, queryOrSmaller) {
+      // set defaults
+      queryOnly = queryOnly || false;
+      queryNot = queryNot || false;
 
       return {
         pre: preLink,
         post: postLink
       };
 
-      function preLink(scope, iElement, iAttrs, controller) {
-          iAttrs.$set('zf-closable', type);
+      // From here onward, scope[queryResult] refers to the result of running the provided query
+      function preLink(scope, element, attrs) {
+        // initially set media query result to false
+        scope[queryResult] = false;
       }
 
       function postLink(scope, element, attrs) {
-        var dialog = angular.element(element.children()[0]);
-        var animateFn = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
-
-        scope.active = scope.active || false;
-        scope.overlay = attrs.overlay === 'false' ? false : true;
-        scope.overlayClose = attrs.overlayClose === 'false' ? false : true;
-
-        var animationIn = attrs.animationIn || 'fadeIn';
-        var animationOut = attrs.animationOut || 'fadeOut';
-
-        var overlayIn = 'fadeIn';
-        var overlayOut = 'fadeOut';
-
-        scope.hideOverlay = function() {
-          if(scope.overlayClose) {
-            foundationApi.publish(attrs.id, 'close');
+        // subscribe for resize events
+        foundationApi.subscribe('resize', function() {
+          var orignalVisibilty = scope[queryResult];
+          runQuery();
+          if (orignalVisibilty != scope[queryResult]) {
+            // digest if visibility changed
+            scope.$digest();
           }
-        };
-
-        scope.hide = function() {
-          scope.active = false;
-          animate();
-          return;
-        };
-
-        scope.show = function() {
-          scope.active = true;
-          animate();
-          dialog.tabIndex = -1;
-          dialog[0].focus();
-          return;
-        };
-
-        scope.toggle = function() {
-          scope.active = !scope.active;
-          animate();
-          return;
-        };
-
-        init();
-
-        //setup
-        foundationApi.subscribe(attrs.id, function(msg) {
-          if(msg === 'show' || msg === 'open') {
-            scope.show();
-          } else if (msg === 'close' || msg === 'hide') {
-            scope.hide();
-          } else if (msg === 'toggle') {
-            scope.toggle();
-          }
-
-          if (scope.$root && !scope.$root.$$phase) {
-            scope.$apply();
-          }
-
-          return;
         });
 
-        function animate() {
-          //animate both overlay and dialog
-          if(!scope.overlay) {
-            element.css('background', 'transparent');
-          }
+        scope.$on("$destroy", function() {
+          foundationApi.unsubscribe('resize');
+        });
 
-          // work around for modal animations
-          // due to a bug where the overlay fadeIn is essentially covering up
-          // the dialog's animation
-          if (!scope.active) {
-            animateFn(element, scope.active, overlayIn, overlayOut);
-          }
-          else {
-            element.addClass('is-active');
-          }
+        // run first media query check
+        runQuery();
 
-          animateFn(dialog, scope.active, animationIn, animationOut);
-        }
-
-        function init() {
-          if(scope.active) {
-            scope.show();
+        function runQuery() {
+          if (!queryOnly) {
+            if (!queryOrSmaller) {
+              // Check if matches media or LARGER
+              scope[queryResult] = foundationMQ.matchesMedia(namedQuery);
+            } else {
+              // Check if matches media or SMALLER
+              scope[queryResult] = foundationMQ.matchesMediaOrSmaller(namedQuery);
+            }
+          } else {
+            if (!queryNot) {
+              // Check that media ONLY matches named query and nothing else
+              scope[queryResult] = foundationMQ.matchesMediaOnly(namedQuery);
+            } else {
+              // Check that media does NOT match named query
+              scope[queryResult] = !foundationMQ.matchesMediaOnly(namedQuery);
+            }
           }
         }
       }
     }
   }
-
-  ModalFactory.$inject = ['$http', '$templateCache', '$rootScope', '$compile', '$timeout', '$q', 'FoundationApi'];
-
-  function ModalFactory($http, $templateCache, $rootScope, $compile, $timeout, $q, foundationApi) {
-    return modalFactory;
-
-    function modalFactory(config) {
-      var self = this, //for prototype functions
-          container = angular.element(config.container || document.body),
-          id = config.id || foundationApi.generateUuid(),
-          attached = false,
-          destroyed = false,
-          html,
-          element,
-          fetched,
-          scope,
-          contentScope
-      ;
-
-      var props = [
-        'animationIn',
-        'animationOut',
-        'overlay',
-        'overlayClose',
-        'class'
-      ];
-
-      if(config.templateUrl) {
-        //get template
-        fetched = $http.get(config.templateUrl, {
-          cache: $templateCache
-        }).then(function (response) {
-          html = response.data;
-          assembleDirective();
-        });
-
-      } else if(config.template) {
-        //use provided template
-        fetched = true;
-        html = config.template;
-        assembleDirective();
-      }
-
-      self.activate = activate;
-      self.deactivate = deactivate;
-      self.toggle = toggle;
-      self.destroy = destroy;
-
-
-      return {
-        isActive: isActive,
-        activate: activate,
-        deactivate: deactivate,
-        toggle: toggle,
-        destroy: destroy
-      };
-
-      function checkStatus() {
-        if(destroyed) {
-          throw "Error: Modal was destroyed. Delete the object and create a new ModalFactory instance."
-        }
-      }
-
-      function isActive() {
-        return !destroyed && scope && scope.active === true;
-      }
-
-      function activate() {
-        checkStatus();
-        $timeout(function() {
-          init(true);
-          foundationApi.publish(id, 'show');
-        }, 0, false);
-      }
-
-      function deactivate() {
-        checkStatus();
-        $timeout(function() {
-          init(false);
-          foundationApi.publish(id, 'hide');
-        }, 0, false);
-      }
-
-      function toggle() {
-        checkStatus();
-        $timeout(function() {
-          init(true);
-          foundationApi.publish(id, 'toggle');
-        }, 0, false);
-      }
-
-      function init(state) {
-        $q.when(fetched).then(function() {
-          if(!attached && html.length > 0) {
-            var modalEl = container.append(element);
-
-            $compile(element)(scope);
-
-            attached = true;
-          }
-
-          scope.active = state;
-        });
-      }
-
-      function assembleDirective() {
-        // check for duplicate elements to prevent factory from cloning modals
-        if (document.getElementById(id)) {
-          return;
-        }
-
-        html = '<zf-modal id="' + id + '">' + html + '</zf-modal>';
-
-        element = angular.element(html);
-
-        scope = $rootScope.$new();
-
-        // account for directive attributes and modal classes
-        for(var i = 0; i < props.length; i++) {
-          var prop = props[i];
-
-          if(config[prop]) {
-            switch (prop) {
-              case 'animationIn':
-                element.attr('animation-in', config[prop]);
-                break;
-              case 'animationOut':
-                element.attr('animation-out', config[prop]);
-                break;
-              case 'overlayClose':
-                element.attr('overlay-close', config[prop] === 'false' ? 'false' : 'true'); // must be string, see postLink() above
-                break;
-              case 'class':
-                if (angular.isString(config[prop])) {
-                  config[prop].split(' ').forEach(function(klass) {
-                    element.addClass(klass);
-                  });
-                } else if (angular.isArray(config[prop])) {
-                  config[prop].forEach(function(klass) {
-                    element.addClass(klass);
-                  });
-                }
-                break;
-              default:
-                element.attr(prop, config[prop]);
-                break;
-            }
-          }
-        }
-        // access view scope variables
-        if (config.contentScope) {
-          contentScope = config.contentScope;
-          for (var prop in config.contentScope) {
-            if (config.contentScope.hasOwnProperty(prop)) {
-              scope[prop] = config.contentScope[prop];
-            }
-          }
-        }
-      }
-
-      function destroy() {
-        self.deactivate();
-        $timeout(function() {
-          scope.$destroy();
-          element.remove();
-          destroyed = true;
-        }, 0, false);
-        foundationApi.unsubscribe(id);
-      }
-
-    }
-
-  }
-
 })();
 
 (function() {
@@ -55435,6 +55110,331 @@ angular.module('markdown', [])
     }
 
   }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('foundation.modal', ['foundation.core'])
+    .directive('zfModal', modalDirective)
+    .factory('ModalFactory', ModalFactory)
+    .service('FoundationModal', FoundationModal)
+  ;
+
+  FoundationModal.$inject = ['FoundationApi', 'ModalFactory'];
+
+  function FoundationModal(foundationApi, ModalFactory) {
+    var service    = {};
+
+    service.activate = activate;
+    service.deactivate = deactivate;
+    service.newModal = newModal;
+
+    return service;
+
+    //target should be element ID
+    function activate(target) {
+      foundationApi.publish(target, 'show');
+    }
+
+    //target should be element ID
+    function deactivate(target) {
+      foundationApi.publish(target, 'hide');
+    }
+
+    //new modal has to be controlled via the new instance
+    function newModal(config) {
+      return new ModalFactory(config);
+    }
+  }
+
+  modalDirective.$inject = ['FoundationApi'];
+
+  function modalDirective(foundationApi) {
+
+    var directive = {
+      restrict: 'EA',
+      templateUrl: 'components/modal/modal.html',
+      transclude: true,
+      scope: true,
+      replace: true,
+      compile: compile
+    };
+
+    return directive;
+
+    function compile(tElement, tAttrs, transclude) {
+      var type = 'modal';
+
+      return {
+        pre: preLink,
+        post: postLink
+      };
+
+      function preLink(scope, iElement, iAttrs, controller) {
+          iAttrs.$set('zf-closable', type);
+      }
+
+      function postLink(scope, element, attrs) {
+        var dialog = angular.element(element.children()[0]);
+        var animateFn = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
+
+        scope.active = scope.active || false;
+        scope.overlay = attrs.overlay === 'false' ? false : true;
+        scope.overlayClose = attrs.overlayClose === 'false' ? false : true;
+
+        var animationIn = attrs.animationIn || 'fadeIn';
+        var animationOut = attrs.animationOut || 'fadeOut';
+
+        var overlayIn = 'fadeIn';
+        var overlayOut = 'fadeOut';
+
+        scope.hideOverlay = function() {
+          if(scope.overlayClose) {
+            foundationApi.publish(attrs.id, 'close');
+          }
+        };
+
+        scope.hide = function() {
+          scope.active = false;
+          animate();
+          return;
+        };
+
+        scope.show = function() {
+          scope.active = true;
+          animate();
+          dialog.tabIndex = -1;
+          dialog[0].focus();
+          return;
+        };
+
+        scope.toggle = function() {
+          scope.active = !scope.active;
+          animate();
+          return;
+        };
+
+        init();
+
+        //setup
+        foundationApi.subscribe(attrs.id, function(msg) {
+          if(msg === 'show' || msg === 'open') {
+            scope.show();
+          } else if (msg === 'close' || msg === 'hide') {
+            scope.hide();
+          } else if (msg === 'toggle') {
+            scope.toggle();
+          }
+
+          if (scope.$root && !scope.$root.$$phase) {
+            scope.$apply();
+          }
+
+          return;
+        });
+
+        function animate() {
+          //animate both overlay and dialog
+          if(!scope.overlay) {
+            element.css('background', 'transparent');
+          }
+
+          // work around for modal animations
+          // due to a bug where the overlay fadeIn is essentially covering up
+          // the dialog's animation
+          if (!scope.active) {
+            animateFn(element, scope.active, overlayIn, overlayOut);
+          }
+          else {
+            element.addClass('is-active');
+          }
+
+          animateFn(dialog, scope.active, animationIn, animationOut);
+        }
+
+        function init() {
+          if(scope.active) {
+            scope.show();
+          }
+        }
+      }
+    }
+  }
+
+  ModalFactory.$inject = ['$http', '$templateCache', '$rootScope', '$compile', '$timeout', '$q', 'FoundationApi'];
+
+  function ModalFactory($http, $templateCache, $rootScope, $compile, $timeout, $q, foundationApi) {
+    return modalFactory;
+
+    function modalFactory(config) {
+      var self = this, //for prototype functions
+          container = angular.element(config.container || document.body),
+          id = config.id || foundationApi.generateUuid(),
+          attached = false,
+          destroyed = false,
+          html,
+          element,
+          fetched,
+          scope,
+          contentScope
+      ;
+
+      var props = [
+        'animationIn',
+        'animationOut',
+        'overlay',
+        'overlayClose',
+        'class'
+      ];
+
+      if(config.templateUrl) {
+        //get template
+        fetched = $http.get(config.templateUrl, {
+          cache: $templateCache
+        }).then(function (response) {
+          html = response.data;
+          assembleDirective();
+        });
+
+      } else if(config.template) {
+        //use provided template
+        fetched = true;
+        html = config.template;
+        assembleDirective();
+      }
+
+      self.activate = activate;
+      self.deactivate = deactivate;
+      self.toggle = toggle;
+      self.destroy = destroy;
+
+
+      return {
+        isActive: isActive,
+        activate: activate,
+        deactivate: deactivate,
+        toggle: toggle,
+        destroy: destroy
+      };
+
+      function checkStatus() {
+        if(destroyed) {
+          throw "Error: Modal was destroyed. Delete the object and create a new ModalFactory instance."
+        }
+      }
+
+      function isActive() {
+        return !destroyed && scope && scope.active === true;
+      }
+
+      function activate() {
+        checkStatus();
+        $timeout(function() {
+          init(true);
+          foundationApi.publish(id, 'show');
+        }, 0, false);
+      }
+
+      function deactivate() {
+        checkStatus();
+        $timeout(function() {
+          init(false);
+          foundationApi.publish(id, 'hide');
+        }, 0, false);
+      }
+
+      function toggle() {
+        checkStatus();
+        $timeout(function() {
+          init(true);
+          foundationApi.publish(id, 'toggle');
+        }, 0, false);
+      }
+
+      function init(state) {
+        $q.when(fetched).then(function() {
+          if(!attached && html.length > 0) {
+            var modalEl = container.append(element);
+
+            $compile(element)(scope);
+
+            attached = true;
+          }
+
+          scope.active = state;
+        });
+      }
+
+      function assembleDirective() {
+        // check for duplicate elements to prevent factory from cloning modals
+        if (document.getElementById(id)) {
+          return;
+        }
+
+        html = '<zf-modal id="' + id + '">' + html + '</zf-modal>';
+
+        element = angular.element(html);
+
+        scope = $rootScope.$new();
+
+        // account for directive attributes and modal classes
+        for(var i = 0; i < props.length; i++) {
+          var prop = props[i];
+
+          if(config[prop]) {
+            switch (prop) {
+              case 'animationIn':
+                element.attr('animation-in', config[prop]);
+                break;
+              case 'animationOut':
+                element.attr('animation-out', config[prop]);
+                break;
+              case 'overlayClose':
+                element.attr('overlay-close', config[prop] === 'false' ? 'false' : 'true'); // must be string, see postLink() above
+                break;
+              case 'class':
+                if (angular.isString(config[prop])) {
+                  config[prop].split(' ').forEach(function(klass) {
+                    element.addClass(klass);
+                  });
+                } else if (angular.isArray(config[prop])) {
+                  config[prop].forEach(function(klass) {
+                    element.addClass(klass);
+                  });
+                }
+                break;
+              default:
+                element.attr(prop, config[prop]);
+                break;
+            }
+          }
+        }
+        // access view scope variables
+        if (config.contentScope) {
+          contentScope = config.contentScope;
+          for (var prop in config.contentScope) {
+            if (config.contentScope.hasOwnProperty(prop)) {
+              scope[prop] = config.contentScope[prop];
+            }
+          }
+        }
+      }
+
+      function destroy() {
+        self.deactivate();
+        $timeout(function() {
+          scope.$destroy();
+          element.remove();
+          destroyed = true;
+        }, 0, false);
+        foundationApi.unsubscribe(id);
+      }
+
+    }
+
+  }
+
 })();
 
 (function() {

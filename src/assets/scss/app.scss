@@ -31,8 +31,8 @@ body {
 }
 
 .grid-container {
-	max-width: 90rem;
-	padding: 0.5rem;
+	max-width: 110rem;
+	padding: 1rem;
 }
 .grid-content .grid-block {
 	margin: 0;
@@ -58,14 +58,53 @@ body {
 	padding-right: 5px;
 }
 
+.content.grid-block {
+	padding: 1rem 0;
+}
+
+.vlist-controls {
+	margin: 0;
+	input {
+		height: 2rem;
+	}
+	span, .button {
+		margin: 0;
+	}
+}
+
 .videolist-container {
 	font-size: rem-calc(14px);
+	border: 1px solid #ededed;
+
 	.videolist-item {
 		border: 1px solid #ededed;
 		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 		flex: 0 0 206px;
 		padding: 5px;
 		margin: 5px;
+		position: relative;
+
+		.hover-play {
+			width: 100%;
+			height: 100%;
+			opacity: 0;
+			background-color: rgba(0,0,0,.5);
+			position: absolute;
+			div {
+				opacity: 1;
+				width: 100%;
+				height: 100%;
+				background: url('../img/play-button-silhouette-big-red.png') no-repeat center center;
+			}
+
+			&:hover {
+				opacity: 1;
+			}
+		}
+
+		&:hover {
+			background: rgba(0,0,0,.05);
+		}
 	}
 	.duration {
 		position: absolute;
@@ -81,9 +120,24 @@ body {
 	}
 	.vtitle {
 		padding: 4px 0 4px 0;
+		&:hover {
+			text-decoration: underline;
+		}
 	}
 	.vdate {
 
+	}
+}
+
+.notification {
+	position: absolute;
+	bottom: 30px;
+	left: 30px;
+	background-color: #00558b;
+
+	span.title {
+		font-size: rem-calc(14px);
+		padding: 1rem;
 	}
 }
 
@@ -107,15 +161,33 @@ body {
 	}
 }
 
-.toggleChatButton {
+.video-chat-controls {
+	margin-top: 5px;
+}
+
+.playLiveButton, .toggleChatButton {
 	display: block;
 	height: 30px;
 	padding: 0.5rem 0;
+	@include mq($max-width: 640px){
+		font-size: rem-calc(12px);
+		line-height: 19px;
+	}
+}
+
+.toggleChatButton {
 	text-align: right;
 	svg.iconic.iconic-fluid {
 		height: 20px !important;
 		width: 30px !important;
 	}
+}
+
+.playLiveButton {
+	text-align: left;
+	background-size: 24px;
+	background: url('../img/play-button-silhouette.png') no-repeat left 3px;
+	padding-left: 30px;
 }
 
 .live-container {
@@ -150,30 +222,33 @@ body {
 	border: 0;
 }
 
-.player-container {
-	border: 1px solid green;
-}
-
-.chat {
-	border: 1px solid black;
-}
-
 .embed-responsive {
-	border: 1px solid blue;
-
 	position: relative;
 	padding-bottom: 56.25%;
 	padding-top: 25px;
 	height: 0;
 
 	iframe {
-		border: 1px solid red;
-
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
 
+	}
+}
+
+.chat-view iframe {
+	border: 1px solid black;
+}
+
+
+.footer {
+	text-align: center;
+	background: rgba(0,0,0,.02);
+	border-top: 1px solid rgba(0,0,0,.05);
+	a {
+		padding: 4px;
+		font-size: rem-calc(12px);
 	}
 }

@@ -5909,8 +5909,8 @@ body {
     padding: 0.5rem; } }
 
 .grid-container {
-  max-width: 90rem;
-  padding: 0.5rem; }
+  max-width: 110rem;
+  padding: 1rem; }
 
 .grid-content .grid-block {
   margin: 0; }
@@ -5932,15 +5932,42 @@ body {
   padding-left: 5px;
   padding-right: 5px; }
 
+.content.grid-block {
+  padding: 1rem 0; }
+
+.vlist-controls {
+  margin: 0; }
+  .vlist-controls input {
+    height: 2rem; }
+  .vlist-controls span, .vlist-controls .button {
+    margin: 0; }
+
 .videolist-container {
-  font-size: 0.875rem; }
+  font-size: 0.875rem;
+  border: 1px solid #ededed; }
   .videolist-container .videolist-item {
     border: 1px solid #ededed;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     -ms-flex: 0 0 206px;
         flex: 0 0 206px;
     padding: 5px;
-    margin: 5px; }
+    margin: 5px;
+    position: relative; }
+    .videolist-container .videolist-item .hover-play {
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      position: absolute; }
+      .videolist-container .videolist-item .hover-play div {
+        opacity: 1;
+        width: 100%;
+        height: 100%;
+        background: url("../img/play-button-silhouette-big-red.png") no-repeat center center; }
+      .videolist-container .videolist-item .hover-play:hover {
+        opacity: 1; }
+    .videolist-container .videolist-item:hover {
+      background: rgba(0, 0, 0, 0.05); }
   .videolist-container .duration {
     position: absolute;
     bottom: 5px;
@@ -5952,6 +5979,17 @@ body {
       width: 196px; }
   .videolist-container .vtitle {
     padding: 4px 0 4px 0; }
+    .videolist-container .vtitle:hover {
+      text-decoration: underline; }
+
+.notification {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  background-color: #00558b; }
+  .notification span.title {
+    font-size: 0.875rem;
+    padding: 1rem; }
 
 #chatPanel {
   margin-top: 49px; }
@@ -5969,14 +6007,29 @@ body {
     .screenWidthCheck-640 {
       display: block; } }
 
-.toggleChatButton {
+.video-chat-controls {
+  margin-top: 5px; }
+
+.playLiveButton, .toggleChatButton {
   display: block;
   height: 30px;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0; }
+  @media only screen and (max-width: 640px) {
+    .playLiveButton, .toggleChatButton {
+      font-size: 0.75rem;
+      line-height: 19px; } }
+
+.toggleChatButton {
   text-align: right; }
   .toggleChatButton svg.iconic.iconic-fluid {
     height: 20px !important;
     width: 30px !important; }
+
+.playLiveButton {
+  text-align: left;
+  background-size: 24px;
+  background: url("../img/play-button-silhouette.png") no-repeat left 3px;
+  padding-left: 30px; }
 
 .live-container {
   display: -ms-flexbox;
@@ -6009,22 +6062,25 @@ body {
   height: 100%;
   border: 0; }
 
-.player-container {
-  border: 1px solid green; }
-
-.chat {
-  border: 1px solid black; }
-
 .embed-responsive {
-  border: 1px solid blue;
   position: relative;
   padding-bottom: 56.25%;
   padding-top: 25px;
   height: 0; }
   .embed-responsive iframe {
-    border: 1px solid red;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%; }
+
+.chat-view iframe {
+  border: 1px solid black; }
+
+.footer {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.02);
+  border-top: 1px solid rgba(0, 0, 0, 0.05); }
+  .footer a {
+    padding: 4px;
+    font-size: 0.75rem; }

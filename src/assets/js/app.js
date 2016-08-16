@@ -41,7 +41,7 @@
 		FastClick.attach(document.body);
 	}
 
-	appModule.controller('mainController', ['$scope', '$http', '$timeout', '$location', '$window', 'localStorageService', 'FoundationApi', function ($scope, $http, $timeout, $location, $window, localStorageService, FoundationApi) {
+	appModule.controller('mainController', ['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi) {
 
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
@@ -96,10 +96,12 @@
 		/* ng youtube embed */
 
 		$scope.data = [];
-
+		$scope.tickInterval = 300000;
 	/*------------------------------------------------------------------------------------------------------------------
 	 * END Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
+
+		/* Get data from youtube api via ajax */
 		$scope.getData = function(kind) {
 			if (typeof debugDevBuild === 'undefined') {
 				var key = "AIzaSyDkGP7Qktvas2tkDhNIwHVLwMXvvxys50o";
@@ -138,47 +140,33 @@
 			$http.get(url).
 			success(function(data, status, headers, config) {
 				$scope.data[kind] = data.items;
-				console.log(data);
-				console.log($scope.data);
+				util.out($scope.data, 'log');
 			}).
 			error(function(data, status, headers, config) {
-				// log error
-				console.log(status);
 			});
 		};
 
+		/* Gets called to get video list data in intervals */
+		function reloadVListData() {
+			$scope.getData("vList");
+			util.out("Reloaded video list data.", "info");
+		}
+
+		/* Replace video in iframe */
 		$scope.changeVideo = function (videoId) {
 			$scope.video.id = videoId;
 			$scope.video.url = $scope.video.domain + $scope.video.id;
 			$scope.getData("video");
 		};
 
+		/* Init Load Data */
 		$scope.getData("video");
 		$scope.getData("vList");
+		/* Reload video list data in intervals */
+		$interval(function() {reloadVListData();}, $scope.tickInterval);
 
-		$scope.changePlayerSize = function(newWidth) {
-			$scope.playerWidth = newWidth;
-			$scope.playerHeight = ((newWidth / 16) * 9);
-		};
-
+		/* Toggle Chat display */
 		$scope.chatState = true;
-		$scope.resizeGridFrame = function () {
-			var displayStatus = jQuery('div.screenWidthCheck-640').css('display');
-
-			if ($scope.chatState === false) {
-				jQuery('#uiview').animate({
-					marginRight: (displayStatus == 'none') ? "300px" : "100%"
-				}, 500, 'swing');
-				$scope.chatState = true;
-			} else {
-				jQuery('#uiview').animate({
-					marginRight: "0px"
-				}, 380, 'swing');
-				$scope.chatState = false;
-			}
-			console.log("triggered");
-		};
-
 		$scope.toggleChat = function () {
 			if ($scope.chatState === true) {
 				jQuery('#chatView').hide();
@@ -188,6 +176,7 @@
 				$scope.chatState = true;
 			}
 		};
+
 
 		/*
 		$scope.$watch('buildingCharacter', function(newVal, oldVal){
@@ -206,31 +195,6 @@
 		function getLocalStorage(key) {
 			return localStorageService.get(key);
 		}
-
-
-		/* Helpers */
-		$scope.isUndefined = function (e) {
-			return typeof e === 'undefined';
-		};
-		$scope.isEmpty = function (e) {
-			return e.length;
-		};
-
-		function isEmpty (obj) {
-			if (obj === null) {return true;}
-
-			// Assume if it has a length property with a non-zero value
-			// that that property is correct.
-			if (obj.length > 0)    {return false;}
-			if (obj.length === 0)  {return true;}
-
-			// Otherwise, does it have any properties of its own?
-			// Note that this doesn't handle
-			// toString and valueOf enumeration bugs in IE < 9
-			for (var key in obj) {
-				if (hasOwnProperty.call(obj, key)) {return false;}
-			}
-		}
 	}]);
 
 	/* Directives */
@@ -239,6 +203,15 @@
 			restrict: 'A',
 			templateUrl: 'templates/directives/vlistitem.html',
 			scope: true,
+			replace: true
+		};
+	});
+
+	appModule.directive('notification', function () {
+		return {
+			restrict: 'A',
+			templateUrl: 'templates/directives/notification.html',
+			scope: false,
 			replace: true
 		};
 	});
