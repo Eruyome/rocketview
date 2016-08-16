@@ -4,40 +4,52 @@ url: /
 ---
 
 <div class="grid-container">
-	<div class="content grid-block">
 
-		<div class="grid-block player-container">
-			<h5 class="video-title grid-block medium-12 large-12">
-				<span ng-if="data.video[0].snippet.liveBroadcastContent=='live'" class="broadcastState"
-					  title="Live Übertragung.">Live
-				</span>
-				<span ng-if="data.video[0].snippet.liveBroadcastContent!='live'" class="broadcastState"
-					  title="Video ist aufgezeichnet.">Offline
-				</span>
-				<span>{{data.video[0].snippet.title}}</span>
-			</h5>
-			<div class="float-left">
-				<div class="video grow" id="videoPlayer">
-					<div class="embed-responsive embed-responsive-16by9">
-						<ng-youtube-embed
-								url="video.url" autoplay="{{video.autoplay}}">
-						</ng-youtube-embed>
-					</div>
-				</div>
+	<h5 class="video-title">
+		<span ng-if="data.video[0].snippet.liveBroadcastContent=='live'" class="broadcastState"
+			  title="Live Übertragung.">Live
+		</span>
+		<span ng-if="data.video[0].snippet.liveBroadcastContent!='live'" class="broadcastState"
+			  title="Video ist aufgezeichnet.">Offline
+		</span>
+		<span>{{data.video[0].snippet.title}}</span>
+	</h5>
 
-				<div class="float-right chat shrink">
-					<iframe allowfullscreen="" frameborder="0" height="{{chat.height + chat.heightUnit}}"
-							width="{{chat.width + chat.widthUnit}}"	src="{{chat.url}}"
-					></iframe>
+	<div class="live-container">
+		<div class="left video-view">
+			<div class="video grow" id="videoPlayer">
+				<div class="embed-responsive embed-responsive-16by9">
+					<ng-youtube-embed
+							url="video.url" autoplay="{{video.autoplay}}">
+					</ng-youtube-embed>
 				</div>
 			</div>
+
+			<a href="#" id="chad" ng-click="toggleChat()" class="toggleChatButton float-right">
+				<span class="description">Toggle Chad</span>
+				<span class="icon"><img zf-iconic="" icon="Comment-square" size="middle" class=""></span>
+			</a>
 		</div>
 
-		<div class="grid-block videolist-container">
-			<div class="grid-block videolist" ng-repeat="(key, item) in data.vList">
-				<div vlistitem></div>
-			</div>
+		<div class="right chat-view" id="chatView">
+			<iframe allowfullscreen="" frameborder="0"
+				src="{{chat.url}}" width="100%" height="100%"
+			></iframe>
 		</div>
+	</div>
+
+	<div zf-panel="" id="chatPanel" position="right">
 
 	</div>
+
+	<div class="content grid-block">
+		<label>Search: <input ng-model="searchText"></label>
+		<div class="grid-block videolist-container">
+			<div class="grid-block videolist">
+				<div vlistitem  ng-repeat="(key, item) in data.vList | filter:{snippet:{title:searchText}}"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="screenWidthCheck-640"></div>
 </div>

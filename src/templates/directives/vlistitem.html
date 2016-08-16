@@ -1,10 +1,13 @@
 <div class="grid-block videolist-item">
-	<a class="grid-block vimage"><img src="" title=""/></a>
-	<div class="grid-block ">
-		<a class="vtitle" ng-click="changeVideo(item.id.videoId)">
-			{{item.snippet.title}}
+	<a class="grid-block vimage">
+		<img src="{{item.snippet.thumbnails.medium.url}}"/>
+		<span class="duration"></span>
+	</a>
+	<div class="grid-block">
+		<a class="vtitle" ng-click="changeVideo(item.id.videoId)" title="{{item.snippet.title}}">
+			{{ item.snippet.title | limitTo: 60 }}{{item.snippet.title.length > 60 ? '...' : ''}}
 		</a>
 		<span class="vclicks"></span>
-		<span class="vdate">{{item.snippet.publishedAt}}</span>
+		<span class="vdate">{{item.snippet.publishedAt | date:"dd.MM.yyyy - H:mm'Uhr'"}}</span>
 	</div>
 </div>

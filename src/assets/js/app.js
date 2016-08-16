@@ -41,7 +41,7 @@
 		FastClick.attach(document.body);
 	}
 
-	appModule.controller('mainController', ['$scope', '$http', '$timeout', '$location', '$window', 'localStorageService', function ($scope, $http, $timeout, $location, $window, localStorageService) {
+	appModule.controller('mainController', ['$scope', '$http', '$timeout', '$location', '$window', 'localStorageService', 'FoundationApi', function ($scope, $http, $timeout, $location, $window, localStorageService, FoundationApi) {
 
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
@@ -70,6 +70,7 @@
 		$scope.chatWidthUnit = "px";
 		/* angular youtube embed */
 
+		$scope.searchText = "";
 		/* ng youtube embed */
 		$scope.video =  new function() {
 			this.domain = 'https://www.youtube.com/watch?v=';
@@ -120,8 +121,8 @@
 
 			var vListKind = "search";
 			var vListOrder = "date";
-			var vListMaxResults = 30;
-			var vListParameter = "?" + "part=snippet" + "&id=" + channelId + "&maxResults=" + vListMaxResults + "&order=" + vListOrder + "&key=" + key;
+			var vListMaxResults = 50;
+			var vListParameter = "?" + "part=snippet" + "&channelId=" + channelId + "&maxResults=" + vListMaxResults + "&order=" + vListOrder + "&key=" + key;
 			var getVListData = domain + vListKind + vListParameter;
 
 			if(kind == "channel") {
@@ -160,10 +161,33 @@
 			$scope.playerHeight = ((newWidth / 16) * 9);
 		};
 
-		jQuery(window).resize(function(){
-			$scope.resizeVideoHeight();
-		});
+		$scope.chatState = true;
+		$scope.resizeGridFrame = function () {
+			var displayStatus = jQuery('div.screenWidthCheck-640').css('display');
 
+			if ($scope.chatState === false) {
+				jQuery('#uiview').animate({
+					marginRight: (displayStatus == 'none') ? "300px" : "100%"
+				}, 500, 'swing');
+				$scope.chatState = true;
+			} else {
+				jQuery('#uiview').animate({
+					marginRight: "0px"
+				}, 380, 'swing');
+				$scope.chatState = false;
+			}
+			console.log("triggered");
+		};
+
+		$scope.toggleChat = function () {
+			if ($scope.chatState === true) {
+				jQuery('#chatView').hide();
+				$scope.chatState = false;
+			} else {
+				jQuery('#chatView').show();
+				$scope.chatState = true;
+			}
+		};
 
 		/*
 		$scope.$watch('buildingCharacter', function(newVal, oldVal){

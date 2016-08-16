@@ -32,6 +32,7 @@ body {
 
 .grid-container {
 	max-width: 90rem;
+	padding: 0.5rem;
 }
 .grid-content .grid-block {
 	margin: 0;
@@ -58,12 +59,73 @@ body {
 }
 
 .videolist-container {
+	font-size: rem-calc(14px);
 	.videolist-item {
 		border: 1px solid #ededed;
-		margin-bottom: 0.25rem;
-		border-radius: 2px;
 		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+		flex: 0 0 206px;
+		padding: 5px;
+		margin: 5px;
 	}
+	.duration {
+		position: absolute;
+		bottom: 5px;
+		right: 5px;
+	}
+	.vimage {
+		position: relative;
+		img {
+			height: 110px;
+			width: 196px;
+		}
+	}
+	.vtitle {
+		padding: 4px 0 4px 0;
+	}
+	.vdate {
+
+	}
+}
+
+#chatPanel {
+	margin-top: 49px;
+	@include mq($max-width: 900px){
+		margin-top: 41px;
+	}
+	@include mq($max-width: 579px){
+		margin-top: 33px;
+	}
+}
+
+
+.screenWidthCheck-640 {
+	display: none;
+	visibility: hidden;
+
+	@include mq($max-width: 640px){
+		display: block;
+	}
+}
+
+.toggleChatButton {
+	display: block;
+	height: 30px;
+	padding: 0.5rem 0;
+	text-align: right;
+	svg.iconic.iconic-fluid {
+		height: 20px !important;
+		width: 30px !important;
+	}
+}
+
+.live-container {
+	display: flex;
+}
+.right {
+	flex: 0 0 300px;
+}
+.left {
+	flex: 1;
 }
 
 .embed-responsives {
