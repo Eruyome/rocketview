@@ -5909,7 +5909,8 @@ body {
     padding: 0.5rem; } }
 
 .grid-container {
-  max-width: 90rem; }
+  max-width: 110rem;
+  padding: 1rem; }
 
 .grid-content .grid-block {
   margin: 0; }
@@ -5919,3 +5920,167 @@ body {
 
 .uiview {
   padding: 0 !important; }
+
+.content {
+  padding: 1rem; }
+
+.broadcastState {
+  color: red;
+  display: inline-block;
+  border: 1px solid red;
+  border-radius: 5px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.content.grid-block {
+  padding: 1rem 0; }
+
+.vlist-controls {
+  margin: 0; }
+  .vlist-controls input {
+    height: 2rem; }
+  .vlist-controls span, .vlist-controls .button {
+    margin: 0; }
+
+.videolist-container {
+  font-size: 0.875rem;
+  border: 1px solid #ededed; }
+  .videolist-container .videolist-item {
+    border: 1px solid #ededed;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    -ms-flex: 0 0 206px;
+        flex: 0 0 206px;
+    padding: 5px;
+    margin: 5px;
+    position: relative; }
+    .videolist-container .videolist-item .hover-play {
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      position: absolute; }
+      .videolist-container .videolist-item .hover-play div {
+        opacity: 1;
+        width: 100%;
+        height: 100%;
+        background: url("../img/play-button-silhouette-big-red.png") no-repeat center center; }
+      .videolist-container .videolist-item .hover-play:hover {
+        opacity: 1; }
+    .videolist-container .videolist-item:hover {
+      background: rgba(0, 0, 0, 0.05); }
+  .videolist-container .duration {
+    position: absolute;
+    bottom: 5px;
+    right: 5px; }
+  .videolist-container .vimage {
+    position: relative; }
+    .videolist-container .vimage img {
+      height: 110px;
+      width: 196px; }
+  .videolist-container .vtitle {
+    padding: 4px 0 4px 0; }
+    .videolist-container .vtitle:hover {
+      text-decoration: underline; }
+
+.notification {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  background-color: #00558b; }
+  .notification span.title {
+    font-size: 0.875rem;
+    padding: 1rem; }
+
+#chatPanel {
+  margin-top: 49px; }
+  @media only screen and (max-width: 900px) {
+    #chatPanel {
+      margin-top: 41px; } }
+  @media only screen and (max-width: 579px) {
+    #chatPanel {
+      margin-top: 33px; } }
+
+.screenWidthCheck-640 {
+  display: none;
+  visibility: hidden; }
+  @media only screen and (max-width: 640px) {
+    .screenWidthCheck-640 {
+      display: block; } }
+
+.video-chat-controls {
+  margin-top: 5px; }
+
+.playLiveButton, .toggleChatButton {
+  display: block;
+  height: 30px;
+  padding: 0.5rem 0; }
+  @media only screen and (max-width: 640px) {
+    .playLiveButton, .toggleChatButton {
+      font-size: 0.75rem;
+      line-height: 19px; } }
+
+.toggleChatButton {
+  text-align: right; }
+  .toggleChatButton svg.iconic.iconic-fluid {
+    height: 20px !important;
+    width: 30px !important; }
+
+.playLiveButton {
+  text-align: left;
+  background-size: 24px;
+  background: url("../img/play-button-silhouette.png") no-repeat left 3px;
+  padding-left: 30px; }
+
+.live-container {
+  display: -ms-flexbox;
+  display: flex; }
+
+.right {
+  -ms-flex: 0 0 300px;
+      flex: 0 0 300px; }
+
+.left {
+  -ms-flex: 1;
+      flex: 1; }
+
+.embed-responsives {
+  position: relative;
+  display: block;
+  height: 0;
+  padding: 0;
+  overflow: hidden; }
+
+.embed-responsive.embed-responsive-16by9 {
+  padding-bottom: 56.25%; }
+
+.embed-responsive-item, .embed-responsive iframe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0; }
+
+.embed-responsive {
+  position: relative;
+  padding-bottom: 56.25%;
+  padding-top: 25px;
+  height: 0; }
+  .embed-responsive iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; }
+
+.chat-view iframe {
+  border: 1px solid black; }
+
+.footer {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.02);
+  border-top: 1px solid rgba(0, 0, 0, 0.05); }
+  .footer a {
+    padding: 4px;
+    font-size: 0.75rem; }

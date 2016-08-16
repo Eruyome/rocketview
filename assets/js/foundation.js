@@ -54688,331 +54688,6 @@ angular.module('markdown', [])
 (function() {
   'use strict';
 
-  angular.module('foundation.modal', ['foundation.core'])
-    .directive('zfModal', modalDirective)
-    .factory('ModalFactory', ModalFactory)
-    .service('FoundationModal', FoundationModal)
-  ;
-
-  FoundationModal.$inject = ['FoundationApi', 'ModalFactory'];
-
-  function FoundationModal(foundationApi, ModalFactory) {
-    var service    = {};
-
-    service.activate = activate;
-    service.deactivate = deactivate;
-    service.newModal = newModal;
-
-    return service;
-
-    //target should be element ID
-    function activate(target) {
-      foundationApi.publish(target, 'show');
-    }
-
-    //target should be element ID
-    function deactivate(target) {
-      foundationApi.publish(target, 'hide');
-    }
-
-    //new modal has to be controlled via the new instance
-    function newModal(config) {
-      return new ModalFactory(config);
-    }
-  }
-
-  modalDirective.$inject = ['FoundationApi'];
-
-  function modalDirective(foundationApi) {
-
-    var directive = {
-      restrict: 'EA',
-      templateUrl: 'components/modal/modal.html',
-      transclude: true,
-      scope: true,
-      replace: true,
-      compile: compile
-    };
-
-    return directive;
-
-    function compile(tElement, tAttrs, transclude) {
-      var type = 'modal';
-
-      return {
-        pre: preLink,
-        post: postLink
-      };
-
-      function preLink(scope, iElement, iAttrs, controller) {
-          iAttrs.$set('zf-closable', type);
-      }
-
-      function postLink(scope, element, attrs) {
-        var dialog = angular.element(element.children()[0]);
-        var animateFn = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
-
-        scope.active = scope.active || false;
-        scope.overlay = attrs.overlay === 'false' ? false : true;
-        scope.overlayClose = attrs.overlayClose === 'false' ? false : true;
-
-        var animationIn = attrs.animationIn || 'fadeIn';
-        var animationOut = attrs.animationOut || 'fadeOut';
-
-        var overlayIn = 'fadeIn';
-        var overlayOut = 'fadeOut';
-
-        scope.hideOverlay = function() {
-          if(scope.overlayClose) {
-            foundationApi.publish(attrs.id, 'close');
-          }
-        };
-
-        scope.hide = function() {
-          scope.active = false;
-          animate();
-          return;
-        };
-
-        scope.show = function() {
-          scope.active = true;
-          animate();
-          dialog.tabIndex = -1;
-          dialog[0].focus();
-          return;
-        };
-
-        scope.toggle = function() {
-          scope.active = !scope.active;
-          animate();
-          return;
-        };
-
-        init();
-
-        //setup
-        foundationApi.subscribe(attrs.id, function(msg) {
-          if(msg === 'show' || msg === 'open') {
-            scope.show();
-          } else if (msg === 'close' || msg === 'hide') {
-            scope.hide();
-          } else if (msg === 'toggle') {
-            scope.toggle();
-          }
-
-          if (scope.$root && !scope.$root.$$phase) {
-            scope.$apply();
-          }
-
-          return;
-        });
-
-        function animate() {
-          //animate both overlay and dialog
-          if(!scope.overlay) {
-            element.css('background', 'transparent');
-          }
-
-          // work around for modal animations
-          // due to a bug where the overlay fadeIn is essentially covering up
-          // the dialog's animation
-          if (!scope.active) {
-            animateFn(element, scope.active, overlayIn, overlayOut);
-          }
-          else {
-            element.addClass('is-active');
-          }
-
-          animateFn(dialog, scope.active, animationIn, animationOut);
-        }
-
-        function init() {
-          if(scope.active) {
-            scope.show();
-          }
-        }
-      }
-    }
-  }
-
-  ModalFactory.$inject = ['$http', '$templateCache', '$rootScope', '$compile', '$timeout', '$q', 'FoundationApi'];
-
-  function ModalFactory($http, $templateCache, $rootScope, $compile, $timeout, $q, foundationApi) {
-    return modalFactory;
-
-    function modalFactory(config) {
-      var self = this, //for prototype functions
-          container = angular.element(config.container || document.body),
-          id = config.id || foundationApi.generateUuid(),
-          attached = false,
-          destroyed = false,
-          html,
-          element,
-          fetched,
-          scope,
-          contentScope
-      ;
-
-      var props = [
-        'animationIn',
-        'animationOut',
-        'overlay',
-        'overlayClose',
-        'class'
-      ];
-
-      if(config.templateUrl) {
-        //get template
-        fetched = $http.get(config.templateUrl, {
-          cache: $templateCache
-        }).then(function (response) {
-          html = response.data;
-          assembleDirective();
-        });
-
-      } else if(config.template) {
-        //use provided template
-        fetched = true;
-        html = config.template;
-        assembleDirective();
-      }
-
-      self.activate = activate;
-      self.deactivate = deactivate;
-      self.toggle = toggle;
-      self.destroy = destroy;
-
-
-      return {
-        isActive: isActive,
-        activate: activate,
-        deactivate: deactivate,
-        toggle: toggle,
-        destroy: destroy
-      };
-
-      function checkStatus() {
-        if(destroyed) {
-          throw "Error: Modal was destroyed. Delete the object and create a new ModalFactory instance."
-        }
-      }
-
-      function isActive() {
-        return !destroyed && scope && scope.active === true;
-      }
-
-      function activate() {
-        checkStatus();
-        $timeout(function() {
-          init(true);
-          foundationApi.publish(id, 'show');
-        }, 0, false);
-      }
-
-      function deactivate() {
-        checkStatus();
-        $timeout(function() {
-          init(false);
-          foundationApi.publish(id, 'hide');
-        }, 0, false);
-      }
-
-      function toggle() {
-        checkStatus();
-        $timeout(function() {
-          init(true);
-          foundationApi.publish(id, 'toggle');
-        }, 0, false);
-      }
-
-      function init(state) {
-        $q.when(fetched).then(function() {
-          if(!attached && html.length > 0) {
-            var modalEl = container.append(element);
-
-            $compile(element)(scope);
-
-            attached = true;
-          }
-
-          scope.active = state;
-        });
-      }
-
-      function assembleDirective() {
-        // check for duplicate elements to prevent factory from cloning modals
-        if (document.getElementById(id)) {
-          return;
-        }
-
-        html = '<zf-modal id="' + id + '">' + html + '</zf-modal>';
-
-        element = angular.element(html);
-
-        scope = $rootScope.$new();
-
-        // account for directive attributes and modal classes
-        for(var i = 0; i < props.length; i++) {
-          var prop = props[i];
-
-          if(config[prop]) {
-            switch (prop) {
-              case 'animationIn':
-                element.attr('animation-in', config[prop]);
-                break;
-              case 'animationOut':
-                element.attr('animation-out', config[prop]);
-                break;
-              case 'overlayClose':
-                element.attr('overlay-close', config[prop] === 'false' ? 'false' : 'true'); // must be string, see postLink() above
-                break;
-              case 'class':
-                if (angular.isString(config[prop])) {
-                  config[prop].split(' ').forEach(function(klass) {
-                    element.addClass(klass);
-                  });
-                } else if (angular.isArray(config[prop])) {
-                  config[prop].forEach(function(klass) {
-                    element.addClass(klass);
-                  });
-                }
-                break;
-              default:
-                element.attr(prop, config[prop]);
-                break;
-            }
-          }
-        }
-        // access view scope variables
-        if (config.contentScope) {
-          contentScope = config.contentScope;
-          for (var prop in config.contentScope) {
-            if (config.contentScope.hasOwnProperty(prop)) {
-              scope[prop] = config.contentScope[prop];
-            }
-          }
-        }
-      }
-
-      function destroy() {
-        self.deactivate();
-        $timeout(function() {
-          scope.$destroy();
-          element.remove();
-          destroyed = true;
-        }, 0, false);
-        foundationApi.unsubscribe(id);
-      }
-
-    }
-
-  }
-
-})();
-
-(function() {
-  'use strict';
-
   angular.module('foundation.notification', ['foundation.core'])
     .controller('ZfNotificationController', ZfNotificationController)
     .directive('zfNotificationSet', zfNotificationSet)
@@ -55435,6 +55110,331 @@ angular.module('markdown', [])
     }
 
   }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('foundation.modal', ['foundation.core'])
+    .directive('zfModal', modalDirective)
+    .factory('ModalFactory', ModalFactory)
+    .service('FoundationModal', FoundationModal)
+  ;
+
+  FoundationModal.$inject = ['FoundationApi', 'ModalFactory'];
+
+  function FoundationModal(foundationApi, ModalFactory) {
+    var service    = {};
+
+    service.activate = activate;
+    service.deactivate = deactivate;
+    service.newModal = newModal;
+
+    return service;
+
+    //target should be element ID
+    function activate(target) {
+      foundationApi.publish(target, 'show');
+    }
+
+    //target should be element ID
+    function deactivate(target) {
+      foundationApi.publish(target, 'hide');
+    }
+
+    //new modal has to be controlled via the new instance
+    function newModal(config) {
+      return new ModalFactory(config);
+    }
+  }
+
+  modalDirective.$inject = ['FoundationApi'];
+
+  function modalDirective(foundationApi) {
+
+    var directive = {
+      restrict: 'EA',
+      templateUrl: 'components/modal/modal.html',
+      transclude: true,
+      scope: true,
+      replace: true,
+      compile: compile
+    };
+
+    return directive;
+
+    function compile(tElement, tAttrs, transclude) {
+      var type = 'modal';
+
+      return {
+        pre: preLink,
+        post: postLink
+      };
+
+      function preLink(scope, iElement, iAttrs, controller) {
+          iAttrs.$set('zf-closable', type);
+      }
+
+      function postLink(scope, element, attrs) {
+        var dialog = angular.element(element.children()[0]);
+        var animateFn = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
+
+        scope.active = scope.active || false;
+        scope.overlay = attrs.overlay === 'false' ? false : true;
+        scope.overlayClose = attrs.overlayClose === 'false' ? false : true;
+
+        var animationIn = attrs.animationIn || 'fadeIn';
+        var animationOut = attrs.animationOut || 'fadeOut';
+
+        var overlayIn = 'fadeIn';
+        var overlayOut = 'fadeOut';
+
+        scope.hideOverlay = function() {
+          if(scope.overlayClose) {
+            foundationApi.publish(attrs.id, 'close');
+          }
+        };
+
+        scope.hide = function() {
+          scope.active = false;
+          animate();
+          return;
+        };
+
+        scope.show = function() {
+          scope.active = true;
+          animate();
+          dialog.tabIndex = -1;
+          dialog[0].focus();
+          return;
+        };
+
+        scope.toggle = function() {
+          scope.active = !scope.active;
+          animate();
+          return;
+        };
+
+        init();
+
+        //setup
+        foundationApi.subscribe(attrs.id, function(msg) {
+          if(msg === 'show' || msg === 'open') {
+            scope.show();
+          } else if (msg === 'close' || msg === 'hide') {
+            scope.hide();
+          } else if (msg === 'toggle') {
+            scope.toggle();
+          }
+
+          if (scope.$root && !scope.$root.$$phase) {
+            scope.$apply();
+          }
+
+          return;
+        });
+
+        function animate() {
+          //animate both overlay and dialog
+          if(!scope.overlay) {
+            element.css('background', 'transparent');
+          }
+
+          // work around for modal animations
+          // due to a bug where the overlay fadeIn is essentially covering up
+          // the dialog's animation
+          if (!scope.active) {
+            animateFn(element, scope.active, overlayIn, overlayOut);
+          }
+          else {
+            element.addClass('is-active');
+          }
+
+          animateFn(dialog, scope.active, animationIn, animationOut);
+        }
+
+        function init() {
+          if(scope.active) {
+            scope.show();
+          }
+        }
+      }
+    }
+  }
+
+  ModalFactory.$inject = ['$http', '$templateCache', '$rootScope', '$compile', '$timeout', '$q', 'FoundationApi'];
+
+  function ModalFactory($http, $templateCache, $rootScope, $compile, $timeout, $q, foundationApi) {
+    return modalFactory;
+
+    function modalFactory(config) {
+      var self = this, //for prototype functions
+          container = angular.element(config.container || document.body),
+          id = config.id || foundationApi.generateUuid(),
+          attached = false,
+          destroyed = false,
+          html,
+          element,
+          fetched,
+          scope,
+          contentScope
+      ;
+
+      var props = [
+        'animationIn',
+        'animationOut',
+        'overlay',
+        'overlayClose',
+        'class'
+      ];
+
+      if(config.templateUrl) {
+        //get template
+        fetched = $http.get(config.templateUrl, {
+          cache: $templateCache
+        }).then(function (response) {
+          html = response.data;
+          assembleDirective();
+        });
+
+      } else if(config.template) {
+        //use provided template
+        fetched = true;
+        html = config.template;
+        assembleDirective();
+      }
+
+      self.activate = activate;
+      self.deactivate = deactivate;
+      self.toggle = toggle;
+      self.destroy = destroy;
+
+
+      return {
+        isActive: isActive,
+        activate: activate,
+        deactivate: deactivate,
+        toggle: toggle,
+        destroy: destroy
+      };
+
+      function checkStatus() {
+        if(destroyed) {
+          throw "Error: Modal was destroyed. Delete the object and create a new ModalFactory instance."
+        }
+      }
+
+      function isActive() {
+        return !destroyed && scope && scope.active === true;
+      }
+
+      function activate() {
+        checkStatus();
+        $timeout(function() {
+          init(true);
+          foundationApi.publish(id, 'show');
+        }, 0, false);
+      }
+
+      function deactivate() {
+        checkStatus();
+        $timeout(function() {
+          init(false);
+          foundationApi.publish(id, 'hide');
+        }, 0, false);
+      }
+
+      function toggle() {
+        checkStatus();
+        $timeout(function() {
+          init(true);
+          foundationApi.publish(id, 'toggle');
+        }, 0, false);
+      }
+
+      function init(state) {
+        $q.when(fetched).then(function() {
+          if(!attached && html.length > 0) {
+            var modalEl = container.append(element);
+
+            $compile(element)(scope);
+
+            attached = true;
+          }
+
+          scope.active = state;
+        });
+      }
+
+      function assembleDirective() {
+        // check for duplicate elements to prevent factory from cloning modals
+        if (document.getElementById(id)) {
+          return;
+        }
+
+        html = '<zf-modal id="' + id + '">' + html + '</zf-modal>';
+
+        element = angular.element(html);
+
+        scope = $rootScope.$new();
+
+        // account for directive attributes and modal classes
+        for(var i = 0; i < props.length; i++) {
+          var prop = props[i];
+
+          if(config[prop]) {
+            switch (prop) {
+              case 'animationIn':
+                element.attr('animation-in', config[prop]);
+                break;
+              case 'animationOut':
+                element.attr('animation-out', config[prop]);
+                break;
+              case 'overlayClose':
+                element.attr('overlay-close', config[prop] === 'false' ? 'false' : 'true'); // must be string, see postLink() above
+                break;
+              case 'class':
+                if (angular.isString(config[prop])) {
+                  config[prop].split(' ').forEach(function(klass) {
+                    element.addClass(klass);
+                  });
+                } else if (angular.isArray(config[prop])) {
+                  config[prop].forEach(function(klass) {
+                    element.addClass(klass);
+                  });
+                }
+                break;
+              default:
+                element.attr(prop, config[prop]);
+                break;
+            }
+          }
+        }
+        // access view scope variables
+        if (config.contentScope) {
+          contentScope = config.contentScope;
+          for (var prop in config.contentScope) {
+            if (config.contentScope.hasOwnProperty(prop)) {
+              scope[prop] = config.contentScope[prop];
+            }
+          }
+        }
+      }
+
+      function destroy() {
+        self.deactivate();
+        $timeout(function() {
+          scope.$destroy();
+          element.remove();
+          destroyed = true;
+        }, 0, false);
+        foundationApi.unsubscribe(id);
+      }
+
+    }
+
+  }
+
 })();
 
 (function() {
@@ -56202,3 +56202,16 @@ angular.module('markdown', [])
   ]);
 
 })();
+
+/*
+  angular-youtube-mb v1.3.0
+  https://github.com/brandly/angular-youtube-embed
+*/
+angular.module("youtube-embed",[]).service("youtubeEmbedUtils",["$window","$rootScope",function(e,t){function r(e,t){return e.indexOf(t)>-1}function a(){t.$apply(function(){n.ready=!0})}var n={},i=/https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gi,o=/t=(\d+)[ms]?(\d+)?s?/;return n.getIdFromURL=function(e){var t=e.replace(i,"$1");if(r(t,";")){var a=t.split(";");if(r(a[1],"%")){var n=decodeURIComponent(a[1]);t=("http://youtube.com"+n).replace(i,"$1")}else t=a[0]}else r(t,"#")&&(t=t.split("#")[0]);return t},n.getTimeFromURL=function(e){e=e||"";var t=e.match(o);if(!t)return 0;var a=t[0],n=t[1],i=t[2];return"undefined"!=typeof i?(i=parseInt(i,10),n=parseInt(n,10)):r(a,"m")?(n=parseInt(n,10),i=0):(i=parseInt(n,10),n=0),i+60*n},n.ready=!1,"undefined"==typeof YT?e.onYouTubeIframeAPIReady=a:YT.loaded?n.ready=!0:YT.ready(a),n}]).directive("youtubeVideo",["$window","youtubeEmbedUtils",function(e,t){var r=1,a={"-1":"unstarted",0:"ended",1:"playing",2:"paused",3:"buffering",5:"queued"},n="youtube.player.";return e.YTConfig={host:"https://www.youtube.com"},{restrict:"EA",scope:{videoId:"=?",videoUrl:"=?",player:"=?",playerVars:"=?",playerHeight:"=?",playerWidth:"=?"},link:function(e,i,o){function d(){var t=Array.prototype.slice.call(arguments);e.$apply(function(){e.$emit.apply(e,t)})}function u(t){var r=a[t.data];"undefined"!=typeof r&&d(n+r,e.player,t),e.$apply(function(){e.player.currentState=r})}function l(t){d(n+"ready",e.player,t)}function y(t){d(n+"error",e.player,t)}function p(){var t=angular.copy(e.playerVars);t.start=t.start||e.urlStartTime;var r=new YT.Player(c,{height:e.playerHeight,width:e.playerWidth,videoId:e.videoId,playerVars:t,events:{onReady:l,onStateChange:u,onError:y}});return r.id=c,r}function f(){(e.videoId||e.playerVars.list)&&(e.player&&"function"==typeof e.player.destroy&&e.player.destroy(),e.player=p())}e.utils=t;var c=o.playerId||i[0].id||"unique-youtube-embed-id-"+r++;i[0].id=c,e.playerHeight=e.playerHeight||390,e.playerWidth=e.playerWidth||640,e.playerVars=e.playerVars||{};var s=e.$watch(function(){return e.utils.ready&&("undefined"!=typeof e.videoUrl||"undefined"!=typeof e.videoId||"undefined"!=typeof e.playerVars.list)},function(t){t&&(s(),"undefined"!=typeof e.videoUrl?e.$watch("videoUrl",function(t){e.videoId=e.utils.getIdFromURL(t),e.urlStartTime=e.utils.getTimeFromURL(t),f()}):"undefined"!=typeof e.videoId?e.$watch("videoId",function(){e.urlStartTime=null,f()}):e.$watch("playerVars.list",function(){e.urlStartTime=null,f()}))});e.$watchCollection(["playerHeight","playerWidth"],function(){e.player&&e.player.setSize(e.playerWidth,e.playerHeight)}),e.$on("$destroy",function(){e.player&&e.player.destroy()})}}}]);
+/*
+    ng-youtube-embed v0.3.3
+    Copyright (c) 2015 Arun Michael Dsouza (amdsouza92@gmail.com)
+    Licence: MIT
+    Demo on CodePen - http://codepen.io/amdsouza92/pen/yNxyJV
+*/
+!function(){"use strict";angular.module("ngYoutubeEmbed",[]).directive("ngYoutubeEmbed",[function(){return{restrict:"E",template:'<div ng-bind-html="youtubeEmbedFrame"></div>',scope:{url:"=",autoplay:"@autoplay",autohide:"@autohide",ccloadpolicy:"@ccloadpolicy",color:"@color",controls:"@controls",disablekb:"@disablekb",end:"@end",fs:"@fs",hl:"@hl",ivloadpolicy:"@ivloadpolicy",playlist:"@playlist",playsinline:"@playsinline",rel:"@rel",showinfo:"@showinfo",start:"@start",theme:"@theme",width:"@width",height:"@height"},controller:["$scope","$sce",function(a,b){function c(a){var b=/^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/,c=/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/,d=(a.match(c),a.match(b));if(null!=d){var e=d[1];return e}}var d=a.url;if(void 0!=d){if(a.playlistArray=[],void 0!=a.playlist)for(var e=a.playlist.split(","),f=0;f<e.length;f++)a.playlistArray.push(c(e[f]));var g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x;g="true"==a.autoplay?1:0,h="true"==a.autohide?1:0,i="true"==a.ccloadpolicy?1:0,j="white"==a.color?"white":"red",k="false"==a.controls?0:1,l="false"==a.disablekb?0:1,m=a.end,n="false"==a.fs?0:1,o=a.hl,p="false"==a.ivloadpolicy?0:1,q=a.playlistArray,r="true"==a.playsinline?1:0,s="false"==a.rel?0:1,t="false"==a.showinfo?0:1,u=a.start,v=a.theme,w=void 0!=a.width?a.width:"500px",x=void 0!=a.height?a.height:"350px",a.$watch("url",function(d){if(d){var e=c(d),f="<iframe width="+w+" height="+x+' src="https://www.youtube.com/embed/'+e+"?autoplay="+g+"&autohide="+h+"&cc_load_policy="+i+"&color="+j+"&controls="+k+"&disablekb="+l+"&end="+m+"&fs="+n+"&hl="+o+"&playlist="+q+"&playsinline="+r+"&rel="+s+"&showinfo="+t+"&start="+u+"&theme="+v+'" frameborder="0" allowfullscreen></iframe>';a.youtubeEmbedFrame=b.trustAsHtml(f)}})}}]}}])}();
