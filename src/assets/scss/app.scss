@@ -151,6 +151,13 @@ body {
 	}
 }
 
+.chat-view {
+	position: relative;
+	iframe {
+		position: absolute;
+	}
+}
+
 
 .screenWidthCheck-640 {
 	display: none;
@@ -237,11 +244,6 @@ body {
 
 	}
 }
-
-.chat-view iframe {
-	border: 1px solid black;
-}
-
 
 .footer {
 	text-align: center;

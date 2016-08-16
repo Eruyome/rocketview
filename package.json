@@ -4,7 +4,7 @@
   "scripts": {
     "start": "gulp",
     "build": "gulp build --production",
-    "deploy": "gulp build --production && gulp deploy"
+    "deploy": "gulp build --production && gulp deploy && gulp build"
   },
   "devDependencies": {
     "angular-local-storage": "^0.2.7",

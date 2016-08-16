@@ -62,7 +62,6 @@ Sets debug to true (used in function "debugOutput"), the gulpfile excludes this 
 version, therefore disabling all debug output (console).
 * */
 var debugDevBuild = true;
-var debugKey = "AIzaSyCETug5rV8Iv1E72KnZcAVWFm2rRwCmrto";
 if (debugDevBuild){console.log('Dev build.');}
 /*eslint-disable no-unused-vars*/
 /*!
@@ -10250,11 +10249,13 @@ return jQuery;
 
 		/* Get data from youtube api via ajax */
 		$scope.getData = function(kind) {
-			if (typeof debugKey === 'undefined' || document.location.hostname != "localhost") {
+			if (document.location.hostname != "localhost") {
+				//distribution key
 				var key = "AIzaSyDkGP7Qktvas2tkDhNIwHVLwMXvvxys50o";
 			}
-			else {
-				var key = debugKey;
+			else if (document.location.hostname == "localhost") {
+				//development key
+				var key = "AIzaSyCETug5rV8Iv1E72KnZcAVWFm2rRwCmrto";
 			}
 
 			var domain = "https://www.googleapis.com/youtube/v3/";

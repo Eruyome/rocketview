@@ -6000,6 +6000,11 @@ body {
     #chatPanel {
       margin-top: 33px; } }
 
+.chat-view {
+  position: relative; }
+  .chat-view iframe {
+    position: absolute; }
+
 .screenWidthCheck-640 {
   display: none;
   visibility: hidden; }
@@ -6073,9 +6078,6 @@ body {
     left: 0;
     width: 100%;
     height: 100%; }
-
-.chat-view iframe {
-  border: 1px solid black; }
 
 .footer {
   text-align: center;

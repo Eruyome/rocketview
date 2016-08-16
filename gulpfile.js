@@ -217,6 +217,7 @@ gulp.task('subtree', function () {
 		.pipe(subtree());
 });
 
+//https://github.com/X1011/git-directory-deploy
 gulp.task('deploy', shell.task([
 	'deploy.sh'
 ]));
