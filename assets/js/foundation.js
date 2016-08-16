@@ -52535,12 +52535,864 @@ angular.module('ui.router.state')
   .filter('isState', $IsStateFilter)
   .filter('includedByState', $IncludedByStateFilter);
 })(window, window.angular);
+/**
+ * @license AngularJS v1.5.8
+ * (c) 2010-2016 Google, Inc. http://angularjs.org
+ * License: MIT
+ */
+(function(window, angular) {'use strict';
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *     Any commits to this file should be reviewed with security in mind.  *
+ *   Changes to this file can potentially create security vulnerabilities. *
+ *          An approval from 2 Core members with history of modifying      *
+ *                         this file is required.                          *
+ *                                                                         *
+ *  Does the change somehow allow for arbitrary javascript to be executed? *
+ *    Or allows for someone to change the prototype of built-in objects?   *
+ *     Or gives undesired access to variables likes document or window?    *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+var $sanitizeMinErr = angular.$$minErr('$sanitize');
+var bind;
+var extend;
+var forEach;
+var isDefined;
+var lowercase;
+var noop;
+var htmlParser;
+var htmlSanitizeWriter;
+
+/**
+ * @ngdoc module
+ * @name ngSanitize
+ * @description
+ *
+ * # ngSanitize
+ *
+ * The `ngSanitize` module provides functionality to sanitize HTML.
+ *
+ *
+ * <div doc-module-components="ngSanitize"></div>
+ *
+ * See {@link ngSanitize.$sanitize `$sanitize`} for usage.
+ */
+
+/**
+ * @ngdoc service
+ * @name $sanitize
+ * @kind function
+ *
+ * @description
+ *   Sanitizes an html string by stripping all potentially dangerous tokens.
+ *
+ *   The input is sanitized by parsing the HTML into tokens. All safe tokens (from a whitelist) are
+ *   then serialized back to properly escaped html string. This means that no unsafe input can make
+ *   it into the returned string.
+ *
+ *   The whitelist for URL sanitization of attribute values is configured using the functions
+ *   `aHrefSanitizationWhitelist` and `imgSrcSanitizationWhitelist` of {@link ng.$compileProvider
+ *   `$compileProvider`}.
+ *
+ *   The input may also contain SVG markup if this is enabled via {@link $sanitizeProvider}.
+ *
+ * @param {string} html HTML input.
+ * @returns {string} Sanitized HTML.
+ *
+ * @example
+   <example module="sanitizeExample" deps="angular-sanitize.js">
+   <file name="index.html">
+     <script>
+         angular.module('sanitizeExample', ['ngSanitize'])
+           .controller('ExampleController', ['$scope', '$sce', function($scope, $sce) {
+             $scope.snippet =
+               '<p style="color:blue">an html\n' +
+               '<em onmouseover="this.textContent=\'PWN3D!\'">click here</em>\n' +
+               'snippet</p>';
+             $scope.deliberatelyTrustDangerousSnippet = function() {
+               return $sce.trustAsHtml($scope.snippet);
+             };
+           }]);
+     </script>
+     <div ng-controller="ExampleController">
+        Snippet: <textarea ng-model="snippet" cols="60" rows="3"></textarea>
+       <table>
+         <tr>
+           <td>Directive</td>
+           <td>How</td>
+           <td>Source</td>
+           <td>Rendered</td>
+         </tr>
+         <tr id="bind-html-with-sanitize">
+           <td>ng-bind-html</td>
+           <td>Automatically uses $sanitize</td>
+           <td><pre>&lt;div ng-bind-html="snippet"&gt;<br/>&lt;/div&gt;</pre></td>
+           <td><div ng-bind-html="snippet"></div></td>
+         </tr>
+         <tr id="bind-html-with-trust">
+           <td>ng-bind-html</td>
+           <td>Bypass $sanitize by explicitly trusting the dangerous value</td>
+           <td>
+           <pre>&lt;div ng-bind-html="deliberatelyTrustDangerousSnippet()"&gt;
+&lt;/div&gt;</pre>
+           </td>
+           <td><div ng-bind-html="deliberatelyTrustDangerousSnippet()"></div></td>
+         </tr>
+         <tr id="bind-default">
+           <td>ng-bind</td>
+           <td>Automatically escapes</td>
+           <td><pre>&lt;div ng-bind="snippet"&gt;<br/>&lt;/div&gt;</pre></td>
+           <td><div ng-bind="snippet"></div></td>
+         </tr>
+       </table>
+       </div>
+   </file>
+   <file name="protractor.js" type="protractor">
+     it('should sanitize the html snippet by default', function() {
+       expect(element(by.css('#bind-html-with-sanitize div')).getInnerHtml()).
+         toBe('<p>an html\n<em>click here</em>\nsnippet</p>');
+     });
+
+     it('should inline raw snippet if bound to a trusted value', function() {
+       expect(element(by.css('#bind-html-with-trust div')).getInnerHtml()).
+         toBe("<p style=\"color:blue\">an html\n" +
+              "<em onmouseover=\"this.textContent='PWN3D!'\">click here</em>\n" +
+              "snippet</p>");
+     });
+
+     it('should escape snippet without any filter', function() {
+       expect(element(by.css('#bind-default div')).getInnerHtml()).
+         toBe("&lt;p style=\"color:blue\"&gt;an html\n" +
+              "&lt;em onmouseover=\"this.textContent='PWN3D!'\"&gt;click here&lt;/em&gt;\n" +
+              "snippet&lt;/p&gt;");
+     });
+
+     it('should update', function() {
+       element(by.model('snippet')).clear();
+       element(by.model('snippet')).sendKeys('new <b onclick="alert(1)">text</b>');
+       expect(element(by.css('#bind-html-with-sanitize div')).getInnerHtml()).
+         toBe('new <b>text</b>');
+       expect(element(by.css('#bind-html-with-trust div')).getInnerHtml()).toBe(
+         'new <b onclick="alert(1)">text</b>');
+       expect(element(by.css('#bind-default div')).getInnerHtml()).toBe(
+         "new &lt;b onclick=\"alert(1)\"&gt;text&lt;/b&gt;");
+     });
+   </file>
+   </example>
+ */
+
+
+/**
+ * @ngdoc provider
+ * @name $sanitizeProvider
+ *
+ * @description
+ * Creates and configures {@link $sanitize} instance.
+ */
+function $SanitizeProvider() {
+  var svgEnabled = false;
+
+  this.$get = ['$$sanitizeUri', function($$sanitizeUri) {
+    if (svgEnabled) {
+      extend(validElements, svgElements);
+    }
+    return function(html) {
+      var buf = [];
+      htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {
+        return !/^unsafe:/.test($$sanitizeUri(uri, isImage));
+      }));
+      return buf.join('');
+    };
+  }];
+
+
+  /**
+   * @ngdoc method
+   * @name $sanitizeProvider#enableSvg
+   * @kind function
+   *
+   * @description
+   * Enables a subset of svg to be supported by the sanitizer.
+   *
+   * <div class="alert alert-warning">
+   *   <p>By enabling this setting without taking other precautions, you might expose your
+   *   application to click-hijacking attacks. In these attacks, sanitized svg elements could be positioned
+   *   outside of the containing element and be rendered over other elements on the page (e.g. a login
+   *   link). Such behavior can then result in phishing incidents.</p>
+   *
+   *   <p>To protect against these, explicitly setup `overflow: hidden` css rule for all potential svg
+   *   tags within the sanitized content:</p>
+   *
+   *   <br>
+   *
+   *   <pre><code>
+   *   .rootOfTheIncludedContent svg {
+   *     overflow: hidden !important;
+   *   }
+   *   </code></pre>
+   * </div>
+   *
+   * @param {boolean=} flag Enable or disable SVG support in the sanitizer.
+   * @returns {boolean|ng.$sanitizeProvider} Returns the currently configured value if called
+   *    without an argument or self for chaining otherwise.
+   */
+  this.enableSvg = function(enableSvg) {
+    if (isDefined(enableSvg)) {
+      svgEnabled = enableSvg;
+      return this;
+    } else {
+      return svgEnabled;
+    }
+  };
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Private stuff
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  bind = angular.bind;
+  extend = angular.extend;
+  forEach = angular.forEach;
+  isDefined = angular.isDefined;
+  lowercase = angular.lowercase;
+  noop = angular.noop;
+
+  htmlParser = htmlParserImpl;
+  htmlSanitizeWriter = htmlSanitizeWriterImpl;
+
+  // Regular Expressions for parsing tags and attributes
+  var SURROGATE_PAIR_REGEXP = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
+    // Match everything outside of normal chars and " (quote character)
+    NON_ALPHANUMERIC_REGEXP = /([^\#-~ |!])/g;
+
+
+  // Good source of info about elements and attributes
+  // http://dev.w3.org/html5/spec/Overview.html#semantics
+  // http://simon.html5.org/html-elements
+
+  // Safe Void Elements - HTML5
+  // http://dev.w3.org/html5/spec/Overview.html#void-elements
+  var voidElements = toMap("area,br,col,hr,img,wbr");
+
+  // Elements that you can, intentionally, leave open (and which close themselves)
+  // http://dev.w3.org/html5/spec/Overview.html#optional-tags
+  var optionalEndTagBlockElements = toMap("colgroup,dd,dt,li,p,tbody,td,tfoot,th,thead,tr"),
+      optionalEndTagInlineElements = toMap("rp,rt"),
+      optionalEndTagElements = extend({},
+                                              optionalEndTagInlineElements,
+                                              optionalEndTagBlockElements);
+
+  // Safe Block Elements - HTML5
+  var blockElements = extend({}, optionalEndTagBlockElements, toMap("address,article," +
+          "aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5," +
+          "h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,section,table,ul"));
+
+  // Inline Elements - HTML5
+  var inlineElements = extend({}, optionalEndTagInlineElements, toMap("a,abbr,acronym,b," +
+          "bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s," +
+          "samp,small,span,strike,strong,sub,sup,time,tt,u,var"));
+
+  // SVG Elements
+  // https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Elements
+  // Note: the elements animate,animateColor,animateMotion,animateTransform,set are intentionally omitted.
+  // They can potentially allow for arbitrary javascript to be executed. See #11290
+  var svgElements = toMap("circle,defs,desc,ellipse,font-face,font-face-name,font-face-src,g,glyph," +
+          "hkern,image,linearGradient,line,marker,metadata,missing-glyph,mpath,path,polygon,polyline," +
+          "radialGradient,rect,stop,svg,switch,text,title,tspan");
+
+  // Blocked Elements (will be stripped)
+  var blockedElements = toMap("script,style");
+
+  var validElements = extend({},
+                                     voidElements,
+                                     blockElements,
+                                     inlineElements,
+                                     optionalEndTagElements);
+
+  //Attributes that have href and hence need to be sanitized
+  var uriAttrs = toMap("background,cite,href,longdesc,src,xlink:href");
+
+  var htmlAttrs = toMap('abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,' +
+      'color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,' +
+      'ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,' +
+      'scope,scrolling,shape,size,span,start,summary,tabindex,target,title,type,' +
+      'valign,value,vspace,width');
+
+  // SVG attributes (without "id" and "name" attributes)
+  // https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Attributes
+  var svgAttrs = toMap('accent-height,accumulate,additive,alphabetic,arabic-form,ascent,' +
+      'baseProfile,bbox,begin,by,calcMode,cap-height,class,color,color-rendering,content,' +
+      'cx,cy,d,dx,dy,descent,display,dur,end,fill,fill-rule,font-family,font-size,font-stretch,' +
+      'font-style,font-variant,font-weight,from,fx,fy,g1,g2,glyph-name,gradientUnits,hanging,' +
+      'height,horiz-adv-x,horiz-origin-x,ideographic,k,keyPoints,keySplines,keyTimes,lang,' +
+      'marker-end,marker-mid,marker-start,markerHeight,markerUnits,markerWidth,mathematical,' +
+      'max,min,offset,opacity,orient,origin,overline-position,overline-thickness,panose-1,' +
+      'path,pathLength,points,preserveAspectRatio,r,refX,refY,repeatCount,repeatDur,' +
+      'requiredExtensions,requiredFeatures,restart,rotate,rx,ry,slope,stemh,stemv,stop-color,' +
+      'stop-opacity,strikethrough-position,strikethrough-thickness,stroke,stroke-dasharray,' +
+      'stroke-dashoffset,stroke-linecap,stroke-linejoin,stroke-miterlimit,stroke-opacity,' +
+      'stroke-width,systemLanguage,target,text-anchor,to,transform,type,u1,u2,underline-position,' +
+      'underline-thickness,unicode,unicode-range,units-per-em,values,version,viewBox,visibility,' +
+      'width,widths,x,x-height,x1,x2,xlink:actuate,xlink:arcrole,xlink:role,xlink:show,xlink:title,' +
+      'xlink:type,xml:base,xml:lang,xml:space,xmlns,xmlns:xlink,y,y1,y2,zoomAndPan', true);
+
+  var validAttrs = extend({},
+                                  uriAttrs,
+                                  svgAttrs,
+                                  htmlAttrs);
+
+  function toMap(str, lowercaseKeys) {
+    var obj = {}, items = str.split(','), i;
+    for (i = 0; i < items.length; i++) {
+      obj[lowercaseKeys ? lowercase(items[i]) : items[i]] = true;
+    }
+    return obj;
+  }
+
+  var inertBodyElement;
+  (function(window) {
+    var doc;
+    if (window.document && window.document.implementation) {
+      doc = window.document.implementation.createHTMLDocument("inert");
+    } else {
+      throw $sanitizeMinErr('noinert', "Can't create an inert html document");
+    }
+    var docElement = doc.documentElement || doc.getDocumentElement();
+    var bodyElements = docElement.getElementsByTagName('body');
+
+    // usually there should be only one body element in the document, but IE doesn't have any, so we need to create one
+    if (bodyElements.length === 1) {
+      inertBodyElement = bodyElements[0];
+    } else {
+      var html = doc.createElement('html');
+      inertBodyElement = doc.createElement('body');
+      html.appendChild(inertBodyElement);
+      doc.appendChild(html);
+    }
+  })(window);
+
+  /**
+   * @example
+   * htmlParser(htmlString, {
+   *     start: function(tag, attrs) {},
+   *     end: function(tag) {},
+   *     chars: function(text) {},
+   *     comment: function(text) {}
+   * });
+   *
+   * @param {string} html string
+   * @param {object} handler
+   */
+  function htmlParserImpl(html, handler) {
+    if (html === null || html === undefined) {
+      html = '';
+    } else if (typeof html !== 'string') {
+      html = '' + html;
+    }
+    inertBodyElement.innerHTML = html;
+
+    //mXSS protection
+    var mXSSAttempts = 5;
+    do {
+      if (mXSSAttempts === 0) {
+        throw $sanitizeMinErr('uinput', "Failed to sanitize html because the input is unstable");
+      }
+      mXSSAttempts--;
+
+      // strip custom-namespaced attributes on IE<=11
+      if (window.document.documentMode) {
+        stripCustomNsAttrs(inertBodyElement);
+      }
+      html = inertBodyElement.innerHTML; //trigger mXSS
+      inertBodyElement.innerHTML = html;
+    } while (html !== inertBodyElement.innerHTML);
+
+    var node = inertBodyElement.firstChild;
+    while (node) {
+      switch (node.nodeType) {
+        case 1: // ELEMENT_NODE
+          handler.start(node.nodeName.toLowerCase(), attrToMap(node.attributes));
+          break;
+        case 3: // TEXT NODE
+          handler.chars(node.textContent);
+          break;
+      }
+
+      var nextNode;
+      if (!(nextNode = node.firstChild)) {
+      if (node.nodeType == 1) {
+          handler.end(node.nodeName.toLowerCase());
+        }
+        nextNode = node.nextSibling;
+        if (!nextNode) {
+          while (nextNode == null) {
+            node = node.parentNode;
+            if (node === inertBodyElement) break;
+            nextNode = node.nextSibling;
+          if (node.nodeType == 1) {
+              handler.end(node.nodeName.toLowerCase());
+            }
+          }
+        }
+      }
+      node = nextNode;
+    }
+
+    while (node = inertBodyElement.firstChild) {
+      inertBodyElement.removeChild(node);
+    }
+  }
+
+  function attrToMap(attrs) {
+    var map = {};
+    for (var i = 0, ii = attrs.length; i < ii; i++) {
+      var attr = attrs[i];
+      map[attr.name] = attr.value;
+    }
+    return map;
+  }
+
+
+  /**
+   * Escapes all potentially dangerous characters, so that the
+   * resulting string can be safely inserted into attribute or
+   * element text.
+   * @param value
+   * @returns {string} escaped text
+   */
+  function encodeEntities(value) {
+    return value.
+      replace(/&/g, '&amp;').
+      replace(SURROGATE_PAIR_REGEXP, function(value) {
+        var hi = value.charCodeAt(0);
+        var low = value.charCodeAt(1);
+        return '&#' + (((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000) + ';';
+      }).
+      replace(NON_ALPHANUMERIC_REGEXP, function(value) {
+        return '&#' + value.charCodeAt(0) + ';';
+      }).
+      replace(/</g, '&lt;').
+      replace(/>/g, '&gt;');
+  }
+
+  /**
+   * create an HTML/XML writer which writes to buffer
+   * @param {Array} buf use buf.join('') to get out sanitized html string
+   * @returns {object} in the form of {
+   *     start: function(tag, attrs) {},
+   *     end: function(tag) {},
+   *     chars: function(text) {},
+   *     comment: function(text) {}
+   * }
+   */
+  function htmlSanitizeWriterImpl(buf, uriValidator) {
+    var ignoreCurrentElement = false;
+    var out = bind(buf, buf.push);
+    return {
+      start: function(tag, attrs) {
+        tag = lowercase(tag);
+        if (!ignoreCurrentElement && blockedElements[tag]) {
+          ignoreCurrentElement = tag;
+        }
+        if (!ignoreCurrentElement && validElements[tag] === true) {
+          out('<');
+          out(tag);
+          forEach(attrs, function(value, key) {
+            var lkey = lowercase(key);
+            var isImage = (tag === 'img' && lkey === 'src') || (lkey === 'background');
+            if (validAttrs[lkey] === true &&
+              (uriAttrs[lkey] !== true || uriValidator(value, isImage))) {
+              out(' ');
+              out(key);
+              out('="');
+              out(encodeEntities(value));
+              out('"');
+            }
+          });
+          out('>');
+        }
+      },
+      end: function(tag) {
+        tag = lowercase(tag);
+        if (!ignoreCurrentElement && validElements[tag] === true && voidElements[tag] !== true) {
+          out('</');
+          out(tag);
+          out('>');
+        }
+        if (tag == ignoreCurrentElement) {
+          ignoreCurrentElement = false;
+        }
+      },
+      chars: function(chars) {
+        if (!ignoreCurrentElement) {
+          out(encodeEntities(chars));
+        }
+      }
+    };
+  }
+
+
+  /**
+   * When IE9-11 comes across an unknown namespaced attribute e.g. 'xlink:foo' it adds 'xmlns:ns1' attribute to declare
+   * ns1 namespace and prefixes the attribute with 'ns1' (e.g. 'ns1:xlink:foo'). This is undesirable since we don't want
+   * to allow any of these custom attributes. This method strips them all.
+   *
+   * @param node Root element to process
+   */
+  function stripCustomNsAttrs(node) {
+    if (node.nodeType === window.Node.ELEMENT_NODE) {
+      var attrs = node.attributes;
+      for (var i = 0, l = attrs.length; i < l; i++) {
+        var attrNode = attrs[i];
+        var attrName = attrNode.name.toLowerCase();
+        if (attrName === 'xmlns:ns1' || attrName.lastIndexOf('ns1:', 0) === 0) {
+          node.removeAttributeNode(attrNode);
+          i--;
+          l--;
+        }
+      }
+    }
+
+    var nextNode = node.firstChild;
+    if (nextNode) {
+      stripCustomNsAttrs(nextNode);
+    }
+
+    nextNode = node.nextSibling;
+    if (nextNode) {
+      stripCustomNsAttrs(nextNode);
+    }
+  }
+}
+
+function sanitizeText(chars) {
+  var buf = [];
+  var writer = htmlSanitizeWriter(buf, noop);
+  writer.chars(chars);
+  return buf.join('');
+}
+
+
+// define ngSanitize module and register $sanitize service
+angular.module('ngSanitize', []).provider('$sanitize', $SanitizeProvider);
+
+/**
+ * @ngdoc filter
+ * @name linky
+ * @kind function
+ *
+ * @description
+ * Finds links in text input and turns them into html links. Supports `http/https/ftp/mailto` and
+ * plain email address links.
+ *
+ * Requires the {@link ngSanitize `ngSanitize`} module to be installed.
+ *
+ * @param {string} text Input text.
+ * @param {string} target Window (`_blank|_self|_parent|_top`) or named frame to open links in.
+ * @param {object|function(url)} [attributes] Add custom attributes to the link element.
+ *
+ *    Can be one of:
+ *
+ *    - `object`: A map of attributes
+ *    - `function`: Takes the url as a parameter and returns a map of attributes
+ *
+ *    If the map of attributes contains a value for `target`, it overrides the value of
+ *    the target parameter.
+ *
+ *
+ * @returns {string} Html-linkified and {@link $sanitize sanitized} text.
+ *
+ * @usage
+   <span ng-bind-html="linky_expression | linky"></span>
+ *
+ * @example
+   <example module="linkyExample" deps="angular-sanitize.js">
+     <file name="index.html">
+       <div ng-controller="ExampleController">
+       Snippet: <textarea ng-model="snippet" cols="60" rows="3"></textarea>
+       <table>
+         <tr>
+           <th>Filter</th>
+           <th>Source</th>
+           <th>Rendered</th>
+         </tr>
+         <tr id="linky-filter">
+           <td>linky filter</td>
+           <td>
+             <pre>&lt;div ng-bind-html="snippet | linky"&gt;<br>&lt;/div&gt;</pre>
+           </td>
+           <td>
+             <div ng-bind-html="snippet | linky"></div>
+           </td>
+         </tr>
+         <tr id="linky-target">
+          <td>linky target</td>
+          <td>
+            <pre>&lt;div ng-bind-html="snippetWithSingleURL | linky:'_blank'"&gt;<br>&lt;/div&gt;</pre>
+          </td>
+          <td>
+            <div ng-bind-html="snippetWithSingleURL | linky:'_blank'"></div>
+          </td>
+         </tr>
+         <tr id="linky-custom-attributes">
+          <td>linky custom attributes</td>
+          <td>
+            <pre>&lt;div ng-bind-html="snippetWithSingleURL | linky:'_self':{rel: 'nofollow'}"&gt;<br>&lt;/div&gt;</pre>
+          </td>
+          <td>
+            <div ng-bind-html="snippetWithSingleURL | linky:'_self':{rel: 'nofollow'}"></div>
+          </td>
+         </tr>
+         <tr id="escaped-html">
+           <td>no filter</td>
+           <td><pre>&lt;div ng-bind="snippet"&gt;<br>&lt;/div&gt;</pre></td>
+           <td><div ng-bind="snippet"></div></td>
+         </tr>
+       </table>
+     </file>
+     <file name="script.js">
+       angular.module('linkyExample', ['ngSanitize'])
+         .controller('ExampleController', ['$scope', function($scope) {
+           $scope.snippet =
+             'Pretty text with some links:\n'+
+             'http://angularjs.org/,\n'+
+             'mailto:us@somewhere.org,\n'+
+             'another@somewhere.org,\n'+
+             'and one more: ftp://127.0.0.1/.';
+           $scope.snippetWithSingleURL = 'http://angularjs.org/';
+         }]);
+     </file>
+     <file name="protractor.js" type="protractor">
+       it('should linkify the snippet with urls', function() {
+         expect(element(by.id('linky-filter')).element(by.binding('snippet | linky')).getText()).
+             toBe('Pretty text with some links: http://angularjs.org/, us@somewhere.org, ' +
+                  'another@somewhere.org, and one more: ftp://127.0.0.1/.');
+         expect(element.all(by.css('#linky-filter a')).count()).toEqual(4);
+       });
+
+       it('should not linkify snippet without the linky filter', function() {
+         expect(element(by.id('escaped-html')).element(by.binding('snippet')).getText()).
+             toBe('Pretty text with some links: http://angularjs.org/, mailto:us@somewhere.org, ' +
+                  'another@somewhere.org, and one more: ftp://127.0.0.1/.');
+         expect(element.all(by.css('#escaped-html a')).count()).toEqual(0);
+       });
+
+       it('should update', function() {
+         element(by.model('snippet')).clear();
+         element(by.model('snippet')).sendKeys('new http://link.');
+         expect(element(by.id('linky-filter')).element(by.binding('snippet | linky')).getText()).
+             toBe('new http://link.');
+         expect(element.all(by.css('#linky-filter a')).count()).toEqual(1);
+         expect(element(by.id('escaped-html')).element(by.binding('snippet')).getText())
+             .toBe('new http://link.');
+       });
+
+       it('should work with the target property', function() {
+        expect(element(by.id('linky-target')).
+            element(by.binding("snippetWithSingleURL | linky:'_blank'")).getText()).
+            toBe('http://angularjs.org/');
+        expect(element(by.css('#linky-target a')).getAttribute('target')).toEqual('_blank');
+       });
+
+       it('should optionally add custom attributes', function() {
+        expect(element(by.id('linky-custom-attributes')).
+            element(by.binding("snippetWithSingleURL | linky:'_self':{rel: 'nofollow'}")).getText()).
+            toBe('http://angularjs.org/');
+        expect(element(by.css('#linky-custom-attributes a')).getAttribute('rel')).toEqual('nofollow');
+       });
+     </file>
+   </example>
+ */
+angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
+  var LINKY_URL_REGEXP =
+        /((ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]/i,
+      MAILTO_REGEXP = /^mailto:/i;
+
+  var linkyMinErr = angular.$$minErr('linky');
+  var isDefined = angular.isDefined;
+  var isFunction = angular.isFunction;
+  var isObject = angular.isObject;
+  var isString = angular.isString;
+
+  return function(text, target, attributes) {
+    if (text == null || text === '') return text;
+    if (!isString(text)) throw linkyMinErr('notstring', 'Expected string but received: {0}', text);
+
+    var attributesFn =
+      isFunction(attributes) ? attributes :
+      isObject(attributes) ? function getAttributesObject() {return attributes;} :
+      function getEmptyAttributesObject() {return {};};
+
+    var match;
+    var raw = text;
+    var html = [];
+    var url;
+    var i;
+    while ((match = raw.match(LINKY_URL_REGEXP))) {
+      // We can not end in these as they are sometimes found at the end of the sentence
+      url = match[0];
+      // if we did not match ftp/http/www/mailto then assume mailto
+      if (!match[2] && !match[4]) {
+        url = (match[3] ? 'http://' : 'mailto:') + url;
+      }
+      i = match.index;
+      addText(raw.substr(0, i));
+      addLink(url, match[0].replace(MAILTO_REGEXP, ''));
+      raw = raw.substring(i + match[0].length);
+    }
+    addText(raw);
+    return $sanitize(html.join(''));
+
+    function addText(text) {
+      if (!text) {
+        return;
+      }
+      html.push(sanitizeText(text));
+    }
+
+    function addLink(url, text) {
+      var key, linkAttributes = attributesFn(url);
+      html.push('<a ');
+
+      for (key in linkAttributes) {
+        html.push(key + '="' + linkAttributes[key] + '" ');
+      }
+
+      if (isDefined(target) && !('target' in linkAttributes)) {
+        html.push('target="',
+                  target,
+                  '" ');
+      }
+      html.push('href="',
+                url.replace(/"/g, '&quot;'),
+                '">');
+      addText(text);
+      html.push('</a>');
+    }
+  };
+}]);
+
+
+})(window, window.angular);
+
 /*!
  * iconic.js v0.4.0 - The Iconic JavaScript library
  * Copyright (c) 2014 Waybury - http://useiconic.com
  */
 
 !function(a){"object"==typeof exports?module.exports=a():"function"==typeof define&&define.amd?define(a):"undefined"!=typeof window?window.IconicJS=a():"undefined"!=typeof global?global.IconicJS=a():"undefined"!=typeof self&&(self.IconicJS=a())}(function(){var a;return function b(a,c,d){function e(g,h){if(!c[g]){if(!a[g]){var i="function"==typeof require&&require;if(!h&&i)return i(g,!0);if(f)return f(g,!0);throw new Error("Cannot find module '"+g+"'")}var j=c[g]={exports:{}};a[g][0].call(j.exports,function(b){var c=a[g][1][b];return e(c?c:b)},j,j.exports,b,a,c,d)}return c[g].exports}for(var f="function"==typeof require&&require,g=0;g<d.length;g++)e(d[g]);return e}({1:[function(a,b){var c=(a("./modules/polyfills"),a("./modules/svg-injector")),d=a("./modules/extend"),e=a("./modules/responsive"),f=a("./modules/position"),g=a("./modules/container"),h=a("./modules/log"),i={},j=window.iconicSmartIconApis={},k=("file:"===window.location.protocol,0),l=function(a,b,e){b=d({},i,b||{});var f={evalScripts:b.evalScripts,pngFallback:b.pngFallback};f.each=function(a){if(a)if("string"==typeof a)h.debug(a);else if(a instanceof SVGSVGElement){var c=a.getAttribute("data-icon");if(c&&j[c]){var d=j[c](a);for(var e in d)a[e]=d[e]}/iconic-bg-/.test(a.getAttribute("class"))&&g.addBackground(a),m(a),k++,b&&b.each&&"function"==typeof b.each&&b.each(a)}},"string"==typeof a&&(a=document.querySelectorAll(a)),c(a,f,e)},m=function(a){var b=[];a?"string"==typeof a?b=document.querySelectorAll(a):void 0!==a.length?b=a:"object"==typeof a&&b.push(a):b=document.querySelectorAll("svg.iconic"),Array.prototype.forEach.call(b,function(a){a instanceof SVGSVGElement&&(a.update&&a.update(),e.refresh(a),f.refresh(a))})},n=function(){i.debug&&console.time&&console.time("autoInjectSelector - "+i.autoInjectSelector);var a=k;l(i.autoInjectSelector,{},function(){if(i.debug&&console.timeEnd&&console.timeEnd("autoInjectSelector - "+i.autoInjectSelector),h.debug("AutoInjected: "+(k-a)),e.refreshAll(),i.autoInjectDone&&"function"==typeof i.autoInjectDone){var b=k-a;i.autoInjectDone(b)}})},o=function(a){a&&""!==a&&"complete"!==document.readyState?document.addEventListener("DOMContentLoaded",n):document.removeEventListener("DOMContentLoaded",n)},p=function(a){return a=a||{},d(i,a),o(i.autoInjectSelector),h.enableDebug(i.debug),window._Iconic?window._Iconic:{inject:l,update:m,smartIconApis:j,svgInjectedCount:k}};b.exports=p,window._Iconic=new p({autoInjectSelector:"img.iconic",evalScripts:"once",pngFallback:!1,each:null,autoInjectDone:null,debug:!1})},{"./modules/container":2,"./modules/extend":3,"./modules/log":4,"./modules/polyfills":5,"./modules/position":6,"./modules/responsive":7,"./modules/svg-injector":8}],2:[function(a,b){var c=function(a){var b=a.getAttribute("class").split(" "),c=-1!==b.indexOf("iconic-fluid"),d=[],e=["iconic-bg"];Array.prototype.forEach.call(b,function(a){switch(a){case"iconic-sm":case"iconic-md":case"iconic-lg":d.push(a),c||e.push(a.replace(/-/,"-bg-"));break;case"iconic-fluid":d.push(a),e.push(a.replace(/-/,"-bg-"));break;case"iconic-bg-circle":case"iconic-bg-rounded-rect":case"iconic-bg-badge":e.push(a);break;default:d.push(a)}}),a.setAttribute("class",d.join(" "));var f=a.parentNode,g=Array.prototype.indexOf.call(f.childNodes,a),h=document.createElement("span");h.setAttribute("class",e.join(" ")),h.appendChild(a),f.insertBefore(h,f.childNodes[g])};b.exports={addBackground:c}},{}],3:[function(a,b){b.exports=function(a){return Array.prototype.forEach.call(Array.prototype.slice.call(arguments,1),function(b){if(b)for(var c in b)b.hasOwnProperty(c)&&(a[c]=b[c])}),a}},{}],4:[function(a,b){var c=!1,d=function(a){console&&console.log&&console.log(a)},e=function(a){d("Iconic INFO: "+a)},f=function(a){d("Iconic WARNING: "+a)},g=function(a){c&&d("Iconic DEBUG: "+a)},h=function(a){c=a};b.exports={info:e,warn:f,debug:g,enableDebug:h}},{}],5:[function(){Array.prototype.forEach||(Array.prototype.forEach=function(a,b){"use strict";if(void 0===this||null===this||"function"!=typeof a)throw new TypeError;var c,d=this.length>>>0;for(c=0;d>c;++c)c in this&&a.call(b,this[c],c,this)}),function(){if(Event.prototype.preventDefault||(Event.prototype.preventDefault=function(){this.returnValue=!1}),Event.prototype.stopPropagation||(Event.prototype.stopPropagation=function(){this.cancelBubble=!0}),!Element.prototype.addEventListener){var a=[],b=function(b,c){var d=this,e=function(a){a.target=a.srcElement,a.currentTarget=d,c.handleEvent?c.handleEvent(a):c.call(d,a)};if("DOMContentLoaded"==b){var f=function(a){"complete"==document.readyState&&e(a)};if(document.attachEvent("onreadystatechange",f),a.push({object:this,type:b,listener:c,wrapper:f}),"complete"==document.readyState){var g=new Event;g.srcElement=window,f(g)}}else this.attachEvent("on"+b,e),a.push({object:this,type:b,listener:c,wrapper:e})},c=function(b,c){for(var d=0;d<a.length;){var e=a[d];if(e.object==this&&e.type==b&&e.listener==c){"DOMContentLoaded"==b?this.detachEvent("onreadystatechange",e.wrapper):this.detachEvent("on"+b,e.wrapper);break}++d}};Element.prototype.addEventListener=b,Element.prototype.removeEventListener=c,HTMLDocument&&(HTMLDocument.prototype.addEventListener=b,HTMLDocument.prototype.removeEventListener=c),Window&&(Window.prototype.addEventListener=b,Window.prototype.removeEventListener=c)}}()},{}],6:[function(a,b){var c=function(a){var b=a.getAttribute("data-position");if(b&&""!==b){var c,d,e,f,g,h,i,j=a.getAttribute("width"),k=a.getAttribute("height"),l=b.split("-"),m=a.querySelectorAll("g.iconic-container");Array.prototype.forEach.call(m,function(a){if(c=a.getAttribute("data-width"),d=a.getAttribute("data-height"),c!==j||d!==k){if(e=a.getAttribute("transform"),f=1,e){var b=e.match(/scale\((\d)/);f=b&&b[1]?b[1]:1}g=Math.floor((j/f-c)/2),h=Math.floor((k/f-d)/2),Array.prototype.forEach.call(l,function(a){switch(a){case"top":h=0;break;case"bottom":h=k/f-d;break;case"left":g=0;break;case"right":g=j/f-c;break;case"center":break;default:console&&console.log&&console.log("Unknown position: "+a)}}),i=0===h?g:g+" "+h,i="translate("+i+")",e?/translate/.test(e)?e=e.replace(/translate\(.*?\)/,i):e+=" "+i:e=i,a.setAttribute("transform",e)}})}};b.exports={refresh:c}},{}],7:[function(a,b){var c=/(iconic-sm\b|iconic-md\b|iconic-lg\b)/,d=function(a,b){var c="undefined"!=typeof window.getComputedStyle&&window.getComputedStyle(a,null).getPropertyValue(b);return!c&&a.currentStyle&&(c=a.currentStyle[b.replace(/([a-z])\-([a-z])/,function(a,b,c){return b+c.toUpperCase()})]||a.currentStyle[b]),c},e=function(a){var b=a.style.display;a.style.display="block";var c=parseFloat(d(a,"width").slice(0,-2)),e=parseFloat(d(a,"height").slice(0,-2));return a.style.display=b,{width:c,height:e}},f=function(){var a="/* Iconic Responsive Support Styles */\n.iconic-property-fill, .iconic-property-text {stroke: none !important;}\n.iconic-property-stroke {fill: none !important;}\nsvg.iconic.iconic-fluid {height:100% !important;width:100% !important;}\nsvg.iconic.iconic-sm:not(.iconic-size-md):not(.iconic-size-lg), svg.iconic.iconic-size-sm{width:16px;height:16px;}\nsvg.iconic.iconic-md:not(.iconic-size-sm):not(.iconic-size-lg), svg.iconic.iconic-size-md{width:32px;height:32px;}\nsvg.iconic.iconic-lg:not(.iconic-size-sm):not(.iconic-size-md), svg.iconic.iconic-size-lg{width:128px;height:128px;}\nsvg.iconic-sm > g.iconic-md, svg.iconic-sm > g.iconic-lg, svg.iconic-md > g.iconic-sm, svg.iconic-md > g.iconic-lg, svg.iconic-lg > g.iconic-sm, svg.iconic-lg > g.iconic-md {display: none;}\nsvg.iconic.iconic-icon-sm > g.iconic-lg, svg.iconic.iconic-icon-md > g.iconic-lg {display:none;}\nsvg.iconic-sm:not(.iconic-icon-md):not(.iconic-icon-lg) > g.iconic-sm, svg.iconic-md.iconic-icon-sm > g.iconic-sm, svg.iconic-lg.iconic-icon-sm > g.iconic-sm {display:inline;}\nsvg.iconic-md:not(.iconic-icon-sm):not(.iconic-icon-lg) > g.iconic-md, svg.iconic-sm.iconic-icon-md > g.iconic-md, svg.iconic-lg.iconic-icon-md > g.iconic-md {display:inline;}\nsvg.iconic-lg:not(.iconic-icon-sm):not(.iconic-icon-md) > g.iconic-lg, svg.iconic-sm.iconic-icon-lg > g.iconic-lg, svg.iconic-md.iconic-icon-lg > g.iconic-lg {display:inline;}";navigator&&navigator.userAgent&&/MSIE 10\.0/.test(navigator.userAgent)&&(a+="svg.iconic{zoom:1.0001;}");var b=document.createElement("style");b.id="iconic-responsive-css",b.type="text/css",b.styleSheet?b.styleSheet.cssText=a:b.appendChild(document.createTextNode(a)),(document.head||document.getElementsByTagName("head")[0]).appendChild(b)},g=function(a){if(/iconic-fluid/.test(a.getAttribute("class"))){var b,d=e(a),f=a.viewBox.baseVal.width/a.viewBox.baseVal.height;b=1===f?Math.min(d.width,d.height):1>f?d.width:d.height;var g;g=32>b?"iconic-sm":b>=32&&128>b?"iconic-md":"iconic-lg";var h=a.getAttribute("class"),i=c.test(h)?h.replace(c,g):h+" "+g;a.setAttribute("class",i)}},h=function(){var a=document.querySelectorAll(".injected-svg.iconic-fluid");Array.prototype.forEach.call(a,function(a){g(a)})};document.addEventListener("DOMContentLoaded",function(){f()}),window.addEventListener("resize",function(){h()}),b.exports={refresh:g,refreshAll:h}},{}],8:[function(b,c,d){!function(b,e){"use strict";function f(a){a=a.split(" ");for(var b={},c=a.length,d=[];c--;)b.hasOwnProperty(a[c])||(b[a[c]]=1,d.unshift(a[c]));return d.join(" ")}var g="file:"===b.location.protocol,h=e.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure","1.1"),i=Array.prototype.forEach||function(a,b){if(void 0===this||null===this||"function"!=typeof a)throw new TypeError;var c,d=this.length>>>0;for(c=0;d>c;++c)c in this&&a.call(b,this[c],c,this)},j={},k=0,l=[],m=[],n={},o=function(a){return a.cloneNode(!0)},p=function(a,b){m[a]=m[a]||[],m[a].push(b)},q=function(a){for(var b=0,c=m[a].length;c>b;b++)!function(b){setTimeout(function(){m[a][b](o(j[a]))},0)}(b)},r=function(a,c){if(void 0!==j[a])j[a]instanceof SVGSVGElement?c(o(j[a])):p(a,c);else{if(!b.XMLHttpRequest)return c("Browser does not support XMLHttpRequest"),!1;j[a]={},p(a,c);var d=new XMLHttpRequest;d.onreadystatechange=function(){if(4===d.readyState){if(404===d.status||null===d.responseXML)return c("Unable to load SVG file: "+a),g&&c("Note: SVG injection ajax calls do not work locally without adjusting security setting in your browser. Or consider using a local webserver."),c(),!1;if(!(200===d.status||g&&0===d.status))return c("There was a problem injecting the SVG: "+d.status+" "+d.statusText),!1;if(d.responseXML instanceof Document)j[a]=d.responseXML.documentElement;else if(DOMParser&&DOMParser instanceof Function){var b;try{var e=new DOMParser;b=e.parseFromString(d.responseText,"text/xml")}catch(f){b=void 0}if(!b||b.getElementsByTagName("parsererror").length)return c("Unable to parse SVG file: "+a),!1;j[a]=b.documentElement}q(a)}},d.open("GET",a),d.overrideMimeType&&d.overrideMimeType("text/xml"),d.send()}},s=function(a,c,d,e){var g=a.getAttribute("data-src")||a.getAttribute("src");if(!/svg$/i.test(g))return e("Attempted to inject a file with a non-svg extension: "+g),void 0;if(!h){var j=a.getAttribute("data-fallback")||a.getAttribute("data-png");return j?(a.setAttribute("src",j),e(null)):d?(a.setAttribute("src",d+"/"+g.split("/").pop().replace(".svg",".png")),e(null)):e("This browser does not support SVG and no PNG fallback was defined."),void 0}-1===l.indexOf(a)&&(l.push(a),a.setAttribute("src",""),r(g,function(d){if("undefined"==typeof d||"string"==typeof d)return e(d),!1;var h=a.getAttribute("id");h&&d.setAttribute("id",h);var j=a.getAttribute("title");j&&d.setAttribute("title",j);var m=[].concat(d.getAttribute("class")||[],"injected-svg",a.getAttribute("class")||[]).join(" ");d.setAttribute("class",f(m));var o=a.getAttribute("style");o&&d.setAttribute("style",o);var p=[].filter.call(a.attributes,function(a){return/^data-\w[\w\-]*$/.test(a.name)});i.call(p,function(a){a.name&&a.value&&d.setAttribute(a.name,a.value)});for(var q,r=d.querySelectorAll("defs clipPath[id]"),s=0,t=r.length;t>s;s++){q=r[s].id+"-"+k;for(var u=d.querySelectorAll('[clip-path*="'+r[s].id+'"]'),v=0,w=u.length;w>v;v++)u[v].setAttribute("clip-path","url(#"+q+")");r[s].id=q}d.removeAttribute("xmlns:a");for(var x,y,z=d.querySelectorAll("script"),A=[],B=0,C=z.length;C>B;B++)y=z[B].getAttribute("type"),y&&"application/ecmascript"!==y&&"application/javascript"!==y||(x=z[B].innerText||z[B].textContent,A.push(x),d.removeChild(z[B]));if(A.length>0&&("always"===c||"once"===c&&!n[g])){for(var D=0,E=A.length;E>D;D++)new Function(A[D])(b);n[g]=!0}a.parentNode.replaceChild(d,a),delete l[l.indexOf(a)],a=null,k++,e(d)}))},t=function(a,b,c){b=b||{};var d=b.evalScripts||"always",e=b.pngFallback||!1,f=b.each;if(void 0!==a.length){var g=0;i.call(a,function(b){s(b,d,e,function(b){f&&"function"==typeof f&&f(b),c&&a.length===++g&&c(g)})})}else a?s(a,d,e,function(b){f&&"function"==typeof f&&f(b),c&&c(1),a=null}):c&&c(0)};"object"==typeof c&&"object"==typeof c.exports?c.exports=d=t:"function"==typeof a&&a.amd?a(function(){return t}):"object"==typeof b&&(b.SVGInjector=t)}(window,document)},{}]},{},[1])(1)});
+angular.module('markdown', [])
+  .directive('markdown', function() {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs, controller) {
+        element.html(marked(element.html()));
+      }
+    };
+
+});
+
+'use strict';
+
+(function(){
+  var svgDirectives = {};
+
+  angular.forEach([
+      'clipPath',
+      'colorProfile',
+      'src',
+      'cursor',
+      'fill',
+      'filter',
+      'marker',
+      'markerStart',
+      'markerMid',
+      'markerEnd',
+      'mask',
+      'stroke'
+    ],
+    function(attr) {
+      svgDirectives[attr] = [
+          '$rootScope',
+          '$location',
+          '$interpolate',
+          '$sniffer',
+          'urlResolve',
+          'computeSVGAttrValue',
+          'svgAttrExpressions',
+          function(
+              $rootScope,
+              $location,
+              $interpolate,
+              $sniffer,
+              urlResolve,
+              computeSVGAttrValue,
+              svgAttrExpressions) {
+            return {
+              restrict: 'A',
+              link: function(scope, element, attrs) {
+                var initialUrl;
+
+                //Only apply to svg elements to avoid unnecessary observing
+                //Check that is in html5Mode and that history is supported
+                if ((!svgAttrExpressions.SVG_ELEMENT.test(element[0] &&
+                    element[0].toString())) ||
+                  !$location.$$html5 ||
+                  !$sniffer.history) return;
+
+                //Assumes no expressions, since svg is unforgiving of xml violations
+                initialUrl = attrs[attr];
+                attrs.$observe(attr, updateValue);
+                $rootScope.$on('$locationChangeSuccess', updateValue);
+
+                function updateValue () {
+                  var newVal = computeSVGAttrValue(initialUrl);
+                  //Prevent recursive updating
+                  if (newVal && attrs[attr] !== newVal) attrs.$set(attr, newVal);
+                }
+              }
+            };
+          }];
+  });
+
+  angular.module('ngSVGAttributes', []).
+    factory('urlResolve', [function() {
+      //Duplicate of urlResolve & urlParsingNode in angular core
+      var urlParsingNode = document.createElement('a');
+      return function urlResolve(url) {
+        urlParsingNode.setAttribute('href', url);
+        return urlParsingNode;
+      };
+    }]).
+    value('svgAttrExpressions', {
+      FUNC_URI: /^url\((.*)\)$/,
+      SVG_ELEMENT: /SVG[a-zA-Z]*Element/,
+      HASH_PART: /#.*/
+    }).
+    factory('computeSVGAttrValue', [
+                '$location', '$sniffer', 'svgAttrExpressions', 'urlResolve',
+        function($location,   $sniffer,   svgAttrExpressions,   urlResolve) {
+          return function computeSVGAttrValue(url) {
+            var match, fullUrl;
+            if (match = svgAttrExpressions.FUNC_URI.exec(url)) {
+              //hash in html5Mode, forces to be relative to current url instead of base
+              if (match[1].indexOf('#') === 0) {
+                fullUrl = $location.absUrl().
+                  replace(svgAttrExpressions.HASH_PART, '') +
+                  match[1];
+              }
+              //Presumably links to external SVG document
+              else {
+                fullUrl = urlResolve(match[1]);
+              }
+            }
+            return fullUrl ? 'url(' + fullUrl + ')' : null;
+          };
+        }
+      ]
+    ).
+    directive(svgDirectives);
+}());
+
 (function() {
   'use strict';
 
@@ -53467,119 +54319,6 @@ angular.module('ui.router.state')
     }
   }
 })();
-
-angular.module('markdown', [])
-  .directive('markdown', function() {
-    return {
-      restrict: 'A',
-      link: function(scope, element, attrs, controller) {
-        element.html(marked(element.html()));
-      }
-    };
-
-});
-
-'use strict';
-
-(function(){
-  var svgDirectives = {};
-
-  angular.forEach([
-      'clipPath',
-      'colorProfile',
-      'src',
-      'cursor',
-      'fill',
-      'filter',
-      'marker',
-      'markerStart',
-      'markerMid',
-      'markerEnd',
-      'mask',
-      'stroke'
-    ],
-    function(attr) {
-      svgDirectives[attr] = [
-          '$rootScope',
-          '$location',
-          '$interpolate',
-          '$sniffer',
-          'urlResolve',
-          'computeSVGAttrValue',
-          'svgAttrExpressions',
-          function(
-              $rootScope,
-              $location,
-              $interpolate,
-              $sniffer,
-              urlResolve,
-              computeSVGAttrValue,
-              svgAttrExpressions) {
-            return {
-              restrict: 'A',
-              link: function(scope, element, attrs) {
-                var initialUrl;
-
-                //Only apply to svg elements to avoid unnecessary observing
-                //Check that is in html5Mode and that history is supported
-                if ((!svgAttrExpressions.SVG_ELEMENT.test(element[0] &&
-                    element[0].toString())) ||
-                  !$location.$$html5 ||
-                  !$sniffer.history) return;
-
-                //Assumes no expressions, since svg is unforgiving of xml violations
-                initialUrl = attrs[attr];
-                attrs.$observe(attr, updateValue);
-                $rootScope.$on('$locationChangeSuccess', updateValue);
-
-                function updateValue () {
-                  var newVal = computeSVGAttrValue(initialUrl);
-                  //Prevent recursive updating
-                  if (newVal && attrs[attr] !== newVal) attrs.$set(attr, newVal);
-                }
-              }
-            };
-          }];
-  });
-
-  angular.module('ngSVGAttributes', []).
-    factory('urlResolve', [function() {
-      //Duplicate of urlResolve & urlParsingNode in angular core
-      var urlParsingNode = document.createElement('a');
-      return function urlResolve(url) {
-        urlParsingNode.setAttribute('href', url);
-        return urlParsingNode;
-      };
-    }]).
-    value('svgAttrExpressions', {
-      FUNC_URI: /^url\((.*)\)$/,
-      SVG_ELEMENT: /SVG[a-zA-Z]*Element/,
-      HASH_PART: /#.*/
-    }).
-    factory('computeSVGAttrValue', [
-                '$location', '$sniffer', 'svgAttrExpressions', 'urlResolve',
-        function($location,   $sniffer,   svgAttrExpressions,   urlResolve) {
-          return function computeSVGAttrValue(url) {
-            var match, fullUrl;
-            if (match = svgAttrExpressions.FUNC_URI.exec(url)) {
-              //hash in html5Mode, forces to be relative to current url instead of base
-              if (match[1].indexOf('#') === 0) {
-                fullUrl = $location.absUrl().
-                  replace(svgAttrExpressions.HASH_PART, '') +
-                  match[1];
-              }
-              //Presumably links to external SVG document
-              else {
-                fullUrl = urlResolve(match[1]);
-              }
-            }
-            return fullUrl ? 'url(' + fullUrl + ')' : null;
-          };
-        }
-      ]
-    ).
-    directive(svgDirectives);
-}());
 
 (function() {
   'use strict';
@@ -54688,6 +55427,331 @@ angular.module('markdown', [])
 (function() {
   'use strict';
 
+  angular.module('foundation.modal', ['foundation.core'])
+    .directive('zfModal', modalDirective)
+    .factory('ModalFactory', ModalFactory)
+    .service('FoundationModal', FoundationModal)
+  ;
+
+  FoundationModal.$inject = ['FoundationApi', 'ModalFactory'];
+
+  function FoundationModal(foundationApi, ModalFactory) {
+    var service    = {};
+
+    service.activate = activate;
+    service.deactivate = deactivate;
+    service.newModal = newModal;
+
+    return service;
+
+    //target should be element ID
+    function activate(target) {
+      foundationApi.publish(target, 'show');
+    }
+
+    //target should be element ID
+    function deactivate(target) {
+      foundationApi.publish(target, 'hide');
+    }
+
+    //new modal has to be controlled via the new instance
+    function newModal(config) {
+      return new ModalFactory(config);
+    }
+  }
+
+  modalDirective.$inject = ['FoundationApi'];
+
+  function modalDirective(foundationApi) {
+
+    var directive = {
+      restrict: 'EA',
+      templateUrl: 'components/modal/modal.html',
+      transclude: true,
+      scope: true,
+      replace: true,
+      compile: compile
+    };
+
+    return directive;
+
+    function compile(tElement, tAttrs, transclude) {
+      var type = 'modal';
+
+      return {
+        pre: preLink,
+        post: postLink
+      };
+
+      function preLink(scope, iElement, iAttrs, controller) {
+          iAttrs.$set('zf-closable', type);
+      }
+
+      function postLink(scope, element, attrs) {
+        var dialog = angular.element(element.children()[0]);
+        var animateFn = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
+
+        scope.active = scope.active || false;
+        scope.overlay = attrs.overlay === 'false' ? false : true;
+        scope.overlayClose = attrs.overlayClose === 'false' ? false : true;
+
+        var animationIn = attrs.animationIn || 'fadeIn';
+        var animationOut = attrs.animationOut || 'fadeOut';
+
+        var overlayIn = 'fadeIn';
+        var overlayOut = 'fadeOut';
+
+        scope.hideOverlay = function() {
+          if(scope.overlayClose) {
+            foundationApi.publish(attrs.id, 'close');
+          }
+        };
+
+        scope.hide = function() {
+          scope.active = false;
+          animate();
+          return;
+        };
+
+        scope.show = function() {
+          scope.active = true;
+          animate();
+          dialog.tabIndex = -1;
+          dialog[0].focus();
+          return;
+        };
+
+        scope.toggle = function() {
+          scope.active = !scope.active;
+          animate();
+          return;
+        };
+
+        init();
+
+        //setup
+        foundationApi.subscribe(attrs.id, function(msg) {
+          if(msg === 'show' || msg === 'open') {
+            scope.show();
+          } else if (msg === 'close' || msg === 'hide') {
+            scope.hide();
+          } else if (msg === 'toggle') {
+            scope.toggle();
+          }
+
+          if (scope.$root && !scope.$root.$$phase) {
+            scope.$apply();
+          }
+
+          return;
+        });
+
+        function animate() {
+          //animate both overlay and dialog
+          if(!scope.overlay) {
+            element.css('background', 'transparent');
+          }
+
+          // work around for modal animations
+          // due to a bug where the overlay fadeIn is essentially covering up
+          // the dialog's animation
+          if (!scope.active) {
+            animateFn(element, scope.active, overlayIn, overlayOut);
+          }
+          else {
+            element.addClass('is-active');
+          }
+
+          animateFn(dialog, scope.active, animationIn, animationOut);
+        }
+
+        function init() {
+          if(scope.active) {
+            scope.show();
+          }
+        }
+      }
+    }
+  }
+
+  ModalFactory.$inject = ['$http', '$templateCache', '$rootScope', '$compile', '$timeout', '$q', 'FoundationApi'];
+
+  function ModalFactory($http, $templateCache, $rootScope, $compile, $timeout, $q, foundationApi) {
+    return modalFactory;
+
+    function modalFactory(config) {
+      var self = this, //for prototype functions
+          container = angular.element(config.container || document.body),
+          id = config.id || foundationApi.generateUuid(),
+          attached = false,
+          destroyed = false,
+          html,
+          element,
+          fetched,
+          scope,
+          contentScope
+      ;
+
+      var props = [
+        'animationIn',
+        'animationOut',
+        'overlay',
+        'overlayClose',
+        'class'
+      ];
+
+      if(config.templateUrl) {
+        //get template
+        fetched = $http.get(config.templateUrl, {
+          cache: $templateCache
+        }).then(function (response) {
+          html = response.data;
+          assembleDirective();
+        });
+
+      } else if(config.template) {
+        //use provided template
+        fetched = true;
+        html = config.template;
+        assembleDirective();
+      }
+
+      self.activate = activate;
+      self.deactivate = deactivate;
+      self.toggle = toggle;
+      self.destroy = destroy;
+
+
+      return {
+        isActive: isActive,
+        activate: activate,
+        deactivate: deactivate,
+        toggle: toggle,
+        destroy: destroy
+      };
+
+      function checkStatus() {
+        if(destroyed) {
+          throw "Error: Modal was destroyed. Delete the object and create a new ModalFactory instance."
+        }
+      }
+
+      function isActive() {
+        return !destroyed && scope && scope.active === true;
+      }
+
+      function activate() {
+        checkStatus();
+        $timeout(function() {
+          init(true);
+          foundationApi.publish(id, 'show');
+        }, 0, false);
+      }
+
+      function deactivate() {
+        checkStatus();
+        $timeout(function() {
+          init(false);
+          foundationApi.publish(id, 'hide');
+        }, 0, false);
+      }
+
+      function toggle() {
+        checkStatus();
+        $timeout(function() {
+          init(true);
+          foundationApi.publish(id, 'toggle');
+        }, 0, false);
+      }
+
+      function init(state) {
+        $q.when(fetched).then(function() {
+          if(!attached && html.length > 0) {
+            var modalEl = container.append(element);
+
+            $compile(element)(scope);
+
+            attached = true;
+          }
+
+          scope.active = state;
+        });
+      }
+
+      function assembleDirective() {
+        // check for duplicate elements to prevent factory from cloning modals
+        if (document.getElementById(id)) {
+          return;
+        }
+
+        html = '<zf-modal id="' + id + '">' + html + '</zf-modal>';
+
+        element = angular.element(html);
+
+        scope = $rootScope.$new();
+
+        // account for directive attributes and modal classes
+        for(var i = 0; i < props.length; i++) {
+          var prop = props[i];
+
+          if(config[prop]) {
+            switch (prop) {
+              case 'animationIn':
+                element.attr('animation-in', config[prop]);
+                break;
+              case 'animationOut':
+                element.attr('animation-out', config[prop]);
+                break;
+              case 'overlayClose':
+                element.attr('overlay-close', config[prop] === 'false' ? 'false' : 'true'); // must be string, see postLink() above
+                break;
+              case 'class':
+                if (angular.isString(config[prop])) {
+                  config[prop].split(' ').forEach(function(klass) {
+                    element.addClass(klass);
+                  });
+                } else if (angular.isArray(config[prop])) {
+                  config[prop].forEach(function(klass) {
+                    element.addClass(klass);
+                  });
+                }
+                break;
+              default:
+                element.attr(prop, config[prop]);
+                break;
+            }
+          }
+        }
+        // access view scope variables
+        if (config.contentScope) {
+          contentScope = config.contentScope;
+          for (var prop in config.contentScope) {
+            if (config.contentScope.hasOwnProperty(prop)) {
+              scope[prop] = config.contentScope[prop];
+            }
+          }
+        }
+      }
+
+      function destroy() {
+        self.deactivate();
+        $timeout(function() {
+          scope.$destroy();
+          element.remove();
+          destroyed = true;
+        }, 0, false);
+        foundationApi.unsubscribe(id);
+      }
+
+    }
+
+  }
+
+})();
+
+(function() {
+  'use strict';
+
   angular.module('foundation.notification', ['foundation.core'])
     .controller('ZfNotificationController', ZfNotificationController)
     .directive('zfNotificationSet', zfNotificationSet)
@@ -55110,331 +56174,6 @@ angular.module('markdown', [])
     }
 
   }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('foundation.modal', ['foundation.core'])
-    .directive('zfModal', modalDirective)
-    .factory('ModalFactory', ModalFactory)
-    .service('FoundationModal', FoundationModal)
-  ;
-
-  FoundationModal.$inject = ['FoundationApi', 'ModalFactory'];
-
-  function FoundationModal(foundationApi, ModalFactory) {
-    var service    = {};
-
-    service.activate = activate;
-    service.deactivate = deactivate;
-    service.newModal = newModal;
-
-    return service;
-
-    //target should be element ID
-    function activate(target) {
-      foundationApi.publish(target, 'show');
-    }
-
-    //target should be element ID
-    function deactivate(target) {
-      foundationApi.publish(target, 'hide');
-    }
-
-    //new modal has to be controlled via the new instance
-    function newModal(config) {
-      return new ModalFactory(config);
-    }
-  }
-
-  modalDirective.$inject = ['FoundationApi'];
-
-  function modalDirective(foundationApi) {
-
-    var directive = {
-      restrict: 'EA',
-      templateUrl: 'components/modal/modal.html',
-      transclude: true,
-      scope: true,
-      replace: true,
-      compile: compile
-    };
-
-    return directive;
-
-    function compile(tElement, tAttrs, transclude) {
-      var type = 'modal';
-
-      return {
-        pre: preLink,
-        post: postLink
-      };
-
-      function preLink(scope, iElement, iAttrs, controller) {
-          iAttrs.$set('zf-closable', type);
-      }
-
-      function postLink(scope, element, attrs) {
-        var dialog = angular.element(element.children()[0]);
-        var animateFn = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
-
-        scope.active = scope.active || false;
-        scope.overlay = attrs.overlay === 'false' ? false : true;
-        scope.overlayClose = attrs.overlayClose === 'false' ? false : true;
-
-        var animationIn = attrs.animationIn || 'fadeIn';
-        var animationOut = attrs.animationOut || 'fadeOut';
-
-        var overlayIn = 'fadeIn';
-        var overlayOut = 'fadeOut';
-
-        scope.hideOverlay = function() {
-          if(scope.overlayClose) {
-            foundationApi.publish(attrs.id, 'close');
-          }
-        };
-
-        scope.hide = function() {
-          scope.active = false;
-          animate();
-          return;
-        };
-
-        scope.show = function() {
-          scope.active = true;
-          animate();
-          dialog.tabIndex = -1;
-          dialog[0].focus();
-          return;
-        };
-
-        scope.toggle = function() {
-          scope.active = !scope.active;
-          animate();
-          return;
-        };
-
-        init();
-
-        //setup
-        foundationApi.subscribe(attrs.id, function(msg) {
-          if(msg === 'show' || msg === 'open') {
-            scope.show();
-          } else if (msg === 'close' || msg === 'hide') {
-            scope.hide();
-          } else if (msg === 'toggle') {
-            scope.toggle();
-          }
-
-          if (scope.$root && !scope.$root.$$phase) {
-            scope.$apply();
-          }
-
-          return;
-        });
-
-        function animate() {
-          //animate both overlay and dialog
-          if(!scope.overlay) {
-            element.css('background', 'transparent');
-          }
-
-          // work around for modal animations
-          // due to a bug where the overlay fadeIn is essentially covering up
-          // the dialog's animation
-          if (!scope.active) {
-            animateFn(element, scope.active, overlayIn, overlayOut);
-          }
-          else {
-            element.addClass('is-active');
-          }
-
-          animateFn(dialog, scope.active, animationIn, animationOut);
-        }
-
-        function init() {
-          if(scope.active) {
-            scope.show();
-          }
-        }
-      }
-    }
-  }
-
-  ModalFactory.$inject = ['$http', '$templateCache', '$rootScope', '$compile', '$timeout', '$q', 'FoundationApi'];
-
-  function ModalFactory($http, $templateCache, $rootScope, $compile, $timeout, $q, foundationApi) {
-    return modalFactory;
-
-    function modalFactory(config) {
-      var self = this, //for prototype functions
-          container = angular.element(config.container || document.body),
-          id = config.id || foundationApi.generateUuid(),
-          attached = false,
-          destroyed = false,
-          html,
-          element,
-          fetched,
-          scope,
-          contentScope
-      ;
-
-      var props = [
-        'animationIn',
-        'animationOut',
-        'overlay',
-        'overlayClose',
-        'class'
-      ];
-
-      if(config.templateUrl) {
-        //get template
-        fetched = $http.get(config.templateUrl, {
-          cache: $templateCache
-        }).then(function (response) {
-          html = response.data;
-          assembleDirective();
-        });
-
-      } else if(config.template) {
-        //use provided template
-        fetched = true;
-        html = config.template;
-        assembleDirective();
-      }
-
-      self.activate = activate;
-      self.deactivate = deactivate;
-      self.toggle = toggle;
-      self.destroy = destroy;
-
-
-      return {
-        isActive: isActive,
-        activate: activate,
-        deactivate: deactivate,
-        toggle: toggle,
-        destroy: destroy
-      };
-
-      function checkStatus() {
-        if(destroyed) {
-          throw "Error: Modal was destroyed. Delete the object and create a new ModalFactory instance."
-        }
-      }
-
-      function isActive() {
-        return !destroyed && scope && scope.active === true;
-      }
-
-      function activate() {
-        checkStatus();
-        $timeout(function() {
-          init(true);
-          foundationApi.publish(id, 'show');
-        }, 0, false);
-      }
-
-      function deactivate() {
-        checkStatus();
-        $timeout(function() {
-          init(false);
-          foundationApi.publish(id, 'hide');
-        }, 0, false);
-      }
-
-      function toggle() {
-        checkStatus();
-        $timeout(function() {
-          init(true);
-          foundationApi.publish(id, 'toggle');
-        }, 0, false);
-      }
-
-      function init(state) {
-        $q.when(fetched).then(function() {
-          if(!attached && html.length > 0) {
-            var modalEl = container.append(element);
-
-            $compile(element)(scope);
-
-            attached = true;
-          }
-
-          scope.active = state;
-        });
-      }
-
-      function assembleDirective() {
-        // check for duplicate elements to prevent factory from cloning modals
-        if (document.getElementById(id)) {
-          return;
-        }
-
-        html = '<zf-modal id="' + id + '">' + html + '</zf-modal>';
-
-        element = angular.element(html);
-
-        scope = $rootScope.$new();
-
-        // account for directive attributes and modal classes
-        for(var i = 0; i < props.length; i++) {
-          var prop = props[i];
-
-          if(config[prop]) {
-            switch (prop) {
-              case 'animationIn':
-                element.attr('animation-in', config[prop]);
-                break;
-              case 'animationOut':
-                element.attr('animation-out', config[prop]);
-                break;
-              case 'overlayClose':
-                element.attr('overlay-close', config[prop] === 'false' ? 'false' : 'true'); // must be string, see postLink() above
-                break;
-              case 'class':
-                if (angular.isString(config[prop])) {
-                  config[prop].split(' ').forEach(function(klass) {
-                    element.addClass(klass);
-                  });
-                } else if (angular.isArray(config[prop])) {
-                  config[prop].forEach(function(klass) {
-                    element.addClass(klass);
-                  });
-                }
-                break;
-              default:
-                element.attr(prop, config[prop]);
-                break;
-            }
-          }
-        }
-        // access view scope variables
-        if (config.contentScope) {
-          contentScope = config.contentScope;
-          for (var prop in config.contentScope) {
-            if (config.contentScope.hasOwnProperty(prop)) {
-              scope[prop] = config.contentScope[prop];
-            }
-          }
-        }
-      }
-
-      function destroy() {
-        self.deactivate();
-        $timeout(function() {
-          scope.$destroy();
-          element.remove();
-          destroyed = true;
-        }, 0, false);
-        foundationApi.unsubscribe(id);
-      }
-
-    }
-
-  }
-
 })();
 
 (function() {
