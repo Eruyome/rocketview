@@ -90,16 +90,16 @@
 // $font-weight-bold: bold;
 
 // We use these to control various global styles
-// $body-background: #fff;
-// $body-font-color: #222;
-// $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+$body-background: #1b1b1b;
+$body-font-color: rgb(212, 212, 212);
+$body-font-family: Roboto, Arial, sans-serif;
 // $body-font-weight: $font-weight-normal;
 // $body-font-style: normal;
 // $body-antialiased: true;
 
 // Application Colors
-// $primary-color: #00558b;
-// $secondary-color: #f1f1f1;
+$primary-color: #101010;
+$secondary-color: #f1f1f1;
 // $alert-color: #F04124;
 // $info-color: #A0D3E8;
 // $success-color: #43AC6A;
@@ -139,7 +139,7 @@
 // $header-font-family: $body-font-family;
 // $header-font-weight: $font-weight-normal;
 // $header-font-style: $font-weight-normal;
-// $header-font-color: #222;
+$header-font-color: rgb(212, 212, 212);
 // $header-line-height: 1.4;
 // $header-top-margin: .2rem;
 // $header-bottom-margin: .5rem;
@@ -260,9 +260,9 @@
 // 7. Accordion
 // - - - - - - - - - - - - - - -
 
-// $accordion-border: 1px solid $gray-dark;
+$accordion-border: 1px solid $primary-color;
 
-// $accordion-title-background: $gray-light;
+$accordion-title-background: $primary-color;
 // $accordion-title-background-hover: smartscale($accordion-title-background, 5%);
 // $accordion-title-background-active: smartscale($accordion-title-background, 3%);
 // $accordion-title-color: isitlight($accordion-title-background);
@@ -398,8 +398,8 @@
 // 14. Iconic
 // - - - - - - - - - - - - - - -
 
-// $iconic-primary-fill: $primary-color;
-// $iconic-primary-stroke: $primary-color;
+$iconic-primary-fill: rgb(212, 212, 212);
+$iconic-primary-stroke: rgb(212, 212, 212);
 // $iconic-accent-fill: $iconic-primary-fill;
 // $iconic-accent-stroke: $iconic-accent-fill; 
 
@@ -440,7 +440,7 @@
 // 17. Modal
 // - - - - - - - - - - - - - - -
 
-// $modal-background: #fff;
+$modal-background: $body-background;
 // $modal-border: 0;
 // $modal-radius: 0px;
 // $modal-shadow: none;

@@ -9,23 +9,33 @@
 		<link href="//cdnjs.cloudflare.com/ajax/libs/ng-dialog/0.4.0/css/ngDialog-theme-plain.min.css" rel="stylesheet" type="text/css">
 		<link href="./assets/css/app.css" rel="stylesheet" type="text/css">
 		<link rel="stylesheet" href="angular-ui-notification.min.css">
-		<script src="https://www.youtube.com/iframe_api"></script>
-		<script src="./assets/js/foundation.js"></script>
-		<script src="./assets/js/templates.js"></script>
-		<script src="./assets/js/routes.js"></script>
-		<script src="./assets/js/app.js"></script>
+		<link rel="icon"
+			  type="image/png"
+			  href="./assets/img/favicon.ico">
+
 	</head>
 	<body>
 		<div class="grid-frame vertical"  ng-controller="mainController">
 			<div class="grid-content shrink" style="padding: 0;">
 				<ul class="primary condense menu-bar">
-					<li class="pageTitle desktop"><a href="./"><strong>RocketView</strong></a></li>
-					<li class="rbtvLink"><a href="www.rocketbeans.tv"></a></li>
+					<li class="pageTitle desktop">
+						<a href="./">
+							<img src="assets/img/rocketview-logo.png">
+							<strong>RocketView</strong>
+						</a>
+					</li>
+					<li class="disclaimerTitle"><a zf-open="showDisclaimerModal" class="disclaimer">Disclaimer</a></li>
 				</ul>
 			</div>
 
 			<div ui-view class="grid-content uiview" id="uiview">
 			</div>
 		</div>
+
+		<script src="https://www.youtube.com/iframe_api"></script>
+		<script src="./assets/js/foundation.js"></script>
+		<script src="./assets/js/templates.js"></script>
+		<script src="./assets/js/routes.js"></script>
+		<script src="./assets/js/app.js"></script>
 	</body>
 </html>
