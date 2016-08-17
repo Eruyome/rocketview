@@ -6033,10 +6033,15 @@ body {
         opacity: 1; }
   .videolist-container .duration {
     position: absolute;
-    bottom: 5px;
-    right: 5px; }
+    bottom: 3px;
+    right: 3px;
+    font-size: 0.6875rem;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 4px;
+    padding: 3px; }
   .videolist-container .vimage {
-    position: relative; }
+    position: relative;
+    max-height: 110px; }
     .videolist-container .vimage img {
       height: 110px;
       width: 196px; }

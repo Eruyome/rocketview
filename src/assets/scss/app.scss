@@ -190,11 +190,16 @@ body {
 	}
 	.duration {
 		position: absolute;
-		bottom: 5px;
-		right: 5px;
+		bottom: 3px;
+		right: 3px;
+		font-size: rem-calc(11px);
+		background-color: rgba(0,0,0,.8);
+		border-radius: 4px;
+		padding: 3px;
 	}
 	.vimage {
 		position: relative;
+		max-height: 110px;
 		img {
 			height: 110px;
 			width: 196px;

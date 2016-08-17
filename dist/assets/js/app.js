@@ -10250,7 +10250,7 @@ return jQuery;
 			}
 		};
 
-		/* Trust external ressource */
+		/* Trust external resource */
 		$scope.trustSrc = function(src) {
 			return $sce.trustAsResourceUrl(src);
 		};
@@ -10260,8 +10260,11 @@ return jQuery;
 			console.log(url);
 			$http.get(url).
 			success(function(data, status, headers, config) {
-				if(typeof channel !== 'undefined'){
+				if(typeof channel !== 'undefined' && type == 'vList'){
 					$scope.data[type][channel] = data.items;
+				}
+				else if(typeof channel !== 'undefined'){
+					getActualVideoData(data.items, 'vList', channel);
 				}
 				else {
 					$scope.data[type] = data.items;
@@ -10270,6 +10273,26 @@ return jQuery;
 			}).
 			error(function(data, status, headers, config) {
 			});
+		}
+
+		/* Use video Id's from channel search and get more detailed video data */
+		function getActualVideoData(list, kind, channel) {
+			var idList = [];
+			angular.forEach(list, function(value,key){
+				idList[key] = value.id.videoId;
+			});
+			console.log(idList.join());
+
+			var url = "https://www.googleapis.com/youtube/v3/",
+				type = "videos?",
+			params = {
+				part : 'snippet,contentDetails',
+				id : idList.join(),
+				maxResults: 50,
+				order: 'date',
+				key : getApiKey()
+			};
+			sendDataRequest(url + type + $httpParamSerializerJQLike(params), kind, channel);
 		}
 
 		$scope.getData = function(kind) {
@@ -10304,9 +10327,10 @@ return jQuery;
 						channelId : value,
 						maxResults: 50,
 						order: 'date',
+						type : 'video',
 						key : key
 					};
-					sendDataRequest(url + type + $httpParamSerializerJQLike(params), kind, vkey);
+					sendDataRequest(url + type + $httpParamSerializerJQLike(params), 'tempVList', vkey);
 				});
 			}
 		};
@@ -10529,6 +10553,22 @@ return jQuery;
 /*----------------------------------------------------------------------------------------------------------------------
  * BEGIN Custom Filters
  * --------------------------------------------------------------------------------------------------------------------*/
+
+	appModule.filter("YoutubeDuration", [function(){
+		return function (str) {
+			var match = str.match(/PT(\d+H)?(\d+M)?(\d+S)?/),
+				hours = (parseInt(match[1]) || 0),
+				minutes = (parseInt(match[2]) || 0),
+				seconds = (parseInt(match[3]) || 0);
+
+			function pad(n){return n<10 ? '0'+n : n}
+			var h = (hours > 0) ? (hours + ':') : '';
+			var m = pad(minutes) + ':';
+			var s = pad(seconds);
+
+			return h + m + s;
+		};
+	}]);
 
 	appModule.filter("filterStatusFlag", [function() {
 		return function (str) {
