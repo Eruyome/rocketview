@@ -6,7 +6,7 @@
 			  title="Live Übertragung.">Live
 		</span>
 		<span ng-if="data.video[0].snippet.liveBroadcastContent!='live'" class="broadcastState"
-			  title="Video ist aufgezeichnet.">Offline
+			  title="Video ist aufgezeichnet.">Recorded
 		</span>
 		<span>{{data.video[0].snippet.title}}</span>
 	</h5>
@@ -16,7 +16,7 @@
 			<div class="video grow" id="videoPlayer">
 				<div class="embed-responsive embed-responsive-16by9">
 					<ng-youtube-embed
-							url="video.url" autoplay="{{video.autoplay}}">
+							url="video.url" autoplay="{{video.autoplay}}" rel="false" showinfo="false">
 					</ng-youtube-embed>
 				</div>
 			</div>
@@ -51,14 +51,25 @@
 					   title="Reload List manually. Happens every 5min anyway.">
 						<img zf-iconic="" icon="reload" size="small" class="">
 					</a>
+					<a href="#" class="button" ng-click="switchChannel()">
+						Switch Channel
+					</a>
 				</span>
 			</label>
 		</div>
 
 		<div class="grid-block videolist-container">
 			<div class="grid-block videolist">
-				<div vlistitem  ng-repeat="(key, item) in data.vList | filter:{snippet:{title:searchText}}"></div>
+				<div vlistitem  ng-repeat="(key, item) in data.vList[options.activeChannel] | filter:{snippet:{title:searchText}}"></div>
 			</div>
+		</div>
+	</div>
+
+	<!-- Show Schedule Panel -->
+	<div zf-panel="" id="schedulePanel" position="right">
+		<a zf-close="" class="close-button">×</a>
+		<div class="grid-block calendar vertical">
+			<div calendaritem ng-repeat="(key, item) in data.calendar" class="grid-block"></div>
 		</div>
 	</div>
 
@@ -76,6 +87,9 @@
 			<ul>
 				<li>
 					<div>"play" icon made by <a href="http://www.flaticon.com/authors/elegant-themes" title="Elegant Themes">Elegant Themes</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+				</li>
+				<li>
+					<div><a href="http://simpleicon.com/calendar-1.html">"calendar"</a> icon from <a href="http://simpleicon.com/license-agreement/" title="simpleicon">www.simpleicon.com</a></div>
 				</li>
 			</ul>
 		</zf-accordion-item>
