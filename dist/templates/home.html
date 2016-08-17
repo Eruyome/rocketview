@@ -60,7 +60,9 @@
 
 		<div class="grid-block videolist-container">
 			<div class="grid-block videolist">
-				<div vlistitem  ng-repeat="(key, item) in data.vList[options.activeChannel] | filter:{snippet:{title:searchText}}"></div>
+				<div vlistitem
+					 ng-repeat="(key, item) in data.vList[options.activeChannel] | orderBy : 'snippet.publishedAt' : true | filter:{snippet:{title:searchText}} ">
+				</div>
 			</div>
 		</div>
 	</div>
@@ -81,6 +83,7 @@
 	<a zf-close="" class="close-button">×</a>
 	<h3>About</h3>
 	<p>This site is fan-made and not affiliated with Rocket BEANS Entertainment GmbH in any way. RocketView is fully open source under GNU General Public License v2.0.</p>
+	<p>RocketView is optimised for the latest Firefox and Chrome browsers with a resolution of at least 600px width.</p>
 
 	<zf-accordion class="">
 		<zf-accordion-item title="Image Attributions">
@@ -94,4 +97,22 @@
 			</ul>
 		</zf-accordion-item>
 	</zf-accordion>
+</div>
+
+<!-- Show Options Modal -->
+<div zf-modal="" id="optionsModal" class="collapse">
+	<div class="grid-block vertical">
+		<div class="primary title-bar">
+			<div class="center title">Options</div>
+			<span zf-close="" class="left"><a>Close</a></span>
+			<span zf-close="" class="right"><a>Done</a></span>
+		</div>
+		<div class="grid-content padding" style="padding-top: 1rem;">
+			<p>
+				<img src="assets/img/mountain.jpg">
+			</p>
+			<a zf-close="" class="button">OK</a>
+			<a zf-close="" class="button">Cancel</a>
+		</div>
+	</div>
 </div>

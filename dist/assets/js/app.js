@@ -10255,9 +10255,12 @@ return jQuery;
 			return $sce.trustAsResourceUrl(src);
 		};
 
+		function sortVideosByDate(list){
+
+		}
+
 		/* Get data from youtube api via ajax */
 		function sendDataRequest(url, type, channel){
-			console.log(url);
 			$http.get(url).
 			success(function(data, status, headers, config) {
 				if(typeof channel !== 'undefined' && type == 'vList'){
@@ -10281,7 +10284,6 @@ return jQuery;
 			angular.forEach(list, function(value,key){
 				idList[key] = value.id.videoId;
 			});
-			console.log(idList.join());
 
 			var url = "https://www.googleapis.com/youtube/v3/",
 				type = "videos?",
@@ -10380,13 +10382,16 @@ return jQuery;
 		function ISODateString(d){
 			function pad(n){return n<10 ? '0'+n : n}
 			var offset = (d.getTimezoneOffset()/60*-1);
-			return d.getUTCFullYear()+'-'
+			d.setTime(d.getTime() + (offset*60*60*1000));
+			var date = d.getUTCFullYear()+'-'
 				+ pad(d.getUTCMonth()+1)+'-'
 				+ pad(d.getUTCDate())+'T'
-				+ pad(d.getUTCHours()+offset)+':'
+				+ pad(d.getUTCHours())+':'
 				+ pad(d.getUTCMinutes())+':'
 				+ pad(d.getUTCSeconds())+'+'
 				+ pad(offset)+':00';
+
+			return date;
 		}
 		function getDateTime() {
 			return ISODateString(new Date);
@@ -10479,6 +10484,7 @@ return jQuery;
 				});
 
 				$scope.data.calendar = removePastEvents(items, 2);
+				util.out('Requested Calendar Data', 'info');
 				util.out($scope.data, 'log');
 			}).
 			error(function(data, status, headers, config) {
@@ -10510,6 +10516,7 @@ return jQuery;
 		$interval(function() {reloadVListData();}, $scope.refreshVideoListDataInterval);
 
 		/* Get Viewer Count */
+		/* http://stackoverflow.com/questions/33846081/grabbing-the-current-viewer-count-for-youtube-live-streaming */
 		function getLiveViewerCount() {
 			var url = 'http://www.youtube.com/live_stats?v=' + $scope.video.id;
 

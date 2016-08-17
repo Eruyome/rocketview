@@ -5950,7 +5950,7 @@ body {
 .menu-bar .scheduleTitle {
   position: absolute;
   top: 8px;
-  right: 95px; }
+  right: 75px; }
   .menu-bar .scheduleTitle a.schedule {
     display: inline-block;
     background: url("../img/calendar-small.png") no-repeat center center;
@@ -5964,6 +5964,21 @@ body {
       top: 4px; }
       .menu-bar .scheduleTitle a.schedule {
         padding: 1rem; } }
+
+.menu-bar .optionsTitle {
+  position: absolute;
+  right: 130px;
+  top: 11px; }
+  .menu-bar .optionsTitle img, .menu-bar .optionsTitle a {
+    margin: 0;
+    padding: 0; }
+  .menu-bar .optionsTitle svg.iconic.iconic-md:not(.iconic-size-sm):not(.iconic-size-lg), .menu-bar .optionsTitle svg.iconic.iconic-size-md {
+    width: 28px;
+    height: 28px;
+    margin: 0; }
+  @media only screen and (max-width: 900px) {
+    .menu-bar .optionsTitle {
+      top: 6px; } }
 
 .grid-container {
   max-width: 100rem;
@@ -6215,6 +6230,10 @@ body {
         border-radius: 4px;
         background-color: #151515;
         margin-left: -4px; }
+    .calendar .calendar-item.even .description .label {
+      background-color: #101010; }
+    .calendar .calendar-item.active .description .label {
+      background-color: #131313; }
     .calendar .calendar-item .summary {
       font-size: 0.875rem; }
 

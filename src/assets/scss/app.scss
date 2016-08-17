@@ -84,7 +84,7 @@ body {
 	.scheduleTitle {
 		position: absolute;
 		top: 8px;
-		right: 95px;
+		right: 75px;
 		a.schedule {
 			display: inline-block;
 			background: url('../img/calendar-small.png') no-repeat center center;
@@ -100,6 +100,23 @@ body {
 				padding: 1rem;
 			}
 			top: 4px;
+		}
+	}
+	.optionsTitle {
+		position: absolute;
+		right: 130px;
+		top: 11px;
+		img, a {
+			margin: 0;
+			padding: 0;
+		}
+		svg.iconic.iconic-md:not(.iconic-size-sm):not(.iconic-size-lg), svg.iconic.iconic-size-md {
+			width: 28px;
+			height: 28px;
+			margin: 0;
+		}
+		@include mq($max-width: 900px){
+			top: 6px;
 		}
 	}
 }
@@ -423,6 +440,12 @@ body {
 				background-color: lighten($primary-color, 2%);
 				margin-left: -4px;
 			}
+		}
+		&.even .description .label {
+			background-color: ($primary-color);
+		}
+		&.active .description .label {
+			background-color: lighten($primary-color, 1%);
 		}
 		.summary {
 			font-size: rem-calc(14px);
