@@ -8,7 +8,6 @@
 		<a class="vtitle" ng-click="changeVideo(item.id.videoId)" title="{{item.snippet.title}}">
 			{{ item.snippet.title | limitTo: 60 }}{{item.snippet.title.length > 60 ? '...' : ''}}
 		</a>
-		<span class="vclicks"></span>
 		<span class="vdate">{{item.snippet.publishedAt | date:"dd.MM.yyyy - H:mm'Uhr'"}}</span>
 	</div>
 </div>

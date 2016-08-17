@@ -14,7 +14,7 @@ body {
 
 	.uiview {
 		input {
-			background-color: $primary-color;
+			background-color: lighten($primary-color, 2%);
 			border-color: #101010;
 			color: $body-font-color;
 			font-size: rem-calc(14px);
@@ -142,8 +142,11 @@ body {
 	input {
 		height: 2rem;
 	}
-	span, .button {
+	span {
 		margin: 0;
+	}
+	.button {
+		margin: 0 0 0 .5rem;
 	}
 }
 
@@ -200,9 +203,11 @@ body {
 	.vtitle {
 		padding: 4px 0 4px 0;
 	}
-	.vdate, .vclicks {
+	.vdate {
 		color: rgb(159, 159, 159);
 		font-size: rem-calc(12px);
+		display: inline-block;
+		width: 100%;
 	}
 }
 

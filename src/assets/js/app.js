@@ -59,13 +59,17 @@
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
-		$scope.streamVideoId = 'fFppH4_sXBc';
+		$scope.streamVideoId = 'njCDZWTI-xg';
+		$scope.channelId = {
+			main : 'UCQvTDmHza8erxZqDkjQ4bQQ',
+			letsplay : 'UCtSP1OA6jO4quIGLae7Fb4g'
+		};
 		$scope.searchText = "";
 
 		/* ng youtube embed */
 		$scope.video =  new function() {
 			this.domain = 'https://www.youtube.com/watch?v=';
-			this.id = 'fFppH4_sXBc';
+			this.id = $scope.streamVideoId;
 			this.url = this.domain + this.id;
 			this.autoplay = true;
 			this.width = 768;
@@ -82,13 +86,29 @@
 		/* ng youtube embed */
 
 		$scope.data = [];
+		$scope.data.vList = [];
+		$scope.data.video = [];
+		$scope.data.calendar = [];
 		$scope.viewerCount = 0;
 		$scope.refreshVideoListDataInterval = 300000;
 		$scope.viewerCountInterval = 5000;
 		$scope.scheduleCountInterval = 10000;
+		
+		$scope.options = {
+			activeChannel : 'main'	
+		};
 	/*------------------------------------------------------------------------------------------------------------------
 	 * END Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
+
+		$scope.switchChannel = function(){
+			if($scope.options.activeChannel == 'main') {
+				$scope.options.activeChannel = 'letsplay';
+			}
+			else {
+				$scope.options.activeChannel = 'main';
+			}
+		};
 
 		/* Trust external ressource */
 		$scope.trustSrc = function(src) {
@@ -96,42 +116,59 @@
 		};
 
 		/* Get data from youtube api via ajax */
-		$scope.getData = function(kind) {
-			var key = getApiKey(),
-				domain = "https://www.googleapis.com/youtube/v3/",
-				channelId = "UCQvTDmHza8erxZqDkjQ4bQQ";
-
-			var videoKind = "videos",
-				videoParameter = "?" + "part=snippet" + "&id=" + $scope.video.id + "&key=" + key,
-				getVideoData = domain + videoKind + videoParameter;
-
-			var channelKind = "channels",
-				channelParameter = "?" + "part=snippet" + "&id=" + channelId + "&key=" + key,
-				getChannelData = domain + channelKind + channelParameter;
-
-			var vListKind = "search",
-				vListOrder = "date",
-				vListMaxResults = 50,
-				vListParameter = "?" + "part=snippet" + "&channelId=" + channelId + "&maxResults=" + vListMaxResults + "&order=" + vListOrder + "&key=" + key,
-				getVListData = domain + vListKind + vListParameter;
-
-			if(kind == "channel") {
-				var url = getChannelData;
-			}
-			else if(kind == "video") {
-				var url = getVideoData;
-			}
-			else if(kind == "vList") {
-				var url = getVListData;
-			}
-
+		function sendDataRequest(url, type, channel){
+			console.log(url);
 			$http.get(url).
 			success(function(data, status, headers, config) {
-				$scope.data[kind] = data.items;
+				if(typeof channel !== 'undefined'){
+					$scope.data[type][channel] = data.items;
+				}
+				else {
+					$scope.data[type] = data.items;
+				}
 				util.out($scope.data, 'log');
 			}).
 			error(function(data, status, headers, config) {
 			});
+		}
+
+		$scope.getData = function(kind) {
+			var params = {},
+				type = '',
+				key = getApiKey(),
+				url = "https://www.googleapis.com/youtube/v3/";
+
+			if(kind == "channel") {
+				type = "channels?";
+				params = {
+					part : 'snippet',
+					id : $scope.channelId.main,
+					key : key
+				};
+				sendDataRequest(url + type + $httpParamSerializerJQLike(params), kind);
+			}
+			else if(kind == "video") {
+				type = "videos?";
+				params = {
+					part : 'snippet',
+					id : $scope.video.id,
+					key : key
+				};
+				sendDataRequest(url + type + $httpParamSerializerJQLike(params), kind);
+			}
+			else if(kind == "vList") {
+				type = "search?";
+				angular.forEach($scope.channelId, function(value, vkey){
+					params = {
+						part : 'snippet',
+						channelId : value,
+						maxResults: 50,
+						order: 'date',
+						key : key
+					};
+					sendDataRequest(url + type + $httpParamSerializerJQLike(params), kind, vkey);
+				});
+			}
 		};
 
 		/* Change Calendar Data */
@@ -148,8 +185,7 @@
 		}
 
 		function removeShowFromSummary(summary){
-			var pos = summary.indexOf('|'),
-				newSummary = '';
+			var pos = summary.indexOf('|');
 
 			summary = summary.replace(/^\[L\]|^\[N\]/g,"");
 			if (pos > 0) {

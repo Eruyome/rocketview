@@ -5896,7 +5896,7 @@ body {
     body a:hover {
       color: #d4d4d4; }
   body .uiview input {
-    background-color: #101010;
+    background-color: #151515;
     border-color: #101010;
     color: #d4d4d4;
     font-size: 0.875rem; }
@@ -5997,8 +5997,10 @@ body {
   margin: 0; }
   .vlist-controls input {
     height: 2rem; }
-  .vlist-controls span, .vlist-controls .button {
+  .vlist-controls span {
     margin: 0; }
+  .vlist-controls .button {
+    margin: 0 0 0 .5rem; }
 
 .videolist-container {
   font-size: 0.875rem;
@@ -6040,9 +6042,11 @@ body {
       width: 196px; }
   .videolist-container .vtitle {
     padding: 4px 0 4px 0; }
-  .videolist-container .vdate, .videolist-container .vclicks {
+  .videolist-container .vdate {
     color: #9f9f9f;
-    font-size: 0.75rem; }
+    font-size: 0.75rem;
+    display: inline-block;
+    width: 100%; }
 
 .notification {
   position: absolute;

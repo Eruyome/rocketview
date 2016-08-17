@@ -20,7 +20,7 @@ url: /
 			<div class="video grow" id="videoPlayer">
 				<div class="embed-responsive embed-responsive-16by9">
 					<ng-youtube-embed
-							url="video.url" autoplay="{{video.autoplay}}">
+							url="video.url" autoplay="{{video.autoplay}}" rel="false" showinfo="false">
 					</ng-youtube-embed>
 				</div>
 			</div>
@@ -55,13 +55,16 @@ url: /
 					   title="Reload List manually. Happens every 5min anyway.">
 						<img zf-iconic="" icon="reload" size="small" class="">
 					</a>
+					<a href="#" class="button" ng-click="switchChannel()">
+						Switch Channel
+					</a>
 				</span>
 			</label>
 		</div>
 
 		<div class="grid-block videolist-container">
 			<div class="grid-block videolist">
-				<div vlistitem  ng-repeat="(key, item) in data.vList | filter:{snippet:{title:searchText}}"></div>
+				<div vlistitem  ng-repeat="(key, item) in data.vList[options.activeChannel] | filter:{snippet:{title:searchText}}"></div>
 			</div>
 		</div>
 	</div>

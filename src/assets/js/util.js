@@ -2,9 +2,9 @@
 var util = (function () {
   return {
     out: function (input, outputType) {
-    	if (typeof debugDevBuild === 'undefined') {
-    		return;
-    	}
+	    if (document.location.hostname != "localhost") {
+		    return
+	    }
     	try {
     		if (outputType == "log") {
     			console.log(input);
