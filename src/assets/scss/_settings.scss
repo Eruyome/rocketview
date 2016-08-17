@@ -114,7 +114,7 @@ $secondary-color: #f1f1f1;
 // $global-rounded: 1000px;
 
 // We use this for default spacing
-// $global-padding: 1rem;
+$global-padding: 1rem;
 // $global-spacing: rem-calc(15); 
 
 // 3. Breakpoints
@@ -407,7 +407,7 @@ $iconic-primary-stroke: rgb(212, 212, 212);
 // - - - - - - - - - - - - - - -
 
 // $label-fontsize: 0.8rem;
-// $label-padding: ($global-padding / 3) ($global-padding / 2);
+$label-padding: ($global-padding / 6) ($global-padding / 4);
 // $label-radius: 0;
 // $label-background: $primary-color;
 // $label-color: isitlight($primary-color);
@@ -542,11 +542,11 @@ $modal-background: $body-background;
 // 21. Panel
 // - - - - - - - - - - - - - - -
 
-// $panel-size-horizontal: 300px;
+$panel-size-horizontal: 400px;
 // $panel-size-vertical: 300px;
 // $panel-padding: 0;
 
-// $panel-background: #fff;
+$panel-background: $primary-color;
 // $panel-shadow: 3px 0 10px rgba(black, 0.25);
 // $panel-animation-speed: 0.25s; 
 

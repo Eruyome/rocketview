@@ -10141,6 +10141,18 @@ return jQuery;
 (function () {
 	'use strict';
 
+	function getApiKey() {
+		if (document.location.hostname != "localhost") {
+			//distribution key
+			var key = "AIzaSyDkGP7Qktvas2tkDhNIwHVLwMXvvxys50o";
+		}
+		else if (document.location.hostname == "localhost") {
+			//development key
+			var key = "AIzaSyCETug5rV8Iv1E72KnZcAVWFm2rRwCmrto";
+		}
+		return key;
+	}
+
 	var appModule = angular.module('application', [
 			'ui.router',
 			'ngAnimate',
@@ -10182,36 +10194,14 @@ return jQuery;
 		FastClick.attach(document.body);
 	}
 
-	appModule.controller('mainController', ['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce) {
+	appModule.controller('mainController', ['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', '$httpParamSerializerJQLike', function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce, $httpParamSerializerJQLike) {
 
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
 		$scope.streamVideoId = 'fFppH4_sXBc';
-
-		/* angular youtube embed */
-		$scope.ytParams = {
-			autoplay: 1
-		};
-		$scope.player = {
-			video: $scope.streamVideoId,
-			vars: $scope.ytParams,
-			change: function (videoId) {
-				$scope.player.video = videoId;
-			}
-		};
-
-		$scope.playerWidth = 768;
-		$scope.playerWidthUnit = "px";
-		$scope.playerHeight = 432;
-		$scope.playerHeightUnit = "px";
-		$scope.chatHeight = $scope.playerHeight;
-		$scope.chatHeightUnit = "px";
-		$scope.chatWidth = 300;
-		$scope.chatWidthUnit = "px";
-		/* angular youtube embed */
-
 		$scope.searchText = "";
+
 		/* ng youtube embed */
 		$scope.video =  new function() {
 			this.domain = 'https://www.youtube.com/watch?v=';
@@ -10232,7 +10222,10 @@ return jQuery;
 		/* ng youtube embed */
 
 		$scope.data = [];
-		$scope.tickInterval = 300000;
+		$scope.viewerCount = 0;
+		$scope.refreshVideoListDataInterval = 300000;
+		$scope.viewerCountInterval = 5000;
+		$scope.scheduleCountInterval = 10000;
 	/*------------------------------------------------------------------------------------------------------------------
 	 * END Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
@@ -10244,31 +10237,23 @@ return jQuery;
 
 		/* Get data from youtube api via ajax */
 		$scope.getData = function(kind) {
-			if (document.location.hostname != "localhost") {
-				//distribution key
-				var key = "AIzaSyDkGP7Qktvas2tkDhNIwHVLwMXvvxys50o";
-			}
-			else if (document.location.hostname == "localhost") {
-				//development key
-				var key = "AIzaSyCETug5rV8Iv1E72KnZcAVWFm2rRwCmrto";
-			}
+			var key = getApiKey(),
+				domain = "https://www.googleapis.com/youtube/v3/",
+				channelId = "UCQvTDmHza8erxZqDkjQ4bQQ";
 
-			var domain = "https://www.googleapis.com/youtube/v3/";
-			var channelId = "UCQvTDmHza8erxZqDkjQ4bQQ";
+			var videoKind = "videos",
+				videoParameter = "?" + "part=snippet" + "&id=" + $scope.video.id + "&key=" + key,
+				getVideoData = domain + videoKind + videoParameter;
 
-			var videoKind = "videos";
-			var videoParameter = "?" + "part=snippet" + "&id=" + $scope.video.id + "&key=" + key;
-			var getVideoData = domain + videoKind + videoParameter;
+			var channelKind = "channels",
+				channelParameter = "?" + "part=snippet" + "&id=" + channelId + "&key=" + key,
+				getChannelData = domain + channelKind + channelParameter;
 
-			var channelKind = "channels";
-			var channelParameter = "?" + "part=snippet" + "&id=" + channelId + "&key=" + key;
-			var getChannelData = domain + channelKind + channelParameter;
-
-			var vListKind = "search";
-			var vListOrder = "date";
-			var vListMaxResults = 50;
-			var vListParameter = "?" + "part=snippet" + "&channelId=" + channelId + "&maxResults=" + vListMaxResults + "&order=" + vListOrder + "&key=" + key;
-			var getVListData = domain + vListKind + vListParameter;
+			var vListKind = "search",
+				vListOrder = "date",
+				vListMaxResults = 50,
+				vListParameter = "?" + "part=snippet" + "&channelId=" + channelId + "&maxResults=" + vListMaxResults + "&order=" + vListOrder + "&key=" + key,
+				getVListData = domain + vListKind + vListParameter;
 
 			if(kind == "channel") {
 				var url = getChannelData;
@@ -10289,12 +10274,167 @@ return jQuery;
 			});
 		};
 
+		/* Change Calendar Data */
+		function getShowFromSummary(summary){
+			summary = summary.replace(/^\[L\]|^\[N\]/g,"");
+			var pos = summary.indexOf('|'),
+				show = false;
+
+			if (pos > 0) {
+				show = summary.substring(0, pos);
+			}
+
+			return show;
+		}
+
+		function removeShowFromSummary(summary){
+			var pos = summary.indexOf('|'),
+				newSummary = '';
+
+			summary = summary.replace(/^\[L\]|^\[N\]/g,"");
+			if (pos > 0) {
+				summary = summary.substring(pos-1, summary.length);
+				summary = summary.replace(/[|]/,"");
+			}
+
+			return summary;
+		}
+
+		function getStatusFlagFromSummary(summary){
+			var flag = false;
+			if (summary.indexOf('[L]') === 0) {
+				flag = 'Live';
+			}
+			else if (summary.indexOf('[N]') === 0) {
+				 flag = 'New';
+			}
+
+			return flag;
+		}
+
+		/* Convert current dateTime to RFC 3339 Timestamp */
+		/* http://stackoverflow.com/questions/7244246/generate-an-rfc-3339-timestamp-similar-to-google-tasks-api */
+		/**
+		 * @return {string}
+		 */
+		function ISODateString(d){
+			function pad(n){return n<10 ? '0'+n : n}
+			var offset = (d.getTimezoneOffset()/60*-1);
+			return d.getUTCFullYear()+'-'
+				+ pad(d.getUTCMonth()+1)+'-'
+				+ pad(d.getUTCDate())+'T'
+				+ pad(d.getUTCHours()+offset)+':'
+				+ pad(d.getUTCMinutes())+':'
+				+ pad(d.getUTCSeconds())+'+'
+				+ pad(offset)+':00';
+		}
+		function getDateTime() {
+			return ISODateString(new Date);
+		}
+		function isPastEvent(event){
+			var t = getDateTime();
+			return (event.end.dateTime < t);
+		}
+		/* subtract X minutes from ISO date time string */
+		function changeISODateString(minutes, operator, string){
+			var date = new Date(string);
+
+			if (operator == 'add') {
+				date.setMinutes(date.getMinutes() + minutes);
+			}
+			else if (operator == 'subtract') {
+				date.setMinutes(date.getMinutes() - minutes);
+			}
+
+			return ISODateString(date);
+		}
+
+		/* Remove X past Events from the list to remove clutter */
+		function removePastEvents(list, limit){
+			var count = 0;
+
+			angular.forEach(list, function(value, key){
+				if(value.isPastEvent) {
+					count++;
+				}
+			});
+
+			if (count > limit) {
+				var n = count - limit;
+				for(var i = 0; i < n; i++) {
+					list.shift();
+				}
+			}
+			list[0].isFirstEventOfTheDay = true;
+			return list;
+		}
+
+		/* Check if Event is the first of the day */
+		function isFirstEventOfTheDay(list, index){
+			if(index == 0){
+				return true;
+			}
+			else {
+				var date1 = new Date(list[index].start.dateTime).setHours(0,0,0,0),
+					date2 = new Date(list[index-1].start.dateTime).setHours(0,0,0,0);
+
+				if(date1 > date2) {
+					return true;
+				}
+			}
+		}
+
+		/* Get Calendar Data */
+		$scope.getCalendarData = function() {
+			var domain = 'https://www.googleapis.com/calendar/v3/calendars/',
+				id = 'h6tfehdpu3jrbcrn9sdju9ohj8%40group.calendar.google.com',
+				kind = '/events?',
+				url = domain + id + kind;
+
+			var params = {
+				orderBy : 'startTime',
+				singleEvents : 'true',
+				timeMin : changeISODateString(240, 'subtract', getDateTime()),
+				timeMax : changeISODateString(1440, 'add', getDateTime()),
+				key : getApiKey()
+			};
+
+			$http.get(url + $httpParamSerializerJQLike(params)).
+			success(function(data, status, headers, config) {
+				var items = [];
+				angular.forEach(data.items, function(value, key){
+					var obj = {};
+					obj.id = value.id;
+					obj.status = value.status;
+					obj.start = value.start;
+					obj.end = value.end;
+					obj.sequence = value.sequence;
+					obj.eventStatus = getStatusFlagFromSummary(value.summary);
+					obj.show = getShowFromSummary(value.summary);
+					obj.summary = removeShowFromSummary(value.summary);
+					obj.isPastEvent = isPastEvent(value);
+					obj.isFirstEventOfTheDay = isFirstEventOfTheDay(data.items, key);
+
+					items.push(obj);
+				});
+
+				$scope.data.calendar = removePastEvents(items, 2);
+				util.out($scope.data, 'log');
+			}).
+			error(function(data, status, headers, config) {
+			});
+		};
+
+		function updateSchedule(){
+			$scope.getCalendarData();
+		}
+		$interval(function() {updateSchedule();}, $scope.scheduleCountInterval);
+
 		/* Gets called to get video list data in intervals */
 		function reloadVListData() {
 			$scope.getData("vList");
 			util.out("Reloaded video list data.", "info");
 		}
-
 		/* Replace video in iframe */
 		$scope.changeVideo = function (videoId) {
 			$scope.video.id = videoId;
@@ -10303,10 +10443,38 @@ return jQuery;
 		};
 
 		/* Init Load Data */
+		$scope.getCalendarData();
 		$scope.getData("video");
 		$scope.getData("vList");
 		/* Reload video list data in intervals */
-		$interval(function() {reloadVListData();}, $scope.tickInterval);
+		$interval(function() {reloadVListData();}, $scope.refreshVideoListDataInterval);
+
+		/* Get Viewer Count */
+		function getLiveViewerCount() {
+			var url = 'http://www.youtube.com/live_stats?v=' + $scope.video.id;
+
+			$http.get(url).
+			success(function(response) {
+				$scope.viewerCount = response;
+				util.out($scope.viewerCount, 'log');
+			}).
+			error(function(response) {
+				util.out(response, 'log');
+				util.out('Getting Viewer Count failed.', 'log');
+			});
+		}
+		//$interval(function() {getLiveViewerCount();}, $scope.viewerCountInterval);
+
+		$scope.checkIfActiveEvent = function(event){
+			var t = getDateTime();
+			return !!(event.start.dateTime <= t && event.end.dateTime >= t)
+		};
+		$scope.beginsWith = function(string, match){
+			return string.indexOf(match) === 0;
+		};
+		$scope.isEven = function(value){
+			return (value % 2 == 0) ? true : false;
+		};
 
 		/* Toggle Chat display */
 		$scope.chatState = true;
@@ -10319,32 +10487,80 @@ return jQuery;
 				$scope.chatState = true;
 			}
 		};
-
-
-		/*
-		$scope.$watch('buildingCharacter', function(newVal, oldVal){
-			$scope.data.options.buildingCharacter = $scope.build.character;
-		}, true);
-		*/
-
-		// write data to localStorage on changes
-		$scope.$watch('data', function(newVal, oldVal){
-			setLocalStorage('data', $scope.data);
-		}, true);
-
-		function setLocalStorage(key, val) {
-			return localStorageService.set(key, val);
-		}
-		function getLocalStorage(key) {
-			return localStorageService.get(key);
-		}
 	}]);
 
-	/* Directives */
+
+/*----------------------------------------------------------------------------------------------------------------------
+ * BEGIN Custom Filters
+ * --------------------------------------------------------------------------------------------------------------------*/
+
+	appModule.filter("filterStatusFlag", [function() {
+		return function (str) {
+			str = str.replace(/^\[L\]|^\[N\]/g,"");
+			return str;
+		};
+	}]);
+
+	appModule.filter("filterShow", [function() {
+		return function (str) {
+			var pos = str.indexOf('|');
+			if (pos > 0) {
+				str = str.substring(pos, str.length);
+			}
+			str = str.replace(/[|]/,"");
+			return str;
+		};
+	}]);
+
+	appModule.filter("keepShow", [function() {
+		return function (str) {
+			var pos = str.indexOf('|');
+			if (pos > 0) {
+				str = str.substring(0, pos);
+			}
+			else {
+				str = '';
+			}
+			return str;
+		};
+	}]);
+
+	appModule.filter("showStatusFlag", [function() {
+		return function (str) {
+			if (str.indexOf('[L]') === 0) {
+				str = 'Live';
+			}
+			else if (str.indexOf('[N]') === 0) {
+				str = 'New';
+			}
+			else {
+				str = '';
+			}
+			return str;
+		};
+	}]);
+
+/*----------------------------------------------------------------------------------------------------------------------
+ * END Custom Filters
+ * --------------------------------------------------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------------------------------------------------
+ * BEGIN Custom Directives
+ * --------------------------------------------------------------------------------------------------------------------*/
 	appModule.directive('vlistitem', function () {
 		return {
 			restrict: 'A',
 			templateUrl: 'templates/directives/vlistitem.html',
+			scope: true,
+			replace: true
+		};
+	});
+
+	appModule.directive('calendaritem', function () {
+		return {
+			restrict: 'A',
+			templateUrl: 'templates/directives/calendaritem.html',
 			scope: true,
 			replace: true
 		};
@@ -10358,4 +10574,8 @@ return jQuery;
 			replace: true
 		};
 	});
+/*----------------------------------------------------------------------------------------------------------------------
+ * END Custom Directives
+ * --------------------------------------------------------------------------------------------------------------------*/
+
 })();

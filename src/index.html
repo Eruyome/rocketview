@@ -14,7 +14,7 @@
 			  href="./assets/img/favicon.ico">
 
 	</head>
-	<body>
+	<body zf-close-all>
 		<div class="grid-frame vertical"  ng-controller="mainController">
 			<div class="grid-content shrink" style="padding: 0;">
 				<ul class="primary condense menu-bar">
@@ -24,7 +24,12 @@
 							<strong>RocketView</strong>
 						</a>
 					</li>
-					<li class="disclaimerTitle"><a zf-open="showDisclaimerModal" class="disclaimer">Disclaimer</a></li>
+					<li class="scheduleTitle">
+						<a href="#" zf-toggle="schedulePanel" class="button schedule"></a>
+					</li>
+					<li class="disclaimerTitle">
+						<a zf-open="showDisclaimerModal" class="disclaimer">Disclaimer</a>
+					</li>
 				</ul>
 			</div>
 

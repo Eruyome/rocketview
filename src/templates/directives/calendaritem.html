@@ -1,0 +1,24 @@
+<div>
+
+	<div class="grid-block daySpacer" ng-if="item.isFirstEventOfTheDay">
+		<h6>{{item.start.dateTime | date:"EEEE, dd.MM.yyyy"}}</h6>
+	</div>
+
+	<div class="calendar-item grid-block"
+		 ng-class="{pastEvent: item.isPastEvent, odd: !isEven(key), even: isEven(key), active: checkIfActiveEvent(item)}">
+		<div class="time" ng-class="{liveEvent: item.eventStatus=='Live', newEvent: item.eventStatus=='New'}">
+			<span class="status" ng-if="item.eventStatus">{{item.eventStatus}}</span>
+			<span>{{item.start.dateTime | date:"H:mm"}}</span>
+			<span ng-if="checkIfActiveEvent(item)">---</span>
+			<span ng-if="checkIfActiveEvent(item)">{{item.end.dateTime | date:"H:mm"}}</span>
+		</div>
+		<div class="description">
+			<span class="show">
+				<span class="success label" ng-if="item.show">
+					<strong>{{item.show}}</strong>
+				</span>
+				{{item.summary}}
+			</span>
+		</div>
+	</div>
+</div>

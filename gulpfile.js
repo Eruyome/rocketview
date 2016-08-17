@@ -51,7 +51,8 @@ var paths = {
 		'bower_components/foundation-apps/js/angular/**/*.js',
 		'!bower_components/foundation-apps/js/angular/app.js',
 		'node_modules/angular-youtube-embed/dist/angular-youtube-embed.min.js',
-		'node_modules/ng-youtube-embed/build/ng-youtube-embed.min.js'
+		'node_modules/ng-youtube-embed/build/ng-youtube-embed.min.js',
+		'bower_components/ngGAPI/gapi.js'
 	],
 	// These files are for your app's JavaScript
 	appJS: [
