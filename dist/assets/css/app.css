@@ -6097,6 +6097,14 @@ body {
 .video-chat-controls {
   margin: 5px 0 6px 0; }
 
+.thumb img {
+  opacity: .7; }
+  .thumb img:hover {
+    opacity: 1; }
+
+.thumb.down img {
+  transform: rotate(180deg); }
+
 .video-title .part, .video-title .date {
   background-color: rgba(0, 0, 0, 0.2);
   padding: 2px 4px;

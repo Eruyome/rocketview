@@ -8,7 +8,6 @@
 		<span ng-if="data.video[0].snippet.liveBroadcastContent!='live'" class="broadcastState"
 			  title="Video ist aufgezeichnet.">Recorded
 		</span>
-		<!--<span>{{data.video[0].snippet.title}}</span>-->
 		<span ng-bind-html="currentTitle"></span>
 	</h5>
 
@@ -32,6 +31,14 @@
 				</a>
 			</div>
 
+			<!--
+			<a href="#" ng-click="vote('up')" class="thumb up">
+				<img src="assets/img/thumb-light.png"/>
+			</a>
+			<a href="#" ng-click="vote('down')" class="thumb down">
+				<img src="assets/img/thumb-light.png"/>
+			</a>
+			-->
 		</div>
 
 		<div class="right chat-view" id="chatView">
@@ -46,7 +53,7 @@
 			<label class="vlist-controls">
 				<span class="inline-label">
 					<span class="form-label">Filter</span>
-					<input type="text" ng-model="searchText" placeholder="Search">
+					<input type="text" ng-model="searchText" placeholder="Input">
 					<span class="form-label">Latest Videos</span>
 					<a href="#" class="button" ng-click="getData('vList')"
 					   title="Reload List manually. Happens every 5min anyway.">
@@ -124,6 +131,9 @@
 			<ul>
 				<li>
 					<div>"play" icon made by <a href="http://www.flaticon.com/authors/elegant-themes" title="Elegant Themes">Elegant Themes</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+				</li>
+				<li>
+					<div>"thumb" icon made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 				</li>
 				<li>
 					<div><a href="http://simpleicon.com/calendar-1.html">"calendar"</a> icon from <a href="http://simpleicon.com/license-agreement/" title="simpleicon">www.simpleicon.com</a></div>

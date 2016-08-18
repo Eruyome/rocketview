@@ -272,6 +272,22 @@ body {
 .video-chat-controls {
 	margin: 5px 0 6px 0;
 }
+
+.thumb {
+	img {
+		opacity: .7;
+		&:hover {
+			opacity: 1;
+		}
+	}
+	&.up {
+
+	}
+	&.down img {
+		transform: rotate(180deg);
+	}
+}
+
 .video-title {
 	.part, .date {
 		background-color: rgba(0,0,0,.2);

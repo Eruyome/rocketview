@@ -10162,6 +10162,7 @@ return jQuery;
 			'youtube-embed',
 			'ngYoutubeEmbed',
 			'ngSanitize',
+			//'angular-google-gapi',
 			//'$window',
 
 			//foundation
@@ -10194,9 +10195,54 @@ return jQuery;
 
 	function run() {
 		FastClick.attach(document.body);
+		/*
+		['GAuth', 'GApi', 'GData', '$state', '$rootScope',
+			function(GAuth, GApi, GData, $state, $rootScope) {
+
+				$rootScope.gdata = GData;
+
+				var CLIENT = '378650801043-kupfja7u53oi16u60r62o2ln0uribfuf.apps.googleusercontent.com';
+				var BASE = 'https://myGoogleAppEngine.appspot.com/_ah/api';
+				if($window.location.hostname == 'localhost') {
+					BASE = '//localhost:8080/_ah/api';
+				} else {
+					BASE = 'https://cloud-endpoints-gae.appspot.com/_ah/api';
+				}
+
+				//GApi.load('youtube','v3',BASE);
+				GApi.load('youtube','v3',BASE);
+				//GApi.load('calendar','v3'); // for google api (https://developers.google.com/apis-explorer/)
+
+				GAuth.setClient(CLIENT);
+				GAuth.setScope("https://www.googleapis.com/auth/youtube"); // default scope is only https://www.googleapis.com/auth/userinfo.email
+
+				// load the auth api so that it doesn't have to be loaded asynchronously
+				// when the user clicks the 'login' button.
+				// That would lead to popup blockers blocking the auth window
+				GAuth.load();
+
+				// or just call checkAuth, which in turn does load the oauth api.
+				// if you do that, GAuth.load(); is unnecessary
+				GAuth.checkAuth().then(
+					function (user) {
+						console.log(user.name + 'is login')
+						//$state.go('webapp.home'); // an example of action if it's possible to
+						// authenticate user at startup of the application
+					},
+					function() {
+						//$state.go('login');       // an example of action if it's impossible to
+						// authenticate user at startup of the application
+					}
+				);
+			}
+		]
+		*/
 	}
 
-	appModule.controller('mainController', ['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', '$httpParamSerializerJQLike', function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce, $httpParamSerializerJQLike) {
+	appModule.controller('mainController',
+		['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', '$httpParamSerializerJQLike', /*'GApi',*/
+		function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce, $httpParamSerializerJQLike /*,GApi*/)
+	{
 
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
@@ -10247,6 +10293,7 @@ return jQuery;
 		$scope.options = {
 			activeChannel : 'main'	
 		};
+
 	/*------------------------------------------------------------------------------------------------------------------
 	 * END Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
@@ -10276,7 +10323,7 @@ return jQuery;
 					"<span class='part'>"+ part[0] +"</span>").trim();
 			}
 			else {
-				var part = srcTitle.match(/( \d{1}\/\d{1} )/g);
+				part = srcTitle.match(/( \d{1}\/\d{1} )/g);
 				if(!!part) {
 					srcTitle = srcTitle.replace(/( \d{1}\/\d{1} )/,
 						"<span class='part'>"+ part[0] +"</span>").trim();
@@ -10600,6 +10647,14 @@ return jQuery;
 				$scope.chatState = true;
 			}
 		};
+		
+		
+		/* Like/Dislike */
+		$scope.vote = function(direction){
+			console.log(direction);	
+		};
+		
+		
 
 		function isElementInViewport (el, offset) {
 

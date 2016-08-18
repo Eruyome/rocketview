@@ -7,6 +7,7 @@
     "deploy": "gulp build --production && gulp deploy && gulp build"
   },
   "devDependencies": {
+    "angular-google-gapi": "^1.0.0",
     "angular-local-storage": "^0.2.7",
     "angular-sanitize": "^1.5.8",
     "angular-ui-bootstrap": "^1.3.1",
