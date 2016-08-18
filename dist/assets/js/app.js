@@ -10142,13 +10142,14 @@ return jQuery;
 	'use strict';
 
 	function getApiKey() {
+		var key = '';
 		if (document.location.hostname != "localhost") {
 			//distribution key
-			var key = "AIzaSyDkGP7Qktvas2tkDhNIwHVLwMXvvxys50o";
+			key = "AIzaSyDkGP7Qktvas2tkDhNIwHVLwMXvvxys50o";
 		}
 		else if (document.location.hostname == "localhost") {
 			//development key
-			var key = "AIzaSyCETug5rV8Iv1E72KnZcAVWFm2rRwCmrto";
+			key = "AIzaSyCETug5rV8Iv1E72KnZcAVWFm2rRwCmrto";
 		}
 		return key;
 	}
@@ -10166,7 +10167,8 @@ return jQuery;
 			//foundation
 			'foundation',
 			'foundation.dynamicRouting',
-			'foundation.dynamicRouting.animations'
+			'foundation.dynamicRouting.animations',
+			'duScroll'
 		])
 			.config(config)
 			.run(run)
@@ -10205,16 +10207,22 @@ return jQuery;
 			letsplay : 'UCtSP1OA6jO4quIGLae7Fb4g'
 		};
 		$scope.searchText = "";
+		$scope.currentTitle = $sce.trustAsHtml('<span></span>');
 
 		/* ng youtube embed */
 		$scope.video =  new function() {
 			this.domain = 'https://www.youtube.com/watch?v=';
 			this.id = $scope.streamVideoId;
 			this.url = this.domain + this.id;
+			this.title = {
+				part: '',
+				summary: '',
+				date : ''
+			};
 			this.autoplay = true;
 			this.width = 768;
 			this.height = 432;
-		};
+		}();
 		$scope.chat = new function() {
 			this.domain = 'https://www.youtube.com/live_chat?v=';
 			this.id = $scope.streamVideoId;
@@ -10222,17 +10230,19 @@ return jQuery;
 			this.theme = 'dark_theme=1';
 			this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme;
 			this.width = 400;
-		};
+		}();
 		/* ng youtube embed */
 
 		$scope.data = [];
 		$scope.data.vList = [];
 		$scope.data.video = [];
 		$scope.data.calendar = [];
+
 		$scope.viewerCount = 0;
 		$scope.refreshVideoListDataInterval = 300000;
 		$scope.viewerCountInterval = 5000;
-		$scope.scheduleCountInterval = 10000;
+		$scope.scheduleCountInterval = 600000;
+		$scope.updateStreamTitleCountInterval = 300000;
 		
 		$scope.options = {
 			activeChannel : 'main'	
@@ -10255,8 +10265,32 @@ return jQuery;
 			return $sce.trustAsResourceUrl(src);
 		};
 
-		function sortVideosByDate(list){
+		/* Construct formatted title */
+		function constructCurrentVideoTitle(video){
+			var title = '',
+				srcTitle = video[0].snippet.title;
 
+			var part = srcTitle.match(/\[.*?\]/g);
+			if(!!part) {
+				srcTitle = srcTitle.replace(/\[.*?\]/,
+					"<span class='part'>"+ part[0] +"</span>").trim();
+			}
+			else {
+				var part = srcTitle.match(/( \d{1}\/\d{1} )/g);
+				if(!!part) {
+					srcTitle = srcTitle.replace(/( \d{1}\/\d{1} )/,
+						"<span class='part'>"+ part[0] +"</span>").trim();
+				}
+			}
+
+			var date = srcTitle.match(/(\d{2}.\d{2}.\d{4})/g);
+			if(!!date) {
+				srcTitle = srcTitle.replace(/(\d{2}.\d{2}.\d{4})$/,
+					"<span class='date'>"+ date +"</span>").trim();
+				srcTitle = srcTitle.replace(/\|([^\|]*)$/,'$1').trim();
+			}
+
+			return $sce.trustAsHtml(srcTitle);
 		}
 
 		/* Get data from youtube api via ajax */
@@ -10268,6 +10302,10 @@ return jQuery;
 				}
 				else if(typeof channel !== 'undefined'){
 					getActualVideoData(data.items, 'vList', channel);
+				}
+				else if(type == 'video') {
+					$scope.currentTitle = constructCurrentVideoTitle(data.items);
+					$scope.data[type] = data.items;
 				}
 				else {
 					$scope.data[type] = data.items;
@@ -10380,7 +10418,7 @@ return jQuery;
 		 * @return {string}
 		 */
 		function ISODateString(d){
-			function pad(n){return n<10 ? '0'+n : n}
+			function pad(n){return n<10 ? '0'+n : n;}
 			var offset = (d.getTimezoneOffset()/60*-1);
 			d.setTime(d.getTime() + (offset*60*60*1000));
 			var date = d.getUTCFullYear()+'-'
@@ -10394,7 +10432,7 @@ return jQuery;
 			return date;
 		}
 		function getDateTime() {
-			return ISODateString(new Date);
+			return ISODateString(new Date());
 		}
 		function isPastEvent(event){
 			var t = getDateTime();
@@ -10436,7 +10474,7 @@ return jQuery;
 
 		/* Check if Event is the first of the day */
 		function isFirstEventOfTheDay(list, index){
-			if(index == 0){
+			if(index === 0){
 				return true;
 			}
 			else {
@@ -10496,6 +10534,14 @@ return jQuery;
 		}
 		$interval(function() {updateSchedule();}, $scope.scheduleCountInterval);
 
+		function updateStreamTitle(){
+			if($scope.video.id != $scope.streamVideoId){
+				return;
+			}
+			$scope.getData('video');
+		}
+		$interval(function() {updateStreamTitle();}, $scope.updateStreamTitleCountInterval);
+
 		/* Gets called to get video list data in intervals */
 		function reloadVListData() {
 			$scope.getData("vList");
@@ -10534,13 +10580,13 @@ return jQuery;
 
 		$scope.checkIfActiveEvent = function(event){
 			var t = getDateTime();
-			return !!(event.start.dateTime <= t && event.end.dateTime >= t)
+			return !!(event.start.dateTime <= t && event.end.dateTime >= t);
 		};
 		$scope.beginsWith = function(string, match){
 			return string.indexOf(match) === 0;
 		};
 		$scope.isEven = function(value){
-			return (value % 2 == 0) ? true : false;
+			return (value % 2 === 0) ? true : false;
 		};
 
 		/* Toggle Chat display */
@@ -10552,6 +10598,31 @@ return jQuery;
 			} else {
 				jQuery('#chatView').show();
 				$scope.chatState = true;
+			}
+		};
+
+		function isElementInViewport (el, offset) {
+
+			//special bonus for those using jQuery
+			if (typeof jQuery === "function" && el instanceof jQuery) {
+				el = el[0];
+			}
+
+			var rect = el.getBoundingClientRect();
+
+			return (
+				rect.top >= 0 + offset &&
+				rect.left >= 0 &&
+				rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+				rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+			);
+		}
+
+		$scope.scrollToTop = function () {
+			var visible = isElementInViewport(jQuery('#videoPlayer'), 50);
+			if(!visible){
+				angular.element(document.querySelector('#uiview'))
+					.duScrollTo(0, 10, 350);
 			}
 		};
 	}]);
@@ -10568,7 +10639,7 @@ return jQuery;
 				minutes = (parseInt(match[2]) || 0),
 				seconds = (parseInt(match[3]) || 0);
 
-			function pad(n){return n<10 ? '0'+n : n}
+			function pad(n){return n<10 ? '0'+n : n;}
 			var h = (hours > 0) ? (hours + ':') : '';
 			var m = pad(minutes) + ':';
 			var s = pad(seconds);

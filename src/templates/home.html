@@ -12,7 +12,8 @@ url: /
 		<span ng-if="data.video[0].snippet.liveBroadcastContent!='live'" class="broadcastState"
 			  title="Video ist aufgezeichnet.">Recorded
 		</span>
-		<span>{{data.video[0].snippet.title}}</span>
+		<!--<span>{{data.video[0].snippet.title}}</span>-->
+		<span ng-bind-html="currentTitle"></span>
 	</h5>
 
 	<div class="live-container">
@@ -86,8 +87,41 @@ url: /
 <div zf-modal="" id="showDisclaimerModal">
 	<a zf-close="" class="close-button">×</a>
 	<h3>About</h3>
-	<p>This site is fan-made and not affiliated with Rocket BEANS Entertainment GmbH in any way. RocketView is fully open source under GNU General Public License v2.0.</p>
-	<p>RocketView is optimised for the latest Firefox and Chrome browsers with a resolution of at least 600px width.</p>
+	<p>This site is fan-made and not affiliated with Rocket BEANS Entertainment GmbH in any way.
+		RocketView is fully open source under GNU General Public License v2.0.
+	</p>
+	<p>RocketView is optimised for the latest Firefox and Chrome browsers with a resolution of at least 600px width. It
+		is not intended to be used on mobile devices.
+	</p>
+
+	<zf-accordion class="">
+		<zf-accordion-item title="Project Goals">
+			<ul>
+				<li>
+					Alternative viewer for RocketbeansTV Youtube Live streams
+				</li>
+				<li>
+					Featuring a dark theme, program schedule, important links and easy access to the latest youtube videos
+					(main and let's play channels). All this without the need to manually refresh something or opening new pages.
+				</li>
+			</ul>
+		</zf-accordion-item>
+	</zf-accordion>
+
+	<zf-accordion class="">
+		<zf-accordion-item title="Interesting Projects">
+			<ul>
+				<li>
+					<a href="https://forum.rocketbeans.tv/t/betterrbtv-fuer-youtube-live-inoffizielle-chrome-erweiterung/9466">
+						BETTERRBTV for Youtube Live
+					</a> by pronuntiator (works with RocketView)
+				</li>
+				<li>
+					<a href="https://forum.rocketbeans.tv/t/youtube-alternative/2035">Youtube Alternative</a> by misantronic
+				</li>
+			</ul>
+		</zf-accordion-item>
+	</zf-accordion>
 
 	<zf-accordion class="">
 		<zf-accordion-item title="Image Attributions">

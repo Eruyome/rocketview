@@ -5938,14 +5938,10 @@ body {
   .menu-bar li a {
     padding: 0.5rem; } }
 
-.menu-bar .disclaimer {
-  font-size: 0.75rem; }
-
 .menu-bar .disclaimerTitle {
   position: absolute;
   top: 0px;
-  right: 0px;
-  margin-top: 3px; }
+  right: 0px; }
 
 .menu-bar .scheduleTitle {
   position: absolute;
@@ -5981,7 +5977,7 @@ body {
       top: 6px; } }
 
 .grid-container {
-  max-width: 100rem;
+  max-width: 98rem;
   padding: 1rem; }
 
 .grid-content .grid-block {
@@ -6100,6 +6096,13 @@ body {
 
 .video-chat-controls {
   margin: 5px 0 6px 0; }
+
+.video-title .part, .video-title .date {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 2px 4px;
+  font-size: 1rem;
+  color: #a1a1a1;
+  box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.5); }
 
 .playLiveButton, .toggleChatButton {
   display: block;

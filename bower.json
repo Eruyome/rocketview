@@ -25,7 +25,9 @@
   "dependencies": {
     "foundation-apps": "~1.2.0",
     "jquery": "^3.1.0",
-    "ngGAPI": "https://github.com/christiansmith/ngGAPI.git"
+    "ngGAPI": "https://github.com/christiansmith/ngGAPI.git",
+    "angular-sanitize": "^1.5.8",
+    "angular-scroll": "^1.0.0"
   },
   "devDependencies": {
     "ng-dialog": "^0.6.0"
