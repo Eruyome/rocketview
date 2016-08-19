@@ -10674,11 +10674,9 @@ return jQuery;
 
 		$scope.$watch('options', function(newVal, oldVal){
 			setLocalStorage('options', $scope.options);
-			console.log($scope.options);
 		}, true);
 
 		function setLocalStorage(key, val) {
-			console.log(key, val);
 			return localStorageService.set(key, val);
 		}
 		function getLocalStorage(key) {
