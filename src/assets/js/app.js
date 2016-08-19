@@ -154,7 +154,8 @@
 			activeChannel : 'main',
 			viewReversed : false
 		};
-
+		$scope.chatState = true;
+		loadData();
 	/*------------------------------------------------------------------------------------------------------------------
 	 * END Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
@@ -498,7 +499,6 @@
 		};
 
 		/* Toggle Chat display */
-		$scope.chatState = true;
 		$scope.toggleChat = function () {
 			if ($scope.chatState === true) {
 				jQuery('#chatView').hide();
@@ -518,7 +518,33 @@
 		$scope.vote = function(direction){
 			console.log(direction);	
 		};
-		
+
+		/* Load and save localstorage data */
+		// write data to localStorage on changes
+		function loadData() {
+			var d =	getLocalStorage('options');
+			if (!util.isEmpty(d)) {
+				angular.forEach(d, function(value, key){
+					if(typeof value !== 'undefined' || value !== null || value != ''){
+						$scope.options[key] = value;
+					}
+				});
+			}
+		}
+
+		$scope.$watch('options', function(newVal, oldVal){
+			setLocalStorage('options', $scope.options);
+			console.log($scope.options);
+		}, true);
+
+		function setLocalStorage(key, val) {
+			console.log(key, val);
+			return localStorageService.set(key, val);
+		}
+		function getLocalStorage(key) {
+			return localStorageService.get(key);
+		}
+
 
 		function isElementInViewport (el, offset) {
 
