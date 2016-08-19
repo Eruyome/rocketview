@@ -66,6 +66,12 @@ body {
 			padding: 0.75rem;
 		}
 	}
+	@include max-screen(700px){
+		li a {
+			font-size: rem-calc(14px);
+			padding: 0.75rem;
+		}
+	}
 	@include max-screen(580px){
 		li a {
 			padding: 0.5rem;
@@ -156,12 +162,28 @@ body {
 	margin: 0;
 	input {
 		height: 2rem;
+		min-width : 100px;
 	}
 	span {
 		margin: 0;
 	}
 	.button {
 		margin: 0 0 0 .5rem;
+
+	}
+	input, span, .button {
+		@include mq($max-width: 600px){
+			font-size: rem-calc(12px);
+		}
+	}
+	.hide-switch {
+		padding-right: 4px;
+	}
+}
+
+.hide-700 {
+	@include mq($max-width: 700px){
+		display: none !important;
 	}
 }
 
@@ -271,7 +293,51 @@ body {
 
 .video-chat-controls {
 	margin: 5px 0 6px 0;
+
+	.switch-view {
+		margin: 0;
+		img {
+			margin-top: 4px;
+		}
+	}
+	.toggle-chat {
+		flex-direction: row-reverse;
+	}
+	.show-reverse {
+		display: none;
+	}
 }
+.video-chat-control-reverse {
+	flex-direction: row-reverse;
+	.toggle-chat {
+		flex-direction: row;
+
+		.icon {
+			display: none;
+			&.show-reverse {
+				display: inline;
+			}
+			svg {
+				transform: scaleX(-1);
+			}
+		}
+		.toggleChatButton {
+			text-align: left;
+		}
+	}
+	.play-live {
+		flex-direction: row-reverse;
+		.playLiveButton {
+			background-position: right;
+			padding-left: 0;
+			padding-right: 30px;
+		}
+	}
+	.switch-view img {
+		transform: scaleX(-1);
+	}
+}
+
 
 .thumb {
 	img {
@@ -326,13 +392,18 @@ body {
 
 .live-container {
 	display: flex;
+
+	.right {
+		flex: 0 0 400px;
+	}
+	.left {
+		flex: 1;
+	}
 }
-.right {
-	flex: 0 0 400px;
+.flex-row-reverse {
+	flex-direction: row-reverse;
 }
-.left {
-	flex: 1;
-}
+
 
 .embed-responsives {
 	position: relative;

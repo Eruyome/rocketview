@@ -5934,6 +5934,11 @@ body {
     font-size: 1rem;
     padding: 0.75rem; } }
 
+@media only screen and (max-width: 700px) {
+  .menu-bar li a {
+    font-size: 0.875rem;
+    padding: 0.75rem; } }
+
 @media only screen and (max-width: 580px) {
   .menu-bar li a {
     padding: 0.5rem; } }
@@ -6007,11 +6012,21 @@ body {
 .vlist-controls {
   margin: 0; }
   .vlist-controls input {
-    height: 2rem; }
+    height: 2rem;
+    min-width: 100px; }
   .vlist-controls span {
     margin: 0; }
   .vlist-controls .button {
     margin: 0 0 0 .5rem; }
+  @media only screen and (max-width: 600px) {
+    .vlist-controls input, .vlist-controls span, .vlist-controls .button {
+      font-size: 0.75rem; } }
+  .vlist-controls .hide-switch {
+    padding-right: 4px; }
+
+@media only screen and (max-width: 700px) {
+  .hide-700 {
+    display: none !important; } }
 
 .videolist-container {
   font-size: 0.875rem;
@@ -6096,6 +6111,39 @@ body {
 
 .video-chat-controls {
   margin: 5px 0 6px 0; }
+  .video-chat-controls .switch-view {
+    margin: 0; }
+    .video-chat-controls .switch-view img {
+      margin-top: 4px; }
+  .video-chat-controls .toggle-chat {
+    -ms-flex-direction: row-reverse;
+        flex-direction: row-reverse; }
+  .video-chat-controls .show-reverse {
+    display: none; }
+
+.video-chat-control-reverse {
+  -ms-flex-direction: row-reverse;
+      flex-direction: row-reverse; }
+  .video-chat-control-reverse .toggle-chat {
+    -ms-flex-direction: row;
+        flex-direction: row; }
+    .video-chat-control-reverse .toggle-chat .icon {
+      display: none; }
+      .video-chat-control-reverse .toggle-chat .icon.show-reverse {
+        display: inline; }
+      .video-chat-control-reverse .toggle-chat .icon svg {
+        transform: scaleX(-1); }
+    .video-chat-control-reverse .toggle-chat .toggleChatButton {
+      text-align: left; }
+  .video-chat-control-reverse .play-live {
+    -ms-flex-direction: row-reverse;
+        flex-direction: row-reverse; }
+    .video-chat-control-reverse .play-live .playLiveButton {
+      background-position: right;
+      padding-left: 0;
+      padding-right: 30px; }
+  .video-chat-control-reverse .switch-view img {
+    transform: scaleX(-1); }
 
 .thumb img {
   opacity: .7; }
@@ -6137,14 +6185,16 @@ body {
 .live-container {
   display: -ms-flexbox;
   display: flex; }
+  .live-container .right {
+    -ms-flex: 0 0 400px;
+        flex: 0 0 400px; }
+  .live-container .left {
+    -ms-flex: 1;
+        flex: 1; }
 
-.right {
-  -ms-flex: 0 0 400px;
-      flex: 0 0 400px; }
-
-.left {
-  -ms-flex: 1;
-      flex: 1; }
+.flex-row-reverse {
+  -ms-flex-direction: row-reverse;
+      flex-direction: row-reverse; }
 
 .embed-responsives {
   position: relative;

@@ -15,7 +15,7 @@ url: /
 		<span ng-bind-html="currentTitle"></span>
 	</h5>
 
-	<div class="live-container">
+	<div class="live-container" ng-class="{'flex-row-reverse':options.viewReversed}">
 		<div class="left video-view">
 			<div class="video grow" id="videoPlayer">
 				<div class="embed-responsive embed-responsive-16by9">
@@ -25,14 +25,36 @@ url: /
 				</div>
 			</div>
 
+			<!--
 			<div class="video-chat-controls clearfix">
 				<a href="#" id="playLive" ng-click="changeVideo(streamVideoId)" class="playLiveButton float-left">
 					Play Live-Stream
 				</a>
+				<a><img src="/assets/img/thumb.png"/></a>
 				<a href="#" id="chad" ng-click="toggleChat()" class="toggleChatButton float-right">
 					<span class="description">Toggle Chad</span>
 					<span class="icon"><img zf-iconic="" icon="comment-square" size="middle" class=""></span>
 				</a>
+			</div>
+			-->
+
+			<div class="grid-block video-chat-controls clearfix" ng-class="{'video-chat-control-reverse':options.viewReversed}">
+				<div class="grid-block play-live">
+					<a href="#" id="playLive" ng-click="changeVideo(streamVideoId)" class="playLiveButton ">
+						<span class="description">Play Live-Stream</span>
+					</a>
+				</div>
+				<div class="grid-block shrink">
+					<a href="#" class="switch-view" ng-click="switchView()"><img src="/assets/img/switch.png"/></a>
+				</div>
+				<div class="grid-block toggle-chat">
+					<a href="#" id="chad" ng-click="toggleChat()" class="toggleChatButton"
+					   ng-class="{'grid-block':options.viewReversed}">
+						<span class="icon show-reverse"><img zf-iconic="" icon="comment-square" size="middle" class=""></span>
+						<span class="description">Toggle Chad</span>
+						<span class="icon"><img zf-iconic="" icon="comment-square" size="middle" class=""></span>
+					</a>
+				</div>
 			</div>
 
 			<!--
@@ -57,15 +79,20 @@ url: /
 			<label class="vlist-controls">
 				<span class="inline-label">
 					<span class="form-label">Filter</span>
-					<input type="text" ng-model="searchText" placeholder="Input">
-					<span class="form-label">Latest Videos</span>
+					<input type="text" ng-model="searchText" placeholder="Input...">
+					<span class="form-label hide-700">Latest Videos</span>
 					<a href="#" class="button" ng-click="getData('vList')"
 					   title="Reload List manually. Happens every 5min anyway.">
 						<img zf-iconic="" icon="reload" size="small" class="">
 					</a>
 					<a href="#" class="button" ng-click="switchChannel()">
-						Switch Channel
+						<span class="hide-700 hide-switch">Switch</span>Channel
 					</a>
+					<!--
+					<a href="#" class="button" ng-click="switchView()">
+						<img src="/assets/img/switch.png"/>
+					</a>
+					-->
 				</span>
 			</label>
 		</div>

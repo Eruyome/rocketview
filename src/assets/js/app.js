@@ -151,7 +151,8 @@
 		$scope.updateStreamTitleCountInterval = 300000;
 		
 		$scope.options = {
-			activeChannel : 'main'	
+			activeChannel : 'main',
+			viewReversed : false
 		};
 
 	/*------------------------------------------------------------------------------------------------------------------
@@ -507,13 +508,16 @@
 				$scope.chatState = true;
 			}
 		};
-		
-		
+
+		/* Switch Player <-> Chat */
+		$scope.switchView = function(){
+			$scope.options.viewReversed = ($scope.options.viewReversed !== true);
+		};
+
 		/* Like/Dislike */
 		$scope.vote = function(direction){
 			console.log(direction);	
 		};
-		
 		
 
 		function isElementInViewport (el, offset) {
