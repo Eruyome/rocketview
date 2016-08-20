@@ -3,7 +3,7 @@ name: home
 url: /
 ---
 
-<div class="grid-container">
+<div class="grid-container" ng-class="{'grid-container-118rem':chatState}">
 
 	<h5 class="video-title">
 		<span ng-if="data.video[0].snippet.liveBroadcastContent=='live'" class="broadcastState"
@@ -28,7 +28,10 @@ url: /
 			<div class="grid-block video-chat-controls clearfix" ng-class="{'video-chat-control-reverse':options.viewReversed}">
 				<div class="grid-block play-live">
 					<a href="#" id="playLive" ng-click="changeVideo(streamVideoId)" class="playLiveButton ">
-						<span class="description">Play Live-Stream</span>
+						<span class="description">
+							Stream
+							<span class="views">({{data.views}} <img zf-iconic="" icon="person" size="small" class=""> )</span>
+						</span>
 					</a>
 				</div>
 				<div class="grid-block shrink">

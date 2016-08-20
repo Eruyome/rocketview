@@ -126,8 +126,25 @@ body {
 }
 
 .grid-container {
-	max-width: 98rem;
+	//max-width: 98rem;
+	max-width: 93rem;
+	//max-width: 190vh;
 	padding: 1rem;
+	@include mq($min-width: 2100px) {
+		max-width: 103rem;
+	}
+	@include mq($min-width: 2300px) {
+		max-width: 116rem;
+	}
+}
+.grid-container-118rem {
+	max-width: 118rem !important;
+	@include mq($min-width: 2100px) {
+		max-width: 128rem !important;
+	}
+	@include mq($min-width: 2300px) {
+		max-width: 141rem !important;
+	}
 }
 .grid-content .grid-block {
 	margin: 0;
@@ -305,6 +322,14 @@ body {
 	}
 	.show-reverse {
 		display: none;
+	}
+	.views {
+		font-size: rem-calc(14px);
+		svg.iconic.iconic-sm:not(.iconic-size-md):not(.iconic-size-lg) {
+			width: 12px;
+			height: 12px;
+			margin-bottom: 2px;
+		}
 	}
 }
 .video-chat-control-reverse {

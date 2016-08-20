@@ -134,7 +134,8 @@
 			this.id = $scope.streamVideoId;
 			this.embedDomain = 'embed_domain=' + 'eruyome.github.io';
 			this.theme = 'dark_theme=1';
-			this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme;
+			this.gaming = 'from_gaming=1';
+			this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme + '&' + this.gaming;
 			this.width = 400;
 		}();
 		/* ng youtube embed */
@@ -143,13 +144,16 @@
 		$scope.data.vList = [];
 		$scope.data.video = [];
 		$scope.data.calendar = [];
+		$scope.data.views = '';
 
 		$scope.viewerCount = 0;
-		$scope.refreshVideoListDataInterval = 300000;
-		$scope.viewerCountInterval = 5000;
-		$scope.scheduleCountInterval = 600000;
-		$scope.updateStreamTitleCountInterval = 300000;
-		
+		$scope.intervals = {
+			refreshVideoListData : 300000,
+			scheduleCount : 600000,
+			updateStreamTitle : 300000,
+			viewCount : 30000
+		};
+
 		$scope.options = {
 			activeChannel : 'main',
 			viewReversed : false
@@ -224,6 +228,27 @@
 			error(function(data, status, headers, config) {
 			});
 		}
+
+		/* Get Stream View Count from googlesheet */
+		$scope.getViewCount = function() {
+			var spreadsheetId = '1YMRe44sXJPXw58QY5zbd9vsynIPUAjbhGiAK6FDiSNM';
+			var url = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/2/public/values?alt=json';
+			$http.get(url).
+				success(function(data, status, headers, config) {
+					var properties = data.feed.entry[0].content.$t.split(', ');
+					var obj = {};
+					properties.forEach(function(property) {
+						var tup = property.split(':');
+						obj[tup[0]] = tup[1];
+					});
+					$scope.data.views = obj.views;
+					util.out($scope.data.views, 'log');
+				}).
+				error(function(data, status, headers, config) {
+				});
+		};
+		$scope.getViewCount();
+
 
 		/* Use video Id's from channel search and get more detailed video data */
 		function getActualVideoData(list, kind, channel) {
@@ -441,7 +466,7 @@
 		function updateSchedule(){
 			$scope.getCalendarData();
 		}
-		$interval(function() {updateSchedule();}, $scope.scheduleCountInterval);
+		$interval(function() {updateSchedule();}, $scope.intervals.scheduleCount);
 
 		function updateStreamTitle(){
 			if($scope.video.id != $scope.streamVideoId){
@@ -449,7 +474,12 @@
 			}
 			$scope.getData('video');
 		}
-		$interval(function() {updateStreamTitle();}, $scope.updateStreamTitleCountInterval);
+		$interval(function() {updateStreamTitle();}, $scope.intervals.updateStreamTitle);
+
+		function updateViews(){
+			$scope.getViewCount();
+		}
+		$interval(function() {updateViews();}, $scope.intervals.viewCount);
 
 		/* Gets called to get video list data in intervals */
 		function reloadVListData() {
@@ -468,24 +498,7 @@
 		$scope.getData("video");
 		$scope.getData("vList");
 		/* Reload video list data in intervals */
-		$interval(function() {reloadVListData();}, $scope.refreshVideoListDataInterval);
-
-		/* Get Viewer Count */
-		/* http://stackoverflow.com/questions/33846081/grabbing-the-current-viewer-count-for-youtube-live-streaming */
-		function getLiveViewerCount() {
-			var url = 'http://www.youtube.com/live_stats?v=' + $scope.video.id;
-
-			$http.get(url).
-			success(function(response) {
-				$scope.viewerCount = response;
-				util.out($scope.viewerCount, 'log');
-			}).
-			error(function(response) {
-				util.out(response, 'log');
-				util.out('Getting Viewer Count failed.', 'log');
-			});
-		}
-		//$interval(function() {getLiveViewerCount();}, $scope.viewerCountInterval);
+		$interval(function() {reloadVListData();}, $scope.intervals.refreshVideoListData);
 
 		$scope.checkIfActiveEvent = function(event){
 			var t = getDateTime();
