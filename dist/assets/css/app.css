@@ -6009,9 +6009,6 @@ body {
 .uiview {
   padding: 0 !important; }
 
-.content {
-  padding: 1rem; }
-
 .min-height-600 {
   min-height: 600px; }
 
@@ -6024,7 +6021,7 @@ body {
   padding-right: 5px; }
 
 .content.grid-block {
-  padding: 1rem 0; }
+  padding: .5rem 0 1rem 0; }
 
 .vlist-controls {
   margin: 0; }
@@ -6047,7 +6044,8 @@ body {
 
 .videolist-container {
   font-size: 0.875rem;
-  margin: 0 -5px !important; }
+  margin: 0 -5px !important;
+  width: 100%; }
   .videolist-container .videolist-item {
     border: 1px solid #101010;
     box-shadow: 0 1px 1px rgba(255, 255, 255, 0.1);
@@ -6127,7 +6125,7 @@ body {
       display: block; } }
 
 .video-chat-controls {
-  margin: 5px 0 6px 0; }
+  margin: 5px 0 6px 0 !important; }
   .video-chat-controls .switch-view {
     margin: 0; }
     .video-chat-controls .switch-view img {

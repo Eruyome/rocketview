@@ -157,10 +157,6 @@ body {
 	padding: 0 !important;
 }
 
-.content {
-	padding: 1rem;
-
-}
 .min-height-600 {
 	min-height: 600px;
 }
@@ -175,7 +171,7 @@ body {
 }
 
 .content.grid-block {
-	padding: 1rem 0;
+	padding: .5rem 0 1rem 0;
 }
 
 .vlist-controls {
@@ -210,6 +206,7 @@ body {
 .videolist-container {
 	font-size: rem-calc(14px);
 	margin: 0 -5px !important;
+	width: 100%;
 	//border: 1px solid #ededed;
 
 	.videolist-item {
@@ -312,7 +309,7 @@ body {
 }
 
 .video-chat-controls {
-	margin: 5px 0 6px 0;
+	margin: 5px 0 6px 0 !important;
 
 	.switch-view {
 		margin: 0;
