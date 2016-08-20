@@ -60,33 +60,35 @@
 		</div>
 	</div>
 
-	<div class="content grid-block">
-		<div class="grid-block">
-			<label class="vlist-controls">
-				<span class="inline-label">
-					<span class="form-label">Filter</span>
-					<input type="text" ng-model="searchText" placeholder="Input...">
-					<span class="form-label hide-700">Latest Videos</span>
-					<a href="#" class="button" ng-click="getData('vList')"
-					   title="Reload List manually. Happens every 5min anyway.">
-						<img zf-iconic="" icon="reload" size="small" class="">
-					</a>
-					<a href="#" class="button" ng-click="switchChannel()">
-						<span class="hide-700 hide-switch">Switch</span>Channel
-					</a>
-					<!--
-					<a href="#" class="button" ng-click="switchView()">
-						<img src="assets/img/switch.png"/>
-					</a>
-					-->
-				</span>
-			</label>
-		</div>
+	<div class="min-height-600">
+		<div class="content grid-block">
+			<div class="grid-block">
+				<label class="vlist-controls">
+					<span class="inline-label">
+						<span class="form-label">Filter</span>
+						<input type="text" ng-model="searchText" placeholder="Input...">
+						<span class="form-label hide-700">Latest Videos</span>
+						<a href="#" class="button" ng-click="getData('vList')"
+						   title="Reload List manually. Happens every 5min anyway.">
+							<img zf-iconic="" icon="reload" size="small" class="">
+						</a>
+						<a href="#" class="button" ng-click="switchChannel()">
+							<span class="hide-700 hide-switch">Switch</span>Channel
+						</a>
+						<!--
+						<a href="#" class="button" ng-click="switchView()">
+							<img src="assets/img/switch.png"/>
+						</a>
+						-->
+					</span>
+				</label>
+			</div>
 
-		<div class="grid-block videolist-container">
-			<div class="grid-block videolist">
-				<div vlistitem
-					 ng-repeat="(key, item) in data.vList[options.activeChannel] | orderBy : 'snippet.publishedAt' : true | filter:{snippet:{title:searchText}} ">
+			<div class="grid-block videolist-container">
+				<div class="grid-block videolist">
+					<div vlistitem
+						 ng-repeat="(key, item) in data.vList[options.activeChannel] | orderBy : 'snippet.publishedAt' : true | filter:{snippet:{title:searchText}} ">
+					</div>
 				</div>
 			</div>
 		</div>
