@@ -6010,7 +6010,9 @@ body {
   padding: 0 !important; }
 
 .content {
-  padding: 1rem;
+  padding: 1rem; }
+
+.min-height-600 {
   min-height: 600px; }
 
 .broadcastState {
