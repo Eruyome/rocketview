@@ -10174,7 +10174,7 @@ return jQuery;
 			'youtube-embed',
 			'ngYoutubeEmbed',
 			'ngSanitize',
-			//'angular-google-gapi',
+			'angular-web-notification',
 			//'$window',
 
 			//foundation
@@ -10207,53 +10207,11 @@ return jQuery;
 
 	function run() {
 		FastClick.attach(document.body);
-		/*
-		['GAuth', 'GApi', 'GData', '$state', '$rootScope',
-			function(GAuth, GApi, GData, $state, $rootScope) {
-
-				$rootScope.gdata = GData;
-
-				var CLIENT = '378650801043-kupfja7u53oi16u60r62o2ln0uribfuf.apps.googleusercontent.com';
-				var BASE = 'https://myGoogleAppEngine.appspot.com/_ah/api';
-				if($window.location.hostname == 'localhost') {
-					BASE = '//localhost:8080/_ah/api';
-				} else {
-					BASE = 'https://cloud-endpoints-gae.appspot.com/_ah/api';
-				}
-
-				//GApi.load('youtube','v3',BASE);
-				GApi.load('youtube','v3',BASE);
-				//GApi.load('calendar','v3'); // for google api (https://developers.google.com/apis-explorer/)
-
-				GAuth.setClient(CLIENT);
-				GAuth.setScope("https://www.googleapis.com/auth/youtube"); // default scope is only https://www.googleapis.com/auth/userinfo.email
-
-				// load the auth api so that it doesn't have to be loaded asynchronously
-				// when the user clicks the 'login' button.
-				// That would lead to popup blockers blocking the auth window
-				GAuth.load();
-
-				// or just call checkAuth, which in turn does load the oauth api.
-				// if you do that, GAuth.load(); is unnecessary
-				GAuth.checkAuth().then(
-					function (user) {
-						console.log(user.name + 'is login')
-						//$state.go('webapp.home'); // an example of action if it's possible to
-						// authenticate user at startup of the application
-					},
-					function() {
-						//$state.go('login');       // an example of action if it's impossible to
-						// authenticate user at startup of the application
-					}
-				);
-			}
-		]
-		*/
 	}
 
 	appModule.controller('mainController',
-		['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', '$httpParamSerializerJQLike', /*'GApi',*/
-		function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce, $httpParamSerializerJQLike /*,GApi*/)
+		['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', '$httpParamSerializerJQLike', 'webNotification',
+		function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce, $httpParamSerializerJQLike, webNotification)
 	{
 
 	/*------------------------------------------------------------------------------------------------------------------
@@ -10374,7 +10332,7 @@ return jQuery;
 						recognizedShows.push(m.s);
 
 						// find "| " or "- " before and " |" or " -" after matched show and remove it
-						if (new RegExp("\\||\\-").test(srcTitle.substr(m.i-2, m.i))){
+						if (new RegExp("\\||\\-").test(srcTitle.substr(m.i-2, 2))){
 							srcTitle = util.removeAt(srcTitle, m.i - 2, 2);
 						}
 						if (new RegExp("\\||\\-").test(srcTitle.substr(m.i + m.l, 2))){
@@ -10412,7 +10370,22 @@ return jQuery;
 		}
 
 		function showNotification(){
-			util.out($scope.data.video.recognizedShows, 'log');
+			webNotification.showNotification('Video/Show Update:', {
+				body: $scope.data.video.recognizedShows.join().replace(',', " | "),
+				icon: 'assets/img/notifications/rocketview.png',
+				autoClose: 4000 //auto close the notification after 2 seconds (you manually close it via hide function)
+			}, function onShow(error, hide) {
+				if (error) {
+					util.out('Unable to show notification: ' + error.message, 'error');
+				} else {
+					util.out('Notification Shown.', 'log');
+
+					setTimeout(function hideNotification() {
+						util.out('Hiding notification....', 'log');
+						hide(); //manually close the notification (or let the autoClose close it)
+					}, 5000);
+				}
+			});
 		}
 
 		function getRegexResults(reg, s) {
