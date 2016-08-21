@@ -69,7 +69,7 @@
 						<input type="text" ng-model="searchText" placeholder="Input...">
 						<span class="form-label hide-700">Latest Videos</span>
 						<a href="#" class="button" ng-click="getData('vList')"
-						   title="Reload List manually. Happens every 10min anyway.">
+						   title="Reload List manually. Happens every 5min anyway.">
 							<img zf-iconic="" icon="reload" size="small" class="">
 						</a>
 						<a href="#" class="button" ng-click="switchChannel()">
@@ -111,7 +111,7 @@
 		is not intended to be used on mobile devices.
 	</p>
 
-	<zf-accordion class="" auto-open="false" collapsible="true" multi-open="false">
+	<zf-accordion class="">
 		<zf-accordion-item title="Project Goals">
 			<ul>
 				<li>
@@ -123,38 +123,9 @@
 				</li>
 			</ul>
 		</zf-accordion-item>
-		<zf-accordion-item title="Limitations">
-			<p>
-				With a free developer account there are <a href="http://stackoverflow.com/a/15580411">limitations</a>
-				on how many requests you can send to Google's APIs.
-			</p>
-			<p>
-				These limits affect the update intervals:
-			</p>
+	</zf-accordion>
 
-			<table>
-				<thead>
-					<tr>
-						<td>Type</td>
-						<td>Interval (minutes)</td>
-						<td>Quota Cost (units)</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Update Video Lists</td>
-						<td>{{intervals.refreshVideoListData / (1000 * 60)}}</td>
-						<td>400</td>
-					</tr>
-					<tr>
-						<td>Update Stream/Video Title</td>
-						<td>{{intervals.updateStreamTitle / (1000 * 60)}}</td>
-						<td>1</td>
-					</tr>
-				</tbody>
-			</table>
-		</zf-accordion-item>
-
+	<zf-accordion class="">
 		<zf-accordion-item title="Interesting Projects">
 			<ul>
 				<li>
@@ -167,7 +138,9 @@
 				</li>
 			</ul>
 		</zf-accordion-item>
+	</zf-accordion>
 
+	<zf-accordion class="">
 		<zf-accordion-item title="Image Attributions">
 			<ul>
 				<li>
