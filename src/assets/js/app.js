@@ -248,7 +248,6 @@
 			}
 			var m = reg.exec(s);
 			if(m){
-				console.log(m);
 				var matchedString = s.substring(m.index, m.index + m[0].length);
 				return { l : m[0].length, i : m.index, s : matchedString }
 			}
@@ -586,7 +585,7 @@
 
 		/* Like/Dislike */
 		$scope.vote = function(direction){
-			console.log(direction);	
+			util.out(direction, 'log');
 		};
 
 		/* Load and save localstorage data */
@@ -600,7 +599,6 @@
 					}
 				});
 			}
-			console.log($scope.options);
 		}
 
 		$scope.$watch('options', function(newVal, oldVal){
