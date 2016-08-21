@@ -300,20 +300,18 @@
 			});
 		}
 
-		/* Get Stream View Count from googlesheet */
-		$scope.getViewCount = function() {
+		/* Get Stream View Count anf Title from googlesheet */
+		$scope.getStreamInfo = function() {
 			var spreadsheetId = '1YMRe44sXJPXw58QY5zbd9vsynIPUAjbhGiAK6FDiSNM';
 			var url = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/2/public/values?alt=json';
 			$http.get(url).
-				success(function(data, status, headers, config) {
-					var properties = data.feed.entry[0].content.$t.split(', ');
-					var obj = {};
-					properties.forEach(function(property) {
-						var tup = property.split(':');
-						obj[tup[0]] = tup[1];
-					});
-					$scope.data.views = obj.views;
+				success(function(data) {
+					$scope.data.views = data.feed.entry[0].gsx$views.$t;
+					if($scope.video.id == $scope.streamVideoId) {
+						$scope.video.title = data.feed.entry[0].gsx$streamtitle.$t;
+					}
 					util.out($scope.data.views, 'log');
+					util.out($scope.video.title, 'log');
 
 					ga('send', 'event', 'Data', 'Update', 'Views');
 				}).
@@ -539,21 +537,14 @@
 		function updateSchedule(){
 			$scope.getCalendarData();
 		}
+		updateSchedule();
 		$interval(function() {updateSchedule();}, $scope.intervals.scheduleCount);
 
-		function updateStreamTitle(){
-			if($scope.video.id != $scope.streamVideoId){
-				return;
-			}
-			$scope.getData('video');
-			ga('send', 'event', 'Data', 'Update', 'Stream Info');
+		function updateStreamInfo(){
+			$scope.getStreamInfo();
 		}
-		$interval(function() {updateStreamTitle();}, $scope.intervals.updateStreamTitle);
-
-		function updateViews(){
-			$scope.getViewCount();
-		}
-		$interval(function() {updateViews();}, $scope.intervals.viewCount);
+		updateStreamInfo();
+		$interval(function() {updateStreamInfo();}, $scope.intervals.viewCount);
 
 		/* Gets called to get video list data in intervals */
 		function reloadVListData() {
