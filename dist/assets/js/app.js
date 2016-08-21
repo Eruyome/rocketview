@@ -10217,7 +10217,8 @@ return jQuery;
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
-		$scope.streamVideoId = 'njCDZWTI-xg';
+		$scope.defaultStreamId = 'njCDZWTI-xg';
+		$scope.streamVideoId = $scope.defaultStreamId;
 		$scope.channelId = {
 			main : 'UCQvTDmHza8erxZqDkjQ4bQQ',
 			letsplay : 'UCtSP1OA6jO4quIGLae7Fb4g'
@@ -10267,7 +10268,10 @@ return jQuery;
 
 		$scope.options = {
 			activeChannel : 'main',
-			viewReversed : false
+			viewReversed : false,
+			selectedSteam : '',
+			ratio : 'wide',
+			showNotifications : true
 		};
 		$scope.chatState = true;
 
@@ -10363,7 +10367,9 @@ return jQuery;
 			// add recognized shows to current video data, notify user
 			if(!util.isEmpty(recognizedShows)){
 				$scope.data.video.recognizedShows = recognizedShows;
-				showNotification();
+				if($scope.options.showNotifications){
+					showNotification();
+				}
 			}
 
 			return $sce.trustAsHtml(srcTitle);
@@ -10722,6 +10728,13 @@ return jQuery;
 		$scope.switchView = function(){
 			$scope.options.viewReversed = ($scope.options.viewReversed !== true);
 		};
+		// Reset Stream
+		$scope.resetStream = function(){
+			$scope.streamVideoId = $scope.defaultStreamId;
+			$scope.options.selectedStream = $scope.defaultStreamId;
+			$scope.changeVideo($scope.defaultStreamId);
+		};
+
 
 		/* Like/Dislike */
 		$scope.vote = function(direction){
@@ -10739,6 +10752,7 @@ return jQuery;
 					}
 				});
 			}
+			console.log($scope.options);
 		}
 
 		$scope.$watch('options', function(newVal, oldVal){
@@ -10882,6 +10896,15 @@ return jQuery;
 			restrict: 'A',
 			templateUrl: 'templates/directives/notification.html',
 			scope: false,
+			replace: true
+		};
+	});
+
+	appModule.directive('options', function () {
+		return {
+			restrict: 'A',
+			templateUrl: 'templates/directives/options.html',
+			scope: true,
 			replace: true
 		};
 	});

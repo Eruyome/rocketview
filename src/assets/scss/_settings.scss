@@ -293,24 +293,24 @@ $accordion-title-background: $primary-color;
 // 9. Block List
 // - - - - - - - - - - - - - - -
 
-// $blocklist-background: #fff;
-// $blocklist-fullbleed: true;
-// $blocklist-fontsize: 1rem;
+$blocklist-background: $primary-color;
+$blocklist-fullbleed: true;
+$blocklist-fontsize: 1rem;
 
-// $blocklist-item-padding: 0.8rem 1rem;
-// $blocklist-item-color: isitlight($blocklist-background, #000, #fff);
-// $blocklist-item-background-hover: smartscale($blocklist-background, 4.5%);
-// $blocklist-item-color-disabled: #999;
-// $blocklist-item-border: 1px solid smartscale($blocklist-background, 18.5%);
+$blocklist-item-padding: 0.8rem 1rem;
+$blocklist-item-color: isitlight($blocklist-background, #000, #fff);
+$blocklist-item-background-hover: smartscale($blocklist-background, 4.5%);
+$blocklist-item-color-disabled: #999;
+$blocklist-item-border: 1px solid smartscale($blocklist-background, 18.5%);
 
-// $blocklist-item-label-color: scale-color($blocklist-item-color, $lightness: 60%);
-// $blocklist-item-icon-size: 0.8;
+$blocklist-item-label-color: scale-color($blocklist-item-color, $lightness: 60%);
+$blocklist-item-icon-size: 0.8;
 
-// $blocklist-header-fontsize: 0.8em;
-// $blocklist-header-color: smartscale($blocklist-item-color, 40%);
-// $blocklist-header-uppercase: true;
+$blocklist-header-fontsize: 0.8em;
+$blocklist-header-color: smartscale($blocklist-item-color, 40%);
+$blocklist-header-uppercase: true;
 
-// $blocklist-check-icons: true; 
+$blocklist-check-icons: true;
 
 // 10. Button Group
 // - - - - - - - - - - - - - - -
@@ -401,8 +401,8 @@ $accordion-title-background: $primary-color;
 
 $iconic-primary-fill: rgb(212, 212, 212);
 $iconic-primary-stroke: rgb(212, 212, 212);
-// $iconic-accent-fill: $iconic-primary-fill;
-// $iconic-accent-stroke: $iconic-accent-fill; 
+$iconic-accent-fill: rgb(212, 212, 212);
+$iconic-accent-stroke: rgb(212, 212, 212);
 
 // 15. Label
 // - - - - - - - - - - - - - - -

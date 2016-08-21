@@ -1,0 +1,60 @@
+<div class="grid-block vertical">
+	<div class="primary title-bar">
+		<div class="center title">Options (Auto Save)</div>
+		<span zf-close="" class="right"><a>×</a></span>
+	</div>
+
+	<div class="grid-content padding" style="padding-top: 1rem;">
+
+		<section class="block-list">
+			<header>Miscellaneous</header>
+			<ul>
+				<li>
+					<input type="checkbox" id="notifications" ng-model="options.showNotifications">
+					<label for="notifications">Video/Show Update Notifications</label>
+				</li>
+			</ul>
+		</section>
+		<section class="block-list">
+			<header>Screen Aspect-Ratio</header>
+			<ul>
+				<li>
+					<input type="radio" name="ratio" id="wide" value="wide" ng-model="options.ratio">
+					<label for="wide">16:9</label>
+				</li>
+				<li>
+					<input type="radio" name="ratio" id="cinema" value="cinema" ng-model="options.ratio">
+					<label for="cinema">21:9</label>
+				</li>
+			</ul>
+		</section>
+		<section class="block-list">
+			<header>Theme (more coming maybe)</header>
+			<ul>
+				<li>
+					<input type="radio" name="theme" id="dark" value="dark" checked="">
+					<label for="dark">Dark</label>
+				</li>
+				<!--
+				<li>
+					<input type="radio" name="theme" id="light" value="light">
+					<label for="light">Light</label>
+				</li>
+				-->
+			</ul>
+		</section>
+
+		<!--
+		<section class="block-list">
+			<header>Youtube Live Stream ID
+				<a class="button small" ng-click="changeVideo(options.selectedStream)">Set</a>
+				<a class="button small" ng-click="resetStream()">Default</a>
+			</header>
+			<ul>
+				<li><input type="text" placeholder="Example: 'njCDZWTI-xg'" ng-model="options.selectedStream"></li>
+			</ul>
+		</section>
+		-->
+	</div>
+</div>
+

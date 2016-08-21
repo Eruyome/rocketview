@@ -3,7 +3,7 @@ name: home
 url: /
 ---
 
-<div class="grid-container" ng-class="{'grid-container-118rem':chatState}">
+<div class="grid-container" ng-class="{'grid-container-chat':chatState, 'grid-container-cinema':(options.ratio=='cinema')}">
 
 	<h5 class="video-title">
 		<span ng-if="data.video[0].snippet.liveBroadcastContent=='live'" class="broadcastState"
@@ -79,11 +79,6 @@ url: /
 						<a href="#" class="button" ng-click="switchChannel()">
 							<span class="hide-700 hide-switch">Switch</span>Channel
 						</a>
-						<!--
-						<a href="#" class="button" ng-click="switchView()">
-							<img src="assets/img/switch.png"/>
-						</a>
-						-->
 					</span>
 				</label>
 			</div>
@@ -166,20 +161,7 @@ url: /
 	</zf-accordion>
 </div>
 
-<!-- Show Options Modal
+<!-- Show Options Modal -->
 <div zf-modal="" id="optionsModal" class="collapse">
-	<div class="grid-block vertical">
-		<div class="primary title-bar">
-			<div class="center title">Options</div>
-			<span zf-close="" class="left"><a>Close</a></span>
-			<span zf-close="" class="right"><a>Done</a></span>
-		</div>
-		<div class="grid-content padding" style="padding-top: 1rem;">
-			<p>
-			</p>
-			<a zf-close="" class="button">OK</a>
-			<a zf-close="" class="button">Cancel</a>
-		</div>
-	</div>
+	<div options></div>
 </div>
--->

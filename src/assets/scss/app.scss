@@ -123,12 +123,20 @@ body {
 			top: 6px;
 		}
 	}
+	.openModal {
+		width: 28px;
+		height: 28px;
+		z-index: 2;
+		position: absolute;
+		background: transparent;
+		&:hover {
+			background: transparent !important;
+		}
+	}
 }
 
 .grid-container {
-	//max-width: 98rem;
 	max-width: 93rem;
-	//max-width: 190vh;
 	padding: 1rem;
 	@include mq($min-width: 2100px) {
 		max-width: 103rem;
@@ -136,8 +144,17 @@ body {
 	@include mq($min-width: 2300px) {
 		max-width: 116rem;
 	}
+	&.grid-container-cinema {
+		@include mq($min-width: 2100px) {
+			max-width: 89rem;
+		}
+		@include mq($min-width: 2300px, $min-height: 1000px) {
+			max-width: 106rem;
+		}
+	}
 }
-.grid-container-118rem {
+
+.grid-container-chat {
 	max-width: 118rem !important;
 	@include mq($min-width: 2100px) {
 		max-width: 128rem !important;
@@ -145,7 +162,17 @@ body {
 	@include mq($min-width: 2300px) {
 		max-width: 141rem !important;
 	}
+	&.grid-container-cinema {
+		@include mq($min-width: 2100px) {
+			max-width: 113rem !important;
+		}
+		@include mq($min-width: 2300px, $min-height: 1000px) {
+			max-width: 130rem !important;
+		}
+	}
 }
+
+
 .grid-content .grid-block {
 	margin: 0;
 }
@@ -597,6 +624,14 @@ body {
 	a {
 		text-decoration: underline;
 	}
+}
+#optionsModal {
+	header .button {
+		margin: 0 0 0 1rem;
+	}
+
+	border: 1px solid $primary-color;
+	box-shadow: 0px 1px 1px rgba(0,0,0,.5);
 }
 
 .footer {
