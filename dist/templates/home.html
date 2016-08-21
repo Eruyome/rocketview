@@ -8,7 +8,7 @@
 		<span ng-if="data.video[0].snippet.liveBroadcastContent!='live'" class="broadcastState"
 			  title="Video ist aufgezeichnet.">Recorded
 		</span>
-		<span ng-bind-html="currentTitle"></span>
+		<span class="currentTitle" ng-bind-html="currentTitle"></span>
 	</h5>
 
 	<div class="live-container" ng-class="{'flex-row-reverse':options.viewReversed}">

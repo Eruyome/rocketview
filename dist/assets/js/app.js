@@ -1,60 +1,72 @@
 // Self contained functions, meaning they need not any dependencies to work
 var util = (function () {
-  return {
-    out: function (input, outputType) {
-	    if (document.location.hostname != "localhost") {
-		    return
-	    }
-    	try {
-    		if (outputType == "log") {
-    			console.log(input);
-    		}
-    		else if (outputType == "trace") {
-    			console.trace(input);
-    		}
-    		else if (outputType == "info") {
-    			console.info(input);
-    		}
-    		else if (outputType == "error") {
-    			console.error(input);
-    		}
-    	} catch (err) {
+	return {
+		out: function (input, outputType) {
+			if (document.location.hostname != "localhost") {
+				return
+			}
+			try {
+				if (outputType == "log") {
+					console.log(input);
+				}
+				else if (outputType == "trace") {
+					console.trace(input);
+				}
+				else if (outputType == "info") {
+					console.info(input);
+				}
+				else if (outputType == "error") {
+					console.error(input);
+				}
+			} catch (err) {
 
-    	}
-    },
+			}
+		},
 
-    // Check if input var is empty
-    isEmpty: function (obj) {
-    	if (obj === null) {return true;}
+		// Check if input var is empty
+		isEmpty: function (obj) {
+			if (obj === null) {
+				return true;
+			}
 
-    	// Assume if it has a length property with a non-zero value
-    	// that that property is correct.
-    	if (obj.length > 0)    {return false;}
-    	if (obj.length === 0)  {return true;}
+			// Assume if it has a length property with a non-zero value
+			// that that property is correct.
+			if (obj.length > 0) {
+				return false;
+			}
+			if (obj.length === 0) {
+				return true;
+			}
 
-    	// Otherwise, does it have any properties of its own?
-    	// Note that this doesn't handle
-    	// toString and valueOf enumeration bugs in IE < 9
-    	for (var key in obj) {
-    		if (hasOwnProperty.call(obj, key)) {return false;}
-    	}
-    },
+			// Otherwise, does it have any properties of its own?
+			// Note that this doesn't handle
+			// toString and valueOf enumeration bugs in IE < 9
+			for (var key in obj) {
+				if (hasOwnProperty.call(obj, key)) {
+					return false;
+				}
+			}
+		},
 
-    // Divide an array arr into subarrays of length len
-    chunk: function (arr, len) {
+		// Divide an array arr into subarrays of length len
+		chunk: function (arr, len) {
 
-      var chunks = [],
-          i = 0,
-          n = arr.length;
+			var chunks = [],
+				i = 0,
+				n = arr.length;
 
-      while (i < n) {
-        chunks.push(arr.slice(i, i += len));
-      }
+			while (i < n) {
+				chunks.push(arr.slice(i, i += len));
+			}
 
-      return chunks;
-    }
+			return chunks;
+		},
 
-  };
+		removeAt: function(string, index, length) {
+			return string.substr(0, index) + string.substr(index+length);
+		}
+
+	};
 }());
 
 /*
@@ -10284,6 +10296,7 @@ return jQuery;
 		$scope.data.vList = [];
 		$scope.data.video = [];
 		$scope.data.calendar = [];
+		$scope.data.shows = [];
 		$scope.data.views = '';
 
 		$scope.viewerCount = 0;
@@ -10299,10 +10312,37 @@ return jQuery;
 			viewReversed : false
 		};
 		$scope.chatState = true;
-		loadData();
+
 	/*------------------------------------------------------------------------------------------------------------------
 	 * END Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
+		/* Get regular expressions for shows from googlesheet */
+		$scope.getShows = function() {
+			var spreadsheetId = '1-50O3hZnhH23Fkr3oC4RtcegTTVKgLyTkh-DL8vB2nY';
+			var url = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/2/public/values?alt=json';
+
+			$http.get(url).
+			success(function(data) {
+				var obj = [],
+					reg = {};
+
+				data.feed.entry.forEach(function(value) {
+					try {
+						reg = new RegExp(value["gsx$regex"].$t, "i");
+					} catch(err) {
+						reg = null;
+					}
+
+					obj.push({ reg: reg, css: value["gsx$css-class"].$t });
+				});
+				$scope.data.shows = obj;
+				util.out($scope.data.shows, 'log');
+			}).
+			error(function(data, status, headers, config) {
+			});
+		};
+		initData();
+
 
 		$scope.switchChannel = function(){
 			if($scope.options.activeChannel == 'main') {
@@ -10320,30 +10360,74 @@ return jQuery;
 
 		/* Construct formatted title */
 		function constructCurrentVideoTitle(video){
-			var title = '',
-				srcTitle = video[0].snippet.title;
+			var srcTitle = video[0].snippet.title,
+				recognizedShows = [];
 
-			var part = srcTitle.match(/\[.*?\]/g);
-			if(!!part) {
-				srcTitle = srcTitle.replace(/\[.*?\]/,
-					"<span class='part'>"+ part[0] +"</span>").trim();
-			}
-			else {
-				part = srcTitle.match(/( \d{1}\/\d{1} )/g);
-				if(!!part) {
-					srcTitle = srcTitle.replace(/( \d{1}\/\d{1} )/,
-						"<span class='part'>"+ part[0] +"</span>").trim();
-				}
+			// remove multiple whitespaces
+			srcTitle = srcTitle.replace(/ +(?= )/g,'');
+
+			// look for shows in video title
+			if(!util.isEmpty($scope.data.shows)) {
+				$scope.data.shows.forEach(function(value, key){
+					var m = getRegexResults(value.reg, srcTitle);
+					if(m !== false){
+						recognizedShows.push(m.s);
+
+						// find "| " or "- " before and " |" or " -" after matched show and remove it
+						if (new RegExp("\\||\\-").test(srcTitle.substr(m.i-2, m.i))){
+							srcTitle = util.removeAt(srcTitle, m.i - 2, 2);
+						}
+						if (new RegExp("\\||\\-").test(srcTitle.substr(m.i + m.l, 2))){
+							srcTitle = util.removeAt(srcTitle, m.i + m.l, 2);
+						}
+						srcTitle = srcTitle.replace(m.s, "<strong class='show'>"+ m.s +"</strong>").trim();
+					}
+				});
 			}
 
-			var date = srcTitle.match(/(\d{2}.\d{2}.\d{4})/g);
-			if(!!date) {
-				srcTitle = srcTitle.replace(/(\d{2}.\d{2}.\d{4})$/,
-					"<span class='date'>"+ date +"</span>").trim();
+			// look for part- and episode numbers
+			var partRegex = new RegExp('(\\d+\\/\\d+)|(\\[\\d+(\\/\\d+)?\\])');
+			var part = getRegexResults(partRegex, srcTitle);
+			if(part !== false) {
+				srcTitle = srcTitle.replace(part.s,	"<strong class='part'>"+ part.s +"</strong>").trim();
+			}
+
+			// look for date
+			var dateRegex = new RegExp('\\d{2}.\\d{2}.\\d{4}');
+			var date = getRegexResults(dateRegex, srcTitle);
+			if(date !== false) {
+				srcTitle = srcTitle.replace(date.s,	"<strong class='date'>"+ date.s +"</strong>").trim();
 				srcTitle = srcTitle.replace(/\|([^\|]*)$/,'$1').trim();
 			}
 
+			// remove multiple whitespaces
+			srcTitle = srcTitle.replace(/ +(?= )/g,'');
+			// add recognized shows to current video data, notify user
+			if(!util.isEmpty(recognizedShows)){
+				$scope.data.video.recognizedShows = recognizedShows;
+				showNotification();
+			}
+
 			return $sce.trustAsHtml(srcTitle);
+		}
+
+		function showNotification(){
+			util.out($scope.data.video.recognizedShows, 'log');
+		}
+
+		function getRegexResults(reg, s) {
+			if(!reg) {
+				return false;
+			}
+			var m = reg.exec(s);
+			if(m){
+				console.log(m);
+				var matchedString = s.substring(m.index, m.index + m[0].length);
+				return { l : m[0].length, i : m.index, s : matchedString }
+			}
+			else {
+				return false;
+			}
 		}
 
 		/* Get data from youtube api via ajax */
@@ -10387,7 +10471,6 @@ return jQuery;
 				error(function(data, status, headers, config) {
 				});
 		};
-		$scope.getViewCount();
 
 
 		/* Use video Id's from channel search and get more detailed video data */
@@ -10721,6 +10804,11 @@ return jQuery;
 					.duScrollTo(0, 10, 350);
 			}
 		};
+
+		function initData() {
+			$scope.getShows();
+			loadData();
+		}
 	}]);
 
 
