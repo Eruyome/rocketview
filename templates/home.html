@@ -69,7 +69,7 @@
 						<input type="text" ng-model="searchText" placeholder="Input...">
 						<span class="form-label hide-700">Latest Videos</span>
 						<a href="#" class="button" ng-click="getData('vList')"
-						   title="Reload List manually. Happens every 5min anyway.">
+						   title="Reload List manually. Happens every 10min anyway.">
 							<img zf-iconic="" icon="reload" size="small" class="">
 						</a>
 						<a href="#" class="button" ng-click="switchChannel()">
@@ -102,59 +102,7 @@
 
 <!-- Show Disclaimer Modal -->
 <div zf-modal="" id="showDisclaimerModal">
-	<a zf-close="" class="close-button">×</a>
-	<h3>About</h3>
-	<p>This site is fan-made and not affiliated with Rocket BEANS Entertainment GmbH in any way.
-		RocketView is fully open source under GNU General Public License v2.0.
-	</p>
-	<p>RocketView is optimised for the latest Firefox and Chrome browsers with a resolution of at least 600px width. It
-		is not intended to be used on mobile devices.
-	</p>
-
-	<zf-accordion class="">
-		<zf-accordion-item title="Project Goals">
-			<ul>
-				<li>
-					Alternative viewer for RocketbeansTV Youtube Live streams
-				</li>
-				<li>
-					Featuring a dark theme, program schedule, important links and easy access to the latest youtube videos
-					(main and let's play channels). All this without the need to manually refresh something or opening new pages.
-				</li>
-			</ul>
-		</zf-accordion-item>
-	</zf-accordion>
-
-	<zf-accordion class="">
-		<zf-accordion-item title="Interesting Projects">
-			<ul>
-				<li>
-					<a href="https://forum.rocketbeans.tv/t/betterrbtv-fuer-youtube-live-inoffizielle-chrome-erweiterung/9466">
-						BETTERRBTV for Youtube Live
-					</a> by pronuntiator (works with RocketView)
-				</li>
-				<li>
-					<a href="https://forum.rocketbeans.tv/t/youtube-alternative/2035">Youtube Alternative</a> by misantronic
-				</li>
-			</ul>
-		</zf-accordion-item>
-	</zf-accordion>
-
-	<zf-accordion class="">
-		<zf-accordion-item title="Image Attributions">
-			<ul>
-				<li>
-					<div>"play" icon made by <a href="http://www.flaticon.com/authors/elegant-themes" title="Elegant Themes">Elegant Themes</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
-				</li>
-				<li>
-					<div>"thumb" icon made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
-				</li>
-				<li>
-					<div><a href="http://simpleicon.com/calendar-1.html">"calendar"</a> icon from <a href="http://simpleicon.com/license-agreement/" title="simpleicon">www.simpleicon.com</a></div>
-				</li>
-			</ul>
-		</zf-accordion-item>
-	</zf-accordion>
+	<div disclaimer></div>
 </div>
 
 <!-- Show Options Modal -->
