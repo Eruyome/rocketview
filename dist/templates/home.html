@@ -69,10 +69,10 @@
 						<input type="text" ng-model="searchText" placeholder="Input...">
 						<span class="form-label hide-700">Latest Videos</span>
 						<a href="#" class="button" ng-click="getData('vList')"
-						   title="Reload List manually. Happens every 10min anyway.">
+						   ng-attr-title="{{reloadLinkTitle}}">
 							<img zf-iconic="" icon="reload" size="small" class="">
 						</a>
-						<a href="#" class="button" ng-click="switchChannel()">
+						<a href="#" class="button" ng-click="switchChannel()" ng-attr-title="{{switchChannelLinkTitle}}">
 							<span class="hide-700 hide-switch">Switch</span>Channel
 						</a>
 					</span>

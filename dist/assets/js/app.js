@@ -10218,9 +10218,9 @@ return jQuery;
 	 * ---------------------------------------------------------------------------------------------------------------*/
 		$scope.defaultStreamId = 'njCDZWTI-xg';
 		$scope.streamVideoId = $scope.defaultStreamId;
-		$scope.channelId = {
-			main : 'UCQvTDmHza8erxZqDkjQ4bQQ',
-			letsplay : 'UCtSP1OA6jO4quIGLae7Fb4g'
+		$scope.channel = {
+			main : { id: 'UCQvTDmHza8erxZqDkjQ4bQQ', lastUpdate : '' },
+			letsplay : { id : 'UCtSP1OA6jO4quIGLae7Fb4g', lastUpdate : '' }
 		};
 		$scope.searchText = "";
 		$scope.currentTitle = $sce.trustAsHtml('<span></span>');
@@ -10273,7 +10273,10 @@ return jQuery;
 			showNotifications : true
 		};
 		$scope.chatState = true;
-
+		$scope.reloadLinkTitle = 'Reload List manually. Happens every '
+			+ $scope.intervals.refreshVideoListData / ( 1000 * 60 ) + 'min anyway.';
+		$scope.switchChannelLinkTitle = 'Switching reloads channel videos if the last reload is older than '
+			+ $scope.intervals.refreshVideoListData / ( 1000 * 60 ) + 'min.';
 	/*------------------------------------------------------------------------------------------------------------------
 	 * END Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
@@ -10313,6 +10316,12 @@ return jQuery;
 			}
 			else {
 				$scope.options.activeChannel = 'main';
+			}
+
+			// Update List Data only when the last update is older than vlistData update interval.
+			var timeDiff = new Date() - $scope.channel[$scope.options.activeChannel].lastUpdate;
+			if(!isNaN(Date.parse(timeDiff)) && timeDiff > $scope.intervals.refreshVideoListData ){
+				$scope.getData('vList');
 			}
 
 			ga('send', 'event', 'UI', 'Switch', 'Channel', $scope.options.activeChannel);
@@ -10413,6 +10422,10 @@ return jQuery;
 
 		/* Get data from youtube api via ajax */
 		function sendDataRequest(url, type, channel){
+			if (typeof channel !== 'undefined' && channel != $scope.options.activeChannel){
+				return;
+			}
+
 			$http.get(url).
 			success(function(data, status, headers, config) {
 				if(typeof channel !== 'undefined' && type == 'vList'){
@@ -10421,6 +10434,8 @@ return jQuery;
 				}
 				else if(typeof channel !== 'undefined'){
 					getActualVideoData(data.items, 'vList', channel);
+					$scope.channel[channel].lastUpdate = new Date();
+					util.out('Refreshed Video List for: ' + channel, 'info');
 				}
 				else if(type == 'video') {
 					$scope.currentTitle = constructCurrentVideoTitle(data.items);
@@ -10488,7 +10503,7 @@ return jQuery;
 				type = "channels?";
 				params = {
 					part : 'snippet',
-					id : $scope.channelId.main,
+					id : $scope.channel.main.id,
 					key : key
 				};
 				sendDataRequest(url + type + $httpParamSerializerJQLike(params), kind);
@@ -10504,10 +10519,10 @@ return jQuery;
 			}
 			else if(kind == "vList") {
 				type = "search?";
-				angular.forEach($scope.channelId, function(value, vkey){
+				angular.forEach($scope.channel, function(value, vkey){
 					params = {
 						part : 'snippet',
-						channelId : value,
+						channelId : value.id,
 						maxResults: 50,
 						order: 'date',
 						type : 'video',
