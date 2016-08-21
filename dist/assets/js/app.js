@@ -10175,7 +10175,6 @@ return jQuery;
 			'ngYoutubeEmbed',
 			'ngSanitize',
 			'angular-web-notification',
-			'angular-google-analytics',
 			//'$window',
 
 			//foundation
@@ -10188,9 +10187,9 @@ return jQuery;
 			.run(run)
 		;
 
-	config.$inject = ['$urlRouterProvider', '$locationProvider', 'localStorageServiceProvider', 'AnalyticsProvider'];
+	config.$inject = ['$urlRouterProvider', '$locationProvider', 'localStorageServiceProvider'];
 
-	function config($urlProvider, $locationProvider, localStorageServiceProvider, AnalyticsProvider) {
+	function config($urlProvider, $locationProvider, localStorageServiceProvider) {
 		$urlProvider.otherwise('/');
 
 		$locationProvider.html5Mode({
@@ -10204,23 +10203,16 @@ return jQuery;
 			.setStorageType('localStorage');
 		localStorageServiceProvider
 			.setPrefix('rocketview');
-
-		AnalyticsProvider
-			.logAllCalls(true)
-			.setAccount('UA-82861079-1')
-			.startOffline(true);
 	}
 
-	function run(Analytics) {
+	function run() {
 		FastClick.attach(document.body);
 	}
 
 	appModule.controller('mainController',
-		['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', '$httpParamSerializerJQLike', 'webNotification', 'Analytics',
-		function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce, $httpParamSerializerJQLike, webNotification, Analytics)
+		['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', '$httpParamSerializerJQLike', 'webNotification',
+		function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce, $httpParamSerializerJQLike, webNotification)
 	{
-
-	Analytics.pageView();
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
@@ -10920,6 +10912,15 @@ return jQuery;
 		return {
 			restrict: 'A',
 			templateUrl: 'templates/directives/options.html',
+			scope: true,
+			replace: true
+		};
+	});
+	
+	appModule.directive('disclaimer', function () {
+		return {
+			restrict: 'A',
+			templateUrl: 'templates/directives/disclaimer.html',
 			scope: true,
 			replace: true
 		};

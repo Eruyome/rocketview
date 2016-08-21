@@ -55,8 +55,7 @@ var paths = {
 		//'node_modules/angular-google-gapi/dist/angular-google-gapi.js',
 		'node_modules/ng-youtube-embed/build/ng-youtube-embed.min.js',
 		'node_modules/html5-desktop-notifications/desktop-notify.js',
-		'node_modules/angular-web-notification/angular-web-notification.js',
-		'node_modules/angular-google-analytics/dist/angular-google-analytics.js'
+		'node_modules/angular-web-notification/angular-web-notification.js'
 		//'bower_components/ngGAPI/gapi.js'
 	],
 	// These files are for your app's JavaScript

@@ -1,0 +1,82 @@
+<div>
+	<a zf-close="" class="close-button">×</a>
+	<h3>About</h3>
+	<p>This site is fan-made and not affiliated with Rocket BEANS Entertainment GmbH in any way.
+		RocketView is fully open source under GNU General Public License v2.0.
+	</p>
+	<p>RocketView is optimised for the latest Firefox and Chrome browsers with a resolution of at least 600px width. It
+		is not intended to be used on mobile devices.
+	</p>
+
+	<zf-accordion class="" auto-open="false" collapsible="true" multi-open="false">
+		<zf-accordion-item title="Project Goals">
+			<ul>
+				<li>
+					Alternative viewer for RocketbeansTV Youtube Live streams
+				</li>
+				<li>
+					Featuring a dark theme, program schedule, important links and easy access to the latest youtube videos
+					(main and let's play channels). All this without the need to manually refresh something or opening new pages.
+				</li>
+			</ul>
+		</zf-accordion-item>
+		<zf-accordion-item title="Limitations">
+			<p>
+				With a free developer account there are <a href="http://stackoverflow.com/a/15580411">limitations</a>
+				on how many requests you can send to Google's APIs.
+			</p>
+			<p>
+				These limits affect the update intervals:
+			</p>
+
+			<table>
+				<thead>
+				<tr>
+					<td>Type</td>
+					<td>Interval (minutes)</td>
+					<td>Quota Cost (units)</td>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td>Update Video Lists</td>
+					<td>{{intervals.refreshVideoListData / (1000 * 60)}}</td>
+					<td>400</td>
+				</tr>
+				<tr>
+					<td>Update Stream/Video Title</td>
+					<td>{{intervals.updateStreamTitle / (1000 * 60)}}</td>
+					<td>1</td>
+				</tr>
+				</tbody>
+			</table>
+		</zf-accordion-item>
+
+		<zf-accordion-item title="Interesting Projects">
+			<ul>
+				<li>
+					<a href="https://forum.rocketbeans.tv/t/betterrbtv-fuer-youtube-live-inoffizielle-chrome-erweiterung/9466">
+						BETTERRBTV for Youtube Live
+					</a> by pronuntiator (works with RocketView)
+				</li>
+				<li>
+					<a href="https://forum.rocketbeans.tv/t/youtube-alternative/2035">Youtube Alternative</a> by misantronic
+				</li>
+			</ul>
+		</zf-accordion-item>
+
+		<zf-accordion-item title="Image Attributions">
+			<ul>
+				<li>
+					<div>"play" icon made by <a href="http://www.flaticon.com/authors/elegant-themes" title="Elegant Themes">Elegant Themes</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+				</li>
+				<li>
+					<div>"thumb" icon made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+				</li>
+				<li>
+					<div><a href="http://simpleicon.com/calendar-1.html">"calendar"</a> icon from <a href="http://simpleicon.com/license-agreement/" title="simpleicon">www.simpleicon.com</a></div>
+				</li>
+			</ul>
+		</zf-accordion-item>
+	</zf-accordion>
+</div>
