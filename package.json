@@ -39,6 +39,7 @@
   },
   "private": true,
   "dependencies": {
+    "angular-google-analytics": "^1.1.7",
     "angular-web-notification": "0.0.91",
     "html5-desktop-notifications": "^1.0.0"
   }

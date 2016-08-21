@@ -621,11 +621,28 @@ body {
 }
 
 #showDisclaimerModal {
+	.modal {
+		overflow-y: auto;
+	}
 	a {
 		text-decoration: underline;
 	}
+	table {
+		width: 100%;
+		border: 1px solid $primary-color;
+		td {
+			padding: 0.5rem;
+		}
+		thead {
+			background-color: darken($primary-color, 1%);
+		}
+	}
 }
 #optionsModal {
+	.modal {
+		overflow-y: auto;
+	}
+
 	header .button {
 		margin: 0 0 0 1rem;
 	}

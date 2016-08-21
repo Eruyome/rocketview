@@ -10175,6 +10175,7 @@ return jQuery;
 			'ngYoutubeEmbed',
 			'ngSanitize',
 			'angular-web-notification',
+			'angular-google-analytics',
 			//'$window',
 
 			//foundation
@@ -10187,9 +10188,9 @@ return jQuery;
 			.run(run)
 		;
 
-	config.$inject = ['$urlRouterProvider', '$locationProvider', 'localStorageServiceProvider'];
+	config.$inject = ['$urlRouterProvider', '$locationProvider', 'localStorageServiceProvider', 'AnalyticsProvider'];
 
-	function config($urlProvider, $locationProvider, localStorageServiceProvider) {
+	function config($urlProvider, $locationProvider, localStorageServiceProvider, AnalyticsProvider) {
 		$urlProvider.otherwise('/');
 
 		$locationProvider.html5Mode({
@@ -10203,17 +10204,23 @@ return jQuery;
 			.setStorageType('localStorage');
 		localStorageServiceProvider
 			.setPrefix('rocketview');
+
+		AnalyticsProvider
+			.logAllCalls(true)
+			.setAccount('UA-82861079-1')
+			.startOffline(true);
 	}
 
-	function run() {
+	function run(Analytics) {
 		FastClick.attach(document.body);
 	}
 
 	appModule.controller('mainController',
-		['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', '$httpParamSerializerJQLike', 'webNotification',
-		function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce, $httpParamSerializerJQLike, webNotification)
+		['$scope', '$http', '$timeout', '$interval', '$location', '$window', 'localStorageService', 'FoundationApi', '$sce', '$httpParamSerializerJQLike', 'webNotification', 'Analytics',
+		function ($scope, $http, $timeout, $interval, $location, $window, localStorageService, FoundationApi, $sce, $httpParamSerializerJQLike, webNotification, Analytics)
 	{
 
+	Analytics.pageView();
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
@@ -10260,7 +10267,7 @@ return jQuery;
 
 		$scope.viewerCount = 0;
 		$scope.intervals = {
-			refreshVideoListData : 300000,
+			refreshVideoListData : 1800000,
 			scheduleCount : 600000,
 			updateStreamTitle : 300000,
 			viewCount : 30000
@@ -10299,6 +10306,8 @@ return jQuery;
 				});
 				$scope.data.shows = obj;
 				util.out($scope.data.shows, 'log');
+
+				ga('send', 'event', 'Data', 'Update', 'Shows');
 			}).
 			error(function(data, status, headers, config) {
 			});
@@ -10313,6 +10322,8 @@ return jQuery;
 			else {
 				$scope.options.activeChannel = 'main';
 			}
+
+			ga('send', 'event', 'UI', 'Switch', 'Channel', $scope.options.activeChannel);
 		};
 
 		/* Trust external resource */
@@ -10414,6 +10425,7 @@ return jQuery;
 			success(function(data, status, headers, config) {
 				if(typeof channel !== 'undefined' && type == 'vList'){
 					$scope.data[type][channel] = data.items;
+					ga('send', 'event', 'Data', 'Update', 'Video List', channel);
 				}
 				else if(typeof channel !== 'undefined'){
 					getActualVideoData(data.items, 'vList', channel);
@@ -10421,9 +10433,11 @@ return jQuery;
 				else if(type == 'video') {
 					$scope.currentTitle = constructCurrentVideoTitle(data.items);
 					$scope.data[type] = data.items;
+					ga('send', 'event', 'Data', 'Update', 'Video');
 				}
 				else {
 					$scope.data[type] = data.items;
+					ga('send', 'event', 'Data', 'Update', 'Channel');
 				}
 				util.out($scope.data, 'log');
 			}).
@@ -10445,6 +10459,8 @@ return jQuery;
 					});
 					$scope.data.views = obj.views;
 					util.out($scope.data.views, 'log');
+
+					ga('send', 'event', 'Data', 'Update', 'Views');
 				}).
 				error(function(data, status, headers, config) {
 				});
@@ -10654,6 +10670,7 @@ return jQuery;
 					obj.isFirstEventOfTheDay = isFirstEventOfTheDay(data.items, key);
 
 					items.push(obj);
+					ga('send', 'event', 'Data', 'Update', 'Calendar');
 				});
 
 				$scope.data.calendar = removePastEvents(items, 2);
@@ -10674,6 +10691,7 @@ return jQuery;
 				return;
 			}
 			$scope.getData('video');
+			ga('send', 'event', 'Data', 'Update', 'Stream Info');
 		}
 		$interval(function() {updateStreamTitle();}, $scope.intervals.updateStreamTitle);
 
