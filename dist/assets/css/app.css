@@ -5945,13 +5945,13 @@ body {
 
 .menu-bar .disclaimerTitle {
   position: absolute;
-  top: 0px;
-  right: 0px; }
+  right: 63px;
+  top: 0; }
 
 .menu-bar .scheduleTitle {
   position: absolute;
   top: 8px;
-  right: 75px; }
+  right: 128px; }
   .menu-bar .scheduleTitle a.schedule {
     display: inline-block;
     background: url("../img/calendar-small.png") no-repeat center center;
@@ -5968,7 +5968,7 @@ body {
 
 .menu-bar .optionsTitle {
   position: absolute;
-  right: 130px;
+  right: 181px;
   top: 11px; }
   .menu-bar .optionsTitle img, .menu-bar .optionsTitle a {
     margin: 0;
@@ -5989,6 +5989,13 @@ body {
   background: transparent; }
   .menu-bar .openModal:hover {
     background: transparent !important; }
+
+.menu-bar .clock {
+  position: absolute;
+  right: 0;
+  top: 0; }
+  .menu-bar .clock a {
+    cursor: default !important; }
 
 .grid-container {
   max-width: 93rem;
@@ -6384,3 +6391,6 @@ body {
   .footer a {
     padding: 1rem;
     font-size: 0.75rem; }
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important; }

@@ -10698,6 +10698,30 @@ return jQuery;
 		updateStreamInfo();
 		$interval(function() {updateStreamInfo();}, $scope.intervals.viewCount);
 
+		// Create and update Clock
+		function getTimeFromDate(date) {
+			function pad(n){return n<10 ? '0'+n : n;}
+			var newDate = new Date();
+			var h = pad(newDate.getHours());
+			var m = pad(newDate.getMinutes());
+			var time = h + ':' + m;
+
+			return time;
+		}
+
+		$scope.clock = {
+			clock : getTimeFromDate(new Date())
+		};
+		var updateClock = function () {
+			$scope.clock.now = getTimeFromDate(new Date());
+		};
+
+		setInterval(function () {
+			$scope.$apply(updateClock);
+		}, 1000);
+
+		updateClock();
+
 		/* Gets called to get video list data in intervals */
 		function reloadVListData() {
 			$scope.getData("vList");
