@@ -10,7 +10,7 @@
 			  type="image/png"
 			  href="./assets/img/favicon.ico">
 	</head>
-	<body zf-close-all>
+	<body zf-esc-close zf-close-all>
 		<div class="grid-frame vertical"  ng-controller="mainController">
 			<div class="grid-content shrink" style="padding: 0;">
 				<ul class="primary condense menu-bar">
@@ -44,6 +44,9 @@
 						<a href="https://forum.rocketbeans.tv/" target="_blank">
 							Forum
 						</a>
+					</li>
+					<li class="clock">
+						<a ng-cloak title="Clock">{{clock.now}}</a>
 					</li>
 
 					<li class="optionsTitle" >
