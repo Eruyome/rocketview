@@ -193,7 +193,7 @@
 				$scope.data.shows.forEach(function(value, key){
 					var m = getRegexResults(value.reg, srcTitle);
 					if(m !== false){
-						recognizedShows.push(m.s);
+						recognizedShows.push({ name: m.s, css: value.css});
 
 						// find "| " or "- " before and " |" or " -" after matched show and remove it
 						if (new RegExp("\\||\\-").test(srcTitle.substr(m.i-2, 2))){
@@ -235,10 +235,32 @@
 			return $sce.trustAsHtml(srcTitle);
 		}
 
+		if (!Array.prototype.last){
+			Array.prototype.last = function(){
+				return this[this.length - 1];
+			};
+		}
+
+		function getNotificationImage(){
+			//var show = $scope.data.video.recognizedShows.last();
+			var path = 'assets/img/notifications/';
+			var show = 'show-' + $scope.data.video.recognizedShows[0].css + '.jpg';
+			return path + show;
+		}
+
+		function concatShows(shows) {
+			var s = '';
+			shows.forEach(function(value, key){
+				s += value.name + ' ';
+			});
+			return s;
+		}
+
 		function showNotification(){
+			console.log($scope.data.video.recognizedShows);
 			webNotification.showNotification('Video/Show Update:', {
-				body: $scope.data.video.recognizedShows.join().replace(',', " | "),
-				icon: 'assets/img/notifications/rocketview.png',
+				body: concatShows($scope.data.video.recognizedShows),
+				icon: getNotificationImage(),
 				autoClose: 4000 //auto close the notification after 2 seconds (you manually close it via hide function)
 			}, function onShow(error, hide) {
 				if (error) {
