@@ -10320,7 +10320,7 @@ return jQuery;
 
 			// Update List Data only when the last update is older than vlistData update interval.
 			var timeDiff = new Date() - $scope.channel[$scope.options.activeChannel].lastUpdate;
-			if(!isNaN(Date.parse(timeDiff)) && timeDiff > $scope.intervals.refreshVideoListData ){
+			if(isNaN(Date.parse(timeDiff)) || timeDiff > $scope.intervals.refreshVideoListData ){
 				$scope.getData('vList');
 			}
 
