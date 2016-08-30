@@ -120,7 +120,7 @@ url: /
 	<h5>Available Streams</h5>
 	<ul>
 		<li ng-repeat="(key, item) in streams" class="item">
-			<a class="grid-block vimage" ng-click="changeVideo(item.id); scrollToTop(); data.views = item.views" zf-close="">
+			<a class="grid-block vimage" ng-click="changeStream(item);" zf-close="">
 				<img src="{{item.thumb}}"/>
 				<div class="hover-play"><div></div></div>
 			</a>

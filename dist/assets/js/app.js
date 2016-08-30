@@ -10808,6 +10808,14 @@ return jQuery;
 			$scope.video.url = $scope.video.domain + $scope.video.id;
 			$scope.getData("video");
 		};
+		$scope.changeStream = function(item){
+			$scope.changeVideo(item.id);
+			$scope.scrollToTop();
+			$scope.data.views = item.views;
+			$scope.chat.id = item.id;
+			$scope.chat.url = $scope.chat.domain + $scope.chat.id + '&' + $scope.chat.embedDomain + '&'
+				+ $scope.chat.theme + '&' + $scope.chat.gaming;
+		};
 
 		/* Init Load Data */
 		$scope.getCalendarData();
