@@ -6047,6 +6047,16 @@ body {
   border-radius: 1px;
   padding-left: 5px;
   padding-right: 5px; }
+  .broadcastState.live:before {
+    content: '';
+    display: inline-block;
+    width: .5em;
+    height: .5em;
+    border-radius: 0.25em;
+    margin-right: 4px;
+    color: red;
+    background-color: red;
+    margin-bottom: 1px; }
 
 .content.grid-block {
   padding: .5rem 0 1rem 0; }
@@ -6108,10 +6118,10 @@ body {
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 4px;
     padding: 3px; }
-  .videolist-container .vimage {
+  .videolist-container .vimage, .videolist-container #streamList {
     position: relative;
     max-height: 110px; }
-    .videolist-container .vimage img {
+    .videolist-container .vimage img, .videolist-container #streamList img {
       height: 110px;
       width: 196px; }
   .videolist-container .vtitle {
@@ -6223,6 +6233,14 @@ body {
     padding: 0;
     background: transparent;
     box-shadow: none; }
+
+.video-title .camera {
+  width: 37px;
+  height: 20px;
+  display: inline-block;
+  background: url("../img/camera.png") no-repeat;
+  background-size: 26px;
+  margin: 0; }
 
 .playLiveButton, .toggleChatButton {
   display: block;
@@ -6391,6 +6409,59 @@ body {
   .footer a {
     padding: 1rem;
     font-size: 0.75rem; }
+
+.close-button:hover {
+  color: #d4d4d4; }
+
+#streamList span {
+  font-size: 0.875rem; }
+
+#streamList ul {
+  margin-top: 70px;
+  list-style-type: none; }
+
+#streamList img {
+  height: 110px;
+  width: 196px;
+  background-color: grey; }
+
+#streamList li {
+  margin-bottom: 10px; }
+
+#streamList h5 {
+  top: 35px;
+  left: 1.1rem;
+  position: absolute; }
+
+#streamList .item {
+  border: 1px solid #101010;
+  box-shadow: 0 1px 1px rgba(255, 255, 255, 0.1);
+  position: relative; }
+  #streamList .item .vimage {
+    width: 196px;
+    height: 110px; }
+  #streamList .item .hover-play {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    top: 0;
+    left: 0; }
+    #streamList .item .hover-play div {
+      opacity: 1;
+      width: 100%;
+      height: 100%;
+      background: url("../img/play-button-silhouette-big-red.png") no-repeat center center; }
+  #streamList .item:hover .hover-play {
+    opacity: 1; }
+  #streamList .item .views {
+    font-size: 0.75rem;
+    color: red; }
+  #streamList .item .views svg.iconic.iconic-sm:not(.iconic-size-md):not(.iconic-size-lg) {
+    width: 10px;
+    height: 10px;
+    margin-bottom: 2px; }
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important; }

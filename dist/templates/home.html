@@ -2,7 +2,8 @@
 <div class="grid-container" ng-class="{'grid-container-chat':chatState, 'grid-container-cinema':(options.ratio=='cinema')}">
 
 	<h5 class="video-title">
-		<span ng-if="data.video[0].snippet.liveBroadcastContent=='live'" class="broadcastState"
+		<span class="camera button" zf-open="streamList" title="Stream List"></span>
+		<span ng-if="data.video[0].snippet.liveBroadcastContent=='live'" class="broadcastState live"
 			  title="Live Übertragung.">Live
 		</span>
 		<span ng-if="data.video[0].snippet.liveBroadcastContent!='live'" class="broadcastState"
@@ -108,4 +109,21 @@
 <!-- Show Options Modal -->
 <div zf-modal="" id="optionsModal" class="collapse">
 	<div options></div>
+</div>
+
+<div zf-panel="" id="streamList">
+	<a zf-close="" class="close-button button">×</a>
+	<h5>Available Streams</h5>
+	<ul>
+		<li ng-repeat="(key, item) in streams" class="item">
+			<a class="grid-block vimage" ng-click="changeVideo(item.id); scrollToTop(); data.views = item.views" zf-close="">
+				<img src="{{item.thumb}}"/>
+				<div class="hover-play"><div></div></div>
+			</a>
+			<span>{{item.title}}</span>
+			<span class="views">({{item.views}}
+				<img zf-iconic="" icon="person" size="small" class=""> )
+			</span>
+		</li>
+	</ul>
 </div>

@@ -65,6 +65,7 @@
 	 * BEGIN Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
 		$scope.defaultStreamId = 'njCDZWTI-xg';
+		$scope.defaultStreamViews = 0;
 		$scope.streamVideoId = $scope.defaultStreamId;
 		$scope.channel = {
 			main : { id: 'UCQvTDmHza8erxZqDkjQ4bQQ', lastUpdate : '' },
@@ -323,16 +324,27 @@
 		}
 
 		/* Get Stream View Count anf Title from googlesheet */
-		$scope.getStreamInfo = function() {
+		$scope.getDefaultStreamInfo = function() {
 			var spreadsheetId = '1YMRe44sXJPXw58QY5zbd9vsynIPUAjbhGiAK6FDiSNM';
 			var url = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/2/public/values?alt=json';
 			$http.get(url).
 				success(function(data) {
-					$scope.data.views = data.feed.entry[0].gsx$views.$t;
-					if($scope.video.id == $scope.streamVideoId) {
-						$scope.video.title = data.feed.entry[0].gsx$streamtitle.$t;
+					var info = data.feed.entry[0];
+					var live = info.gsx$status.$t.match(/live/i);
+					if(live) {
+						$scope.defaultStreamViews = info.gsx$views.$t.match(/\d+(,?)\d+/)[0];
 					}
-					util.out($scope.data.views, 'log');
+					else {
+						$scope.defaultStreamViews = info.gsx$livestatviews.$t;
+					}
+					$scope.defaultStreamId = data.feed.entry[0].gsx$videoid.$t;
+
+					if($scope.video.id == $scope.defaultStreamId) {
+						$scope.video.title = data.feed.entry[0].gsx$streamtitle.$t;
+						$scope.data.views = $scope.defaultStreamViews;
+					}
+
+					util.out($scope.defaultStreamViews, 'log');
 					util.out($scope.video.title, 'log');
 
 					ga('send', 'event', 'Data', 'Update', 'Views');
@@ -341,6 +353,46 @@
 				});
 		};
 
+		$scope.getAllLiveStreams = function() {
+			var spreadsheetId = '1yq6EW_VACJZ4z8EJtN6Ex0FuqMLLnbOJ9HgRZd6AoDU';
+			var url = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/1/public/values?alt=json';
+
+			$http.get(url).
+			success(function(data) {
+				var info = data.feed.entry;
+				var streams = [];
+				info.forEach(function(value, index) {
+					var live = value.gsx$status.$t.match(/live/i);
+					var obj = {};
+					if(!live) { return;	}
+					else {
+						var v = value.gsx$views.$t.match(/\d+(,?)\d+/)[0];
+						obj.views = parseInt(v.replace (/,/g, ""));
+					}
+					obj.title = value.gsx$streamtitle.$t;
+					obj.thumb = value.gsx$thumbnail.$t;
+					obj.id = value.gsx$videoid.$t;
+
+					streams.push(obj);
+				});
+
+				streams.sort(function(a,b) {return (a.views < b.views) ? 1 : ((b.views < a.views) ? -1 : 0);} );
+
+				if($scope.video.id == streams[0].id) {
+					$scope.video.title = streams[0].title;
+					$scope.data.views = streams[0].views;
+				}
+
+				$scope.defaultStreamId = data.feed.entry[0].gsx$videoid.$t;
+
+				$scope.streams = streams;
+				util.out($scope.streams, 'log');
+
+				ga('send', 'event', 'Data', 'Update', 'Views');
+			}).
+			error(function(data, status, headers, config) {
+			});
+		};
 
 		/* Use video Id's from channel search and get more detailed video data */
 		function getActualVideoData(list, kind, channel) {
@@ -563,7 +615,8 @@
 		$interval(function() {updateSchedule();}, $scope.intervals.scheduleCount);
 
 		function updateStreamInfo(){
-			$scope.getStreamInfo();
+			$scope.getDefaultStreamInfo();
+			$scope.getAllLiveStreams();
 		}
 		updateStreamInfo();
 		$interval(function() {updateStreamInfo();}, $scope.intervals.viewCount);
