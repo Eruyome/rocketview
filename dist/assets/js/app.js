@@ -10216,7 +10216,7 @@ return jQuery;
 	/*------------------------------------------------------------------------------------------------------------------
 	 * BEGIN Set some global/scope variables
 	 * ---------------------------------------------------------------------------------------------------------------*/
-		$scope.defaultStreamId = 'njCDZWTI-xg';
+		$scope.defaultStreamId = 'mT0TbIqBliw';
 		$scope.defaultStreamViews = 0;
 		$scope.streamVideoId = $scope.defaultStreamId;
 		$scope.channel = {
@@ -10260,9 +10260,9 @@ return jQuery;
 
 		$scope.viewerCount = 0;
 		$scope.intervals = {
-			refreshVideoListData : 1800000,
+			refreshVideoListData : 60000,
 			scheduleCount : 600000,
-			updateStreamTitle : 300000,
+			updateStreamTitle : 60000,
 			viewCount : 30000
 		};
 
@@ -10335,7 +10335,8 @@ return jQuery;
 
 		/* Construct formatted title */
 		function constructCurrentVideoTitle(video){
-			var srcTitle = video[0].snippet.title,
+			//var srcTitle = video[0].snippet.title,
+			var srcTitle = video.snippet.title,
 				recognizedShows = [];
 
 			// remove multiple whitespaces
@@ -10410,7 +10411,6 @@ return jQuery;
 		}
 
 		function showNotification(){
-			console.log($scope.data.video.recognizedShows);
 			webNotification.showNotification('Video/Show Update:', {
 				body: concatShows($scope.data.video.recognizedShows),
 				icon: getNotificationImage(),
@@ -10451,6 +10451,7 @@ return jQuery;
 
 			$http.get(url).
 			success(function(data, status, headers, config) {
+				/*
 				if(typeof channel !== 'undefined' && type == 'vList'){
 					$scope.data[type][channel] = data.items;
 					ga('send', 'event', 'Data', 'Update', 'Video List', channel);
@@ -10460,7 +10461,9 @@ return jQuery;
 					$scope.channel[channel].lastUpdate = new Date();
 					util.out('Refreshed Video List for: ' + channel, 'info');
 				}
-				else if(type == 'video') {
+				*/
+				//else
+				if(type == 'video') {
 					$scope.currentTitle = constructCurrentVideoTitle(data.items);
 					$scope.data[type] = data.items;
 					ga('send', 'event', 'Data', 'Update', 'Video');
@@ -10476,7 +10479,8 @@ return jQuery;
 		}
 
 		/* Get Stream View Count anf Title from googlesheet */
-		$scope.getDefaultStreamInfo = function() {
+		/*
+		$scope.getDefaultStreamInfoOld = function() {
 			var spreadsheetId = '1YMRe44sXJPXw58QY5zbd9vsynIPUAjbhGiAK6FDiSNM';
 			var url = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/2/public/values?alt=json';
 			$http.get(url).
@@ -10504,9 +10508,10 @@ return jQuery;
 				error(function(data, status, headers, config) {
 				});
 		};
-
-		$scope.getAllLiveStreams = function() {
-			var spreadsheetId = '1yq6EW_VACJZ4z8EJtN6Ex0FuqMLLnbOJ9HgRZd6AoDU';
+		*/
+		/*
+		$scope.getAllLiveStreamsOld = function() {
+			var spreadsheetId = '1AgutUpMOUtgofzdYeP6Mu2E_WbdY3HJNp7zZbwhdOFE';
 			var url = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/1/public/values?alt=json';
 
 			$http.get(url).
@@ -10545,8 +10550,68 @@ return jQuery;
 			error(function(data, status, headers, config) {
 			});
 		};
+		*/
+
+		$scope.getAllLiveStreams = function(init) {
+			var spreadsheetId = '1AgutUpMOUtgofzdYeP6Mu2E_WbdY3HJNp7zZbwhdOFE';
+			var url = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/1/public/values?alt=json';
+
+			$http.get(url).
+			success(function(data) {
+				var info = data.feed.entry;
+				var streams = [];
+				info.forEach(function(value, index) {
+					var live = value.gsx$livebroadcastcontent.$t.match(/live/i);
+					var obj = {};
+					if(!live) { return;	}
+					else {
+						var v = value.gsx$viewers.$t;
+						obj.views = parseInt(v.replace (/,/g, ""));
+					}
+					obj.snippet = {};
+					obj.snippet.title = value.gsx$title.$t;
+					obj.snippet.liveBroadcastContent = 'live';
+					obj.thumb = value.gsx$thumbnail.$t;
+					obj.id = value.gsx$videoid.$t;
+					obj.publishedAt = value.gsx$publishedat.$t;
+					obj.liveChatId = value.gsx$livechatid.$t;
+					obj.startTime = value.gsx$starttime.$t;
+					obj.updated = value.updated.$t;
+					obj.channelId = value.gsx$channelid.$t;
+
+					streams.push(obj);
+
+					if(obj.videoId == $scope.defaultStreamId){
+						$scope.video.title = data.feed.entry[0].gsx$streamtitle.$t;
+						$scope.defaultStreamViews = obj.views;
+						$scope.data.views = $scope.defaultStreamViews;
+					}
+				});
+
+				streams.sort(function(a,b) {return (a.views < b.views) ? 1 : ((b.views < a.views) ? -1 : 0);} );
+
+				if($scope.video.id == streams[0].id) {
+					$scope.video.title = streams[0].snippet.title;
+					$scope.data.views = streams[0].views;
+				}
+
+				$scope.defaultStreamId = data.feed.entry[0].gsx$videoid.$t;
+
+				$scope.streams = streams;
+				util.out($scope.streams, 'log');
+
+				if(typeof init !== 'undefined') {
+					$scope.getData('video');
+				}
+
+				ga('send', 'event', 'Data', 'Update', 'Views');
+			}).
+			error(function(data, status, headers, config) {
+			});
+		};
 
 		/* Use video Id's from channel search and get more detailed video data */
+		/*
 		function getActualVideoData(list, kind, channel) {
 			var idList = [];
 			angular.forEach(list, function(value,key){
@@ -10564,6 +10629,36 @@ return jQuery;
 			};
 			sendDataRequest(url + type + $httpParamSerializerJQLike(params), kind, channel);
 		}
+		*/
+
+		/* Get List of last 50 uploaded videos from both channels (main + letsplay) */
+		function getVList(channel, url) {
+			var obj = [];
+
+			$http.get(url).
+			success(function(data) {
+				var info = data.feed.entry;
+				var videos = [];
+				info.forEach(function(value, index) {
+					var obj = { 'snippet' : {}, 'contentDetails' : {}};
+					obj.snippet.title = value.gsx$title.$t;
+					obj.snippet.thumbnails = { 'medium' : {} };
+					obj.snippet.thumbnails.medium.url = value.gsx$thumbnail.$t;
+					obj.id = value.gsx$videoid.$t;
+					obj.snippet.channelId = value.gsx$channelid.$t;
+					obj.snippet.publishedAt = value.gsx$publishedat.$t;
+					obj.snippet.liveBroadcastContent = value.gsx$livebroadcastcontent.$t;
+					obj.contentDetails.duration = value.gsx$duration.$t;
+					obj.contentDetails.dimension = value.gsx$dimension.$t;
+					obj.contentDetails.definition = value.gsx$definition.$t;
+
+					videos.push(obj);
+				});
+
+				$scope.data['vList'][channel] = videos;
+				ga('send', 'event', 'Data', 'Update', 'Video List', channel);
+			});
+		}
 
 		$scope.getData = function(kind) {
 			var params = {},
@@ -10580,6 +10675,7 @@ return jQuery;
 				};
 				sendDataRequest(url + type + $httpParamSerializerJQLike(params), kind);
 			}
+			/*
 			else if(kind == "video") {
 				type = "videos?";
 				params = {
@@ -10589,6 +10685,29 @@ return jQuery;
 				};
 				sendDataRequest(url + type + $httpParamSerializerJQLike(params), kind);
 			}
+			*/
+
+			else if(kind == "video") {
+				$scope.streams.forEach(function(value){
+					if(value.id == $scope.video.id) {
+						$scope.currentTitle = constructCurrentVideoTitle(value);
+						$scope.data.video = value;
+					}
+					else {
+						var arr = [];
+						Array.prototype.push.apply(arr, $scope.data.vList.main);
+						Array.prototype.push.apply(arr, $scope.data.vList.letsplay);
+						arr.forEach(function(value){
+							if(value.id == $scope.video.id) {
+								$scope.currentTitle = constructCurrentVideoTitle(value);
+								$scope.data.video = value;
+							}
+						});
+					}
+				});
+			}
+
+			/* Old way to get vlist via youtube API
 			else if(kind == "vList") {
 				type = "search?";
 				angular.forEach($scope.channel, function(value, vkey){
@@ -10602,6 +10721,17 @@ return jQuery;
 					};
 					sendDataRequest(url + type + $httpParamSerializerJQLike(params), 'tempVList', vkey);
 				});
+			}
+			*/
+			// Get vlist via google sheet
+			else if(kind == "vList") {
+				var spreadsheetId = '1AgutUpMOUtgofzdYeP6Mu2E_WbdY3HJNp7zZbwhdOFE';
+				var urlMain = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/2/public/values?alt=json';
+				var urlLetsPlay = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/3/public/values?alt=json';
+				var videos = { 'main' : [], 'letsplay' : [] };
+
+				getVList('main', urlMain);
+				getVList('letsplay', urlLetsPlay);
 			}
 		};
 
@@ -10767,7 +10897,7 @@ return jQuery;
 		$interval(function() {updateSchedule();}, $scope.intervals.scheduleCount);
 
 		function updateStreamInfo(){
-			$scope.getDefaultStreamInfo();
+			//$scope.getDefaultStreamInfo();
 			$scope.getAllLiveStreams();
 		}
 		updateStreamInfo();
@@ -10819,7 +10949,8 @@ return jQuery;
 
 		/* Init Load Data */
 		$scope.getCalendarData();
-		$scope.getData("video");
+		//$scope.getData("video");
+		$scope.getAllLiveStreams(true);
 		$scope.getData("vList");
 		/* Reload video list data in intervals */
 		$interval(function() {reloadVListData();}, $scope.intervals.refreshVideoListData);

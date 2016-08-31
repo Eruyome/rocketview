@@ -7,10 +7,10 @@ url: /
 
 	<h5 class="video-title">
 		<span class="camera button" zf-open="streamList" title="Stream List"></span>
-		<span ng-if="data.video[0].snippet.liveBroadcastContent=='live'" class="broadcastState live"
+		<span ng-if="data.video.snippet.liveBroadcastContent=='live'" class="broadcastState live"
 			  title="Live Übertragung.">Live
 		</span>
-		<span ng-if="data.video[0].snippet.liveBroadcastContent!='live'" class="broadcastState"
+		<span ng-if="data.video.snippet.liveBroadcastContent!='live'" class="broadcastState"
 			  title="Video ist aufgezeichnet.">Recorded
 		</span>
 		<span class="currentTitle" ng-bind-html="currentTitle"></span>
@@ -88,7 +88,8 @@ url: /
 			<div class="grid-block videolist-container">
 				<div class="grid-block videolist">
 					<div vlistitem
-						 ng-repeat="(key, item) in data.vList[options.activeChannel] | orderBy : 'snippet.publishedAt' : true | filter:{snippet:{title:searchText}} ">
+						 ng-repeat="(key, item) in data.vList[options.activeChannel] | orderBy : 'snippet.publishedAt' : true |
+						 filter:{snippet:{title:searchText}} ">
 					</div>
 				</div>
 			</div>
@@ -125,7 +126,7 @@ url: /
 				<img src="{{item.thumb}}"/>
 				<div class="hover-play"><div></div></div>
 			</a>
-			<span>{{item.title}}</span>
+			<span>{{item.snippet.title}}</span>
 			<span class="views">({{item.views}}
 				<img zf-iconic="" icon="person" size="small" class=""> )
 			</span>
