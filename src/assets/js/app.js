@@ -247,6 +247,7 @@
 			//var show = $scope.data.video.recognizedShows.last();
 			var path = 'assets/img/notifications/';
 			var show = 'show-' + $scope.data.video.recognizedShows[0].css + '.jpg';
+			console.log(show);
 			return path + show;
 		}
 
@@ -408,6 +409,7 @@
 			success(function(data) {
 				var info = data.feed.entry;
 				var streams = [];
+
 				info.forEach(function(value, index) {
 					var live = value.gsx$livebroadcastcontent.$t.match(/live/i);
 					var obj = {};
@@ -418,7 +420,7 @@
 					}
 					obj.snippet = {};
 					obj.snippet.title = value.gsx$title.$t;
-					obj.snippet.liveBroadcastContent = 'live';
+					obj.snippet.liveBroadcastContent = value.gsx$livebroadcastcontent.$t;
 					obj.thumb = value.gsx$thumbnail.$t;
 					obj.id = value.gsx$videoid.$t;
 					obj.publishedAt = value.gsx$publishedat.$t;
@@ -428,9 +430,9 @@
 					obj.channelId = value.gsx$channelid.$t;
 
 					streams.push(obj);
-
-					if(obj.videoId == $scope.defaultStreamId){
-						$scope.video.title = data.feed.entry[0].gsx$streamtitle.$t;
+					if(obj.id == $scope.video.id && $scope.video.title != obj.snippet.title){
+						$scope.video.title = obj.snippet.title;
+						$scope.currentTitle = constructCurrentVideoTitle(obj);
 						$scope.defaultStreamViews = obj.views;
 						$scope.data.views = $scope.defaultStreamViews;
 					}
@@ -438,10 +440,13 @@
 
 				streams.sort(function(a,b) {return (a.views < b.views) ? 1 : ((b.views < a.views) ? -1 : 0);} );
 
-				if($scope.video.id == streams[0].id) {
+				/*
+				if($scope.video.id == streams[0].id && $scope.video.title != streams[0].snippet.title) {
 					$scope.video.title = streams[0].snippet.title;
+					$scope.currentTitle = constructCurrentVideoTitle(streams[0]);
 					$scope.data.views = streams[0].views;
 				}
+				*/
 
 				$scope.defaultStreamId = data.feed.entry[0].gsx$videoid.$t;
 
