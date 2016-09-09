@@ -451,10 +451,17 @@
 				$scope.defaultStreamId = data.feed.entry[0].gsx$videoid.$t;
 				$scope.streams = streams;
 				// Load Stream with most viewers
-				$scope.changeStream(streams[0]);
+
+				if (init) {
+
+				}
+
 				util.out($scope.streams, 'log');
 
 				if(typeof init !== 'undefined') {
+					$scope.changeStream(streams[0]);
+					console.log('change default Stream');
+
 					$scope.getData('video');
 				}
 
