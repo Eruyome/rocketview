@@ -53283,6 +53283,318 @@ var duScrollDefaultEasing=function(e){"use strict";return.5>e?Math.pow(2*e,2)/2:
  */
 
 !function(a){"object"==typeof exports?module.exports=a():"function"==typeof define&&define.amd?define(a):"undefined"!=typeof window?window.IconicJS=a():"undefined"!=typeof global?global.IconicJS=a():"undefined"!=typeof self&&(self.IconicJS=a())}(function(){var a;return function b(a,c,d){function e(g,h){if(!c[g]){if(!a[g]){var i="function"==typeof require&&require;if(!h&&i)return i(g,!0);if(f)return f(g,!0);throw new Error("Cannot find module '"+g+"'")}var j=c[g]={exports:{}};a[g][0].call(j.exports,function(b){var c=a[g][1][b];return e(c?c:b)},j,j.exports,b,a,c,d)}return c[g].exports}for(var f="function"==typeof require&&require,g=0;g<d.length;g++)e(d[g]);return e}({1:[function(a,b){var c=(a("./modules/polyfills"),a("./modules/svg-injector")),d=a("./modules/extend"),e=a("./modules/responsive"),f=a("./modules/position"),g=a("./modules/container"),h=a("./modules/log"),i={},j=window.iconicSmartIconApis={},k=("file:"===window.location.protocol,0),l=function(a,b,e){b=d({},i,b||{});var f={evalScripts:b.evalScripts,pngFallback:b.pngFallback};f.each=function(a){if(a)if("string"==typeof a)h.debug(a);else if(a instanceof SVGSVGElement){var c=a.getAttribute("data-icon");if(c&&j[c]){var d=j[c](a);for(var e in d)a[e]=d[e]}/iconic-bg-/.test(a.getAttribute("class"))&&g.addBackground(a),m(a),k++,b&&b.each&&"function"==typeof b.each&&b.each(a)}},"string"==typeof a&&(a=document.querySelectorAll(a)),c(a,f,e)},m=function(a){var b=[];a?"string"==typeof a?b=document.querySelectorAll(a):void 0!==a.length?b=a:"object"==typeof a&&b.push(a):b=document.querySelectorAll("svg.iconic"),Array.prototype.forEach.call(b,function(a){a instanceof SVGSVGElement&&(a.update&&a.update(),e.refresh(a),f.refresh(a))})},n=function(){i.debug&&console.time&&console.time("autoInjectSelector - "+i.autoInjectSelector);var a=k;l(i.autoInjectSelector,{},function(){if(i.debug&&console.timeEnd&&console.timeEnd("autoInjectSelector - "+i.autoInjectSelector),h.debug("AutoInjected: "+(k-a)),e.refreshAll(),i.autoInjectDone&&"function"==typeof i.autoInjectDone){var b=k-a;i.autoInjectDone(b)}})},o=function(a){a&&""!==a&&"complete"!==document.readyState?document.addEventListener("DOMContentLoaded",n):document.removeEventListener("DOMContentLoaded",n)},p=function(a){return a=a||{},d(i,a),o(i.autoInjectSelector),h.enableDebug(i.debug),window._Iconic?window._Iconic:{inject:l,update:m,smartIconApis:j,svgInjectedCount:k}};b.exports=p,window._Iconic=new p({autoInjectSelector:"img.iconic",evalScripts:"once",pngFallback:!1,each:null,autoInjectDone:null,debug:!1})},{"./modules/container":2,"./modules/extend":3,"./modules/log":4,"./modules/polyfills":5,"./modules/position":6,"./modules/responsive":7,"./modules/svg-injector":8}],2:[function(a,b){var c=function(a){var b=a.getAttribute("class").split(" "),c=-1!==b.indexOf("iconic-fluid"),d=[],e=["iconic-bg"];Array.prototype.forEach.call(b,function(a){switch(a){case"iconic-sm":case"iconic-md":case"iconic-lg":d.push(a),c||e.push(a.replace(/-/,"-bg-"));break;case"iconic-fluid":d.push(a),e.push(a.replace(/-/,"-bg-"));break;case"iconic-bg-circle":case"iconic-bg-rounded-rect":case"iconic-bg-badge":e.push(a);break;default:d.push(a)}}),a.setAttribute("class",d.join(" "));var f=a.parentNode,g=Array.prototype.indexOf.call(f.childNodes,a),h=document.createElement("span");h.setAttribute("class",e.join(" ")),h.appendChild(a),f.insertBefore(h,f.childNodes[g])};b.exports={addBackground:c}},{}],3:[function(a,b){b.exports=function(a){return Array.prototype.forEach.call(Array.prototype.slice.call(arguments,1),function(b){if(b)for(var c in b)b.hasOwnProperty(c)&&(a[c]=b[c])}),a}},{}],4:[function(a,b){var c=!1,d=function(a){console&&console.log&&console.log(a)},e=function(a){d("Iconic INFO: "+a)},f=function(a){d("Iconic WARNING: "+a)},g=function(a){c&&d("Iconic DEBUG: "+a)},h=function(a){c=a};b.exports={info:e,warn:f,debug:g,enableDebug:h}},{}],5:[function(){Array.prototype.forEach||(Array.prototype.forEach=function(a,b){"use strict";if(void 0===this||null===this||"function"!=typeof a)throw new TypeError;var c,d=this.length>>>0;for(c=0;d>c;++c)c in this&&a.call(b,this[c],c,this)}),function(){if(Event.prototype.preventDefault||(Event.prototype.preventDefault=function(){this.returnValue=!1}),Event.prototype.stopPropagation||(Event.prototype.stopPropagation=function(){this.cancelBubble=!0}),!Element.prototype.addEventListener){var a=[],b=function(b,c){var d=this,e=function(a){a.target=a.srcElement,a.currentTarget=d,c.handleEvent?c.handleEvent(a):c.call(d,a)};if("DOMContentLoaded"==b){var f=function(a){"complete"==document.readyState&&e(a)};if(document.attachEvent("onreadystatechange",f),a.push({object:this,type:b,listener:c,wrapper:f}),"complete"==document.readyState){var g=new Event;g.srcElement=window,f(g)}}else this.attachEvent("on"+b,e),a.push({object:this,type:b,listener:c,wrapper:e})},c=function(b,c){for(var d=0;d<a.length;){var e=a[d];if(e.object==this&&e.type==b&&e.listener==c){"DOMContentLoaded"==b?this.detachEvent("onreadystatechange",e.wrapper):this.detachEvent("on"+b,e.wrapper);break}++d}};Element.prototype.addEventListener=b,Element.prototype.removeEventListener=c,HTMLDocument&&(HTMLDocument.prototype.addEventListener=b,HTMLDocument.prototype.removeEventListener=c),Window&&(Window.prototype.addEventListener=b,Window.prototype.removeEventListener=c)}}()},{}],6:[function(a,b){var c=function(a){var b=a.getAttribute("data-position");if(b&&""!==b){var c,d,e,f,g,h,i,j=a.getAttribute("width"),k=a.getAttribute("height"),l=b.split("-"),m=a.querySelectorAll("g.iconic-container");Array.prototype.forEach.call(m,function(a){if(c=a.getAttribute("data-width"),d=a.getAttribute("data-height"),c!==j||d!==k){if(e=a.getAttribute("transform"),f=1,e){var b=e.match(/scale\((\d)/);f=b&&b[1]?b[1]:1}g=Math.floor((j/f-c)/2),h=Math.floor((k/f-d)/2),Array.prototype.forEach.call(l,function(a){switch(a){case"top":h=0;break;case"bottom":h=k/f-d;break;case"left":g=0;break;case"right":g=j/f-c;break;case"center":break;default:console&&console.log&&console.log("Unknown position: "+a)}}),i=0===h?g:g+" "+h,i="translate("+i+")",e?/translate/.test(e)?e=e.replace(/translate\(.*?\)/,i):e+=" "+i:e=i,a.setAttribute("transform",e)}})}};b.exports={refresh:c}},{}],7:[function(a,b){var c=/(iconic-sm\b|iconic-md\b|iconic-lg\b)/,d=function(a,b){var c="undefined"!=typeof window.getComputedStyle&&window.getComputedStyle(a,null).getPropertyValue(b);return!c&&a.currentStyle&&(c=a.currentStyle[b.replace(/([a-z])\-([a-z])/,function(a,b,c){return b+c.toUpperCase()})]||a.currentStyle[b]),c},e=function(a){var b=a.style.display;a.style.display="block";var c=parseFloat(d(a,"width").slice(0,-2)),e=parseFloat(d(a,"height").slice(0,-2));return a.style.display=b,{width:c,height:e}},f=function(){var a="/* Iconic Responsive Support Styles */\n.iconic-property-fill, .iconic-property-text {stroke: none !important;}\n.iconic-property-stroke {fill: none !important;}\nsvg.iconic.iconic-fluid {height:100% !important;width:100% !important;}\nsvg.iconic.iconic-sm:not(.iconic-size-md):not(.iconic-size-lg), svg.iconic.iconic-size-sm{width:16px;height:16px;}\nsvg.iconic.iconic-md:not(.iconic-size-sm):not(.iconic-size-lg), svg.iconic.iconic-size-md{width:32px;height:32px;}\nsvg.iconic.iconic-lg:not(.iconic-size-sm):not(.iconic-size-md), svg.iconic.iconic-size-lg{width:128px;height:128px;}\nsvg.iconic-sm > g.iconic-md, svg.iconic-sm > g.iconic-lg, svg.iconic-md > g.iconic-sm, svg.iconic-md > g.iconic-lg, svg.iconic-lg > g.iconic-sm, svg.iconic-lg > g.iconic-md {display: none;}\nsvg.iconic.iconic-icon-sm > g.iconic-lg, svg.iconic.iconic-icon-md > g.iconic-lg {display:none;}\nsvg.iconic-sm:not(.iconic-icon-md):not(.iconic-icon-lg) > g.iconic-sm, svg.iconic-md.iconic-icon-sm > g.iconic-sm, svg.iconic-lg.iconic-icon-sm > g.iconic-sm {display:inline;}\nsvg.iconic-md:not(.iconic-icon-sm):not(.iconic-icon-lg) > g.iconic-md, svg.iconic-sm.iconic-icon-md > g.iconic-md, svg.iconic-lg.iconic-icon-md > g.iconic-md {display:inline;}\nsvg.iconic-lg:not(.iconic-icon-sm):not(.iconic-icon-md) > g.iconic-lg, svg.iconic-sm.iconic-icon-lg > g.iconic-lg, svg.iconic-md.iconic-icon-lg > g.iconic-lg {display:inline;}";navigator&&navigator.userAgent&&/MSIE 10\.0/.test(navigator.userAgent)&&(a+="svg.iconic{zoom:1.0001;}");var b=document.createElement("style");b.id="iconic-responsive-css",b.type="text/css",b.styleSheet?b.styleSheet.cssText=a:b.appendChild(document.createTextNode(a)),(document.head||document.getElementsByTagName("head")[0]).appendChild(b)},g=function(a){if(/iconic-fluid/.test(a.getAttribute("class"))){var b,d=e(a),f=a.viewBox.baseVal.width/a.viewBox.baseVal.height;b=1===f?Math.min(d.width,d.height):1>f?d.width:d.height;var g;g=32>b?"iconic-sm":b>=32&&128>b?"iconic-md":"iconic-lg";var h=a.getAttribute("class"),i=c.test(h)?h.replace(c,g):h+" "+g;a.setAttribute("class",i)}},h=function(){var a=document.querySelectorAll(".injected-svg.iconic-fluid");Array.prototype.forEach.call(a,function(a){g(a)})};document.addEventListener("DOMContentLoaded",function(){f()}),window.addEventListener("resize",function(){h()}),b.exports={refresh:g,refreshAll:h}},{}],8:[function(b,c,d){!function(b,e){"use strict";function f(a){a=a.split(" ");for(var b={},c=a.length,d=[];c--;)b.hasOwnProperty(a[c])||(b[a[c]]=1,d.unshift(a[c]));return d.join(" ")}var g="file:"===b.location.protocol,h=e.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure","1.1"),i=Array.prototype.forEach||function(a,b){if(void 0===this||null===this||"function"!=typeof a)throw new TypeError;var c,d=this.length>>>0;for(c=0;d>c;++c)c in this&&a.call(b,this[c],c,this)},j={},k=0,l=[],m=[],n={},o=function(a){return a.cloneNode(!0)},p=function(a,b){m[a]=m[a]||[],m[a].push(b)},q=function(a){for(var b=0,c=m[a].length;c>b;b++)!function(b){setTimeout(function(){m[a][b](o(j[a]))},0)}(b)},r=function(a,c){if(void 0!==j[a])j[a]instanceof SVGSVGElement?c(o(j[a])):p(a,c);else{if(!b.XMLHttpRequest)return c("Browser does not support XMLHttpRequest"),!1;j[a]={},p(a,c);var d=new XMLHttpRequest;d.onreadystatechange=function(){if(4===d.readyState){if(404===d.status||null===d.responseXML)return c("Unable to load SVG file: "+a),g&&c("Note: SVG injection ajax calls do not work locally without adjusting security setting in your browser. Or consider using a local webserver."),c(),!1;if(!(200===d.status||g&&0===d.status))return c("There was a problem injecting the SVG: "+d.status+" "+d.statusText),!1;if(d.responseXML instanceof Document)j[a]=d.responseXML.documentElement;else if(DOMParser&&DOMParser instanceof Function){var b;try{var e=new DOMParser;b=e.parseFromString(d.responseText,"text/xml")}catch(f){b=void 0}if(!b||b.getElementsByTagName("parsererror").length)return c("Unable to parse SVG file: "+a),!1;j[a]=b.documentElement}q(a)}},d.open("GET",a),d.overrideMimeType&&d.overrideMimeType("text/xml"),d.send()}},s=function(a,c,d,e){var g=a.getAttribute("data-src")||a.getAttribute("src");if(!/svg$/i.test(g))return e("Attempted to inject a file with a non-svg extension: "+g),void 0;if(!h){var j=a.getAttribute("data-fallback")||a.getAttribute("data-png");return j?(a.setAttribute("src",j),e(null)):d?(a.setAttribute("src",d+"/"+g.split("/").pop().replace(".svg",".png")),e(null)):e("This browser does not support SVG and no PNG fallback was defined."),void 0}-1===l.indexOf(a)&&(l.push(a),a.setAttribute("src",""),r(g,function(d){if("undefined"==typeof d||"string"==typeof d)return e(d),!1;var h=a.getAttribute("id");h&&d.setAttribute("id",h);var j=a.getAttribute("title");j&&d.setAttribute("title",j);var m=[].concat(d.getAttribute("class")||[],"injected-svg",a.getAttribute("class")||[]).join(" ");d.setAttribute("class",f(m));var o=a.getAttribute("style");o&&d.setAttribute("style",o);var p=[].filter.call(a.attributes,function(a){return/^data-\w[\w\-]*$/.test(a.name)});i.call(p,function(a){a.name&&a.value&&d.setAttribute(a.name,a.value)});for(var q,r=d.querySelectorAll("defs clipPath[id]"),s=0,t=r.length;t>s;s++){q=r[s].id+"-"+k;for(var u=d.querySelectorAll('[clip-path*="'+r[s].id+'"]'),v=0,w=u.length;w>v;v++)u[v].setAttribute("clip-path","url(#"+q+")");r[s].id=q}d.removeAttribute("xmlns:a");for(var x,y,z=d.querySelectorAll("script"),A=[],B=0,C=z.length;C>B;B++)y=z[B].getAttribute("type"),y&&"application/ecmascript"!==y&&"application/javascript"!==y||(x=z[B].innerText||z[B].textContent,A.push(x),d.removeChild(z[B]));if(A.length>0&&("always"===c||"once"===c&&!n[g])){for(var D=0,E=A.length;E>D;D++)new Function(A[D])(b);n[g]=!0}a.parentNode.replaceChild(d,a),delete l[l.indexOf(a)],a=null,k++,e(d)}))},t=function(a,b,c){b=b||{};var d=b.evalScripts||"always",e=b.pngFallback||!1,f=b.each;if(void 0!==a.length){var g=0;i.call(a,function(b){s(b,d,e,function(b){f&&"function"==typeof f&&f(b),c&&a.length===++g&&c(g)})})}else a?s(a,d,e,function(b){f&&"function"==typeof f&&f(b),c&&c(1),a=null}):c&&c(0)};"object"==typeof c&&"object"==typeof c.exports?c.exports=d=t:"function"==typeof a&&a.amd?a(function(){return t}):"object"==typeof b&&(b.SVGInjector=t)}(window,document)},{}]},{},[1])(1)});
+(function() {
+  'use strict';
+
+  angular.module('foundation.tabs', ['foundation.core'])
+    .controller('ZfTabsController', ZfTabsController)
+    .directive('zfTabs', zfTabs)
+    .directive('zfTabContent', zfTabContent)
+    .directive('zfTab', zfTab)
+    .directive('zfTabIndividual', zfTabIndividual)
+    .directive('zfTabHref', zfTabHref)
+    .directive('zfTabCustom', zfTabCustom)
+    .directive('zfTabContentCustom', zfTabContentCustom)
+    .service('FoundationTabs', FoundationTabs)
+  ;
+
+  FoundationTabs.$inject = ['FoundationApi'];
+
+  function FoundationTabs(foundationApi) {
+    var service    = {};
+
+    service.activate = activate;
+
+    return service;
+
+    //target should be element ID
+    function activate(target) {
+      foundationApi.publish(target, 'show');
+    }
+
+  }
+
+  ZfTabsController.$inject = ['$scope', 'FoundationApi'];
+
+  function ZfTabsController($scope, foundationApi) {
+    var controller = this;
+    var tabs       = controller.tabs = $scope.tabs = [];
+    var id         = '';
+
+    controller.select = function(selectTab) {
+      tabs.forEach(function(tab) {
+        tab.active = false;
+        tab.scope.active = false;
+
+        if(tab.scope === selectTab) {
+          foundationApi.publish(id, ['activate', tab]);
+
+          tab.active = true;
+          tab.scope.active = true;
+        }
+      });
+
+    };
+
+    controller.addTab = function addTab(tabScope) {
+      tabs.push({ scope: tabScope, active: false, parentContent: controller.id });
+
+      if(tabs.length === 1) {
+        tabs[0].active = true;
+        tabScope.active = true;
+      }
+    };
+
+    controller.getId = function() {
+      return id;
+    };
+
+    controller.setId = function(newId) {
+      id = newId;
+    };
+  }
+
+  zfTabs.$inject = ['FoundationApi'];
+
+  function zfTabs(foundationApi) {
+    var directive = {
+      restrict: 'EA',
+      transclude: 'true',
+      replace: true,
+      templateUrl: 'components/tabs/tabs.html',
+      controller: 'ZfTabsController',
+      scope: {
+        displaced: '@?'
+      },
+      link: link
+    };
+
+    return directive;
+
+    function link(scope, element, attrs, controller) {
+      scope.id = attrs.id || foundationApi.generateUuid();
+      scope.showTabContent = scope.displaced !== 'true';
+      attrs.$set('id', scope.id);
+      controller.setId(scope.id);
+
+      //update tabs in case tab-content doesn't have them
+      var updateTabs = function() {
+        foundationApi.publish(scope.id + '-tabs', scope.tabs);
+      };
+
+      foundationApi.subscribe(scope.id + '-get-tabs', function() {
+        updateTabs();
+      });
+    }
+  }
+
+  zfTabContent.$inject = ['FoundationApi'];
+
+  function zfTabContent(foundationApi) {
+    var directive = {
+      restrict: 'A',
+      transclude: 'true',
+      replace: true,
+      scope: {
+        tabs: '=?',
+        target: '@'
+      },
+      templateUrl: 'components/tabs/tab-content.html',
+      link: link
+    };
+
+    return directive;
+
+    function link(scope, element, attrs, ctrl) {
+      scope.tabs = scope.tabs || [];
+      var id = scope.target;
+
+      foundationApi.subscribe(id, function(msg) {
+        if(msg[0] === 'activate') {
+          var tabId = msg[1];
+          scope.tabs.forEach(function (tab) {
+            tab.scope.active = false;
+            tab.active = false;
+
+            if(tab.scope.id === id) {
+              tab.scope.active = true;
+              tab.active = true;
+            }
+          });
+        }
+      });
+
+      //if tabs empty, request tabs
+      if(scope.tabs.length === 0) {
+        foundationApi.subscribe(id + '-tabs', function(tabs) {
+          scope.tabs = tabs;
+        });
+
+        foundationApi.publish(id + '-get-tabs', '');
+      }
+    }
+  }
+
+  zfTab.$inject = ['FoundationApi'];
+
+  function zfTab(foundationApi) {
+    var directive = {
+      restrict: 'EA',
+      templateUrl: 'components/tabs/tab.html',
+      transclude: true,
+      scope: {
+        title: '@'
+      },
+      require: '^zfTabs',
+      replace: true,
+      link: link
+    };
+
+    return directive;
+
+    function link(scope, element, attrs, controller, transclude) {
+      scope.id = attrs.id || foundationApi.generateUuid();
+      scope.active = false;
+      scope.transcludeFn = transclude;
+      controller.addTab(scope);
+
+      foundationApi.subscribe(scope.id, function(msg) {
+        if(msg === 'show' || msg === 'open' || msg === 'activate') {
+          scope.makeActive();
+        }
+      });
+
+      scope.makeActive = function() {
+        controller.select(scope);
+      };
+    }
+  }
+
+  zfTabIndividual.$inject = ['FoundationApi'];
+
+  function zfTabIndividual(foundationApi) {
+    var directive = {
+      restrict: 'EA',
+      transclude: 'true',
+      link: link
+    };
+
+    return directive;
+
+    function link(scope, element, attrs, ctrl, transclude) {
+      var tab = scope.$eval(attrs.tab);
+      var id = tab.scope.id;
+
+      tab.scope.transcludeFn(tab.scope, function(tabContent) {
+        element.append(tabContent);
+      });
+
+      foundationApi.subscribe(tab.scope.id, function(msg) {
+        foundationApi.publish(tab.parentContent, ['activate', tab.scope.id]);
+        scope.$apply();
+      });
+
+    }
+  }
+
+  //custom tabs
+
+  zfTabHref.$inject = ['FoundationApi'];
+
+  function zfTabHref(foundationApi) {
+    var directive = {
+      restrict: 'A',
+      replace: false,
+      link: link
+    }
+
+    return directive;
+
+    function link(scope, element, attrs, ctrl) {
+      var target = attrs.zfTabHref;
+
+      foundationApi.subscribe(target, function(msg) {
+        if(msg === 'activate' || msg === 'show' || msg === 'open') {
+          makeActive();
+        }
+      });
+
+
+      element.on('click', function(e) {
+        foundationApi.publish(target, 'activate');
+        makeActive();
+        e.preventDefault();
+      });
+
+      function makeActive() {
+        element.parent().children().removeClass('is-active');
+        element.addClass('is-active');
+      }
+    }
+  }
+
+  zfTabCustom.$inject = ['FoundationApi'];
+
+  function zfTabCustom(foundationApi) {
+    var directive = {
+      restrict: 'A',
+      replace: false,
+      link: link
+    };
+
+    return directive;
+
+    function link(scope, element, attrs, ctrl, transclude) {
+      var children = element.children();
+      angular.element(children[0]).addClass('is-active');
+    }
+  }
+
+  zfTabContentCustom.$inject = ['FoundationApi'];
+
+  function zfTabContentCustom(foundationApi) {
+    return {
+      restrict: 'A',
+      link: link
+    };
+
+    function link(scope, element, attrs) {
+      var tabs = [];
+      var children = element.children();
+
+      angular.forEach(children, function(node) {
+        if(node.id) {
+          var tabId = node.id;
+          tabs.push(tabId);
+          foundationApi.subscribe(tabId, function(msg) {
+            if(msg === 'activate' || msg === 'show' || msg === 'open') {
+              activateTabs(tabId);
+            }
+          });
+
+          if(tabs.length === 1) {
+            var el = angular.element(node);
+            el.addClass('is-active');
+          }
+        }
+      });
+
+      function activateTabs(tabId) {
+        var tabNodes = element.children();
+        angular.forEach(tabNodes, function(node) {
+          var el = angular.element(node);
+          el.removeClass('is-active');
+          if(el.attr('id') === tabId) {
+            el.addClass('is-active');
+          }
+
+        });
+      }
+    }
+  }
+
+})();
+
 angular.module('markdown', [])
   .directive('markdown', function() {
     return {
@@ -53395,6 +53707,433 @@ angular.module('markdown', [])
     ).
     directive(svgDirectives);
 }());
+
+(function() {
+  'use strict';
+
+  angular.module('foundation.notification', ['foundation.core'])
+    .controller('ZfNotificationController', ZfNotificationController)
+    .directive('zfNotificationSet', zfNotificationSet)
+    .directive('zfNotification', zfNotification)
+    .directive('zfNotificationStatic', zfNotificationStatic)
+    .directive('zfNotify', zfNotify)
+    .factory('NotificationFactory', NotificationFactory)
+    .service('FoundationNotification', FoundationNotification)
+  ;
+
+  FoundationNotification.$inject = ['FoundationApi', 'NotificationFactory'];
+
+  function FoundationNotification(foundationApi, NotificationFactory) {
+    var service    = {};
+
+    service.activate = activate;
+    service.deactivate = deactivate;
+
+    return service;
+
+    //target should be element ID
+    function activate(target) {
+      foundationApi.publish(target, 'show');
+    }
+
+    //target should be element ID
+    function deactivate(target) {
+      foundationApi.publish(target, 'hide');
+    }
+
+    function toggle(target) {
+      foundationApi.publish(target, 'toggle');
+    }
+
+    function createNotificationSet(config) {
+      return new NotificationFactory(config);
+    }
+  }
+
+
+  ZfNotificationController.$inject = ['$scope', 'FoundationApi'];
+
+  function ZfNotificationController($scope, foundationApi) {
+    var controller    = this;
+    controller.notifications = $scope.notifications = $scope.notifications || [];
+
+    controller.addNotification = function(info) {
+      var id  = foundationApi.generateUuid();
+      info.id = id;
+      $scope.notifications.push(info);
+    };
+
+    controller.removeNotification = function(id) {
+      $scope.notifications.forEach(function(notification) {
+        if(notification.id === id) {
+          var ind = $scope.notifications.indexOf(notification);
+          $scope.notifications.splice(ind, 1);
+        }
+      });
+    };
+
+    controller.clearAll = function() {
+      while($scope.notifications.length > 0) {
+        $scope.notifications.pop();
+      }
+    };
+  }
+
+  zfNotificationSet.$inject = ['FoundationApi'];
+
+  function zfNotificationSet(foundationApi) {
+    var directive = {
+      restrict: 'EA',
+      templateUrl: 'components/notification/notification-set.html',
+      controller: 'ZfNotificationController',
+      replace: true,
+      scope: {
+        position: '@'
+      },
+      link: link
+    };
+
+    return directive;
+
+    function link(scope, element, attrs, controller) {
+      scope.position = scope.position ? scope.position.split(' ').join('-') : 'top-right';
+
+      foundationApi.subscribe(attrs.id, function(msg) {
+        if(msg === 'clearall') {
+          controller.clearAll();
+        }
+        else {
+          controller.addNotification(msg);
+          if (!scope.$root.$$phase) {
+            scope.$apply();
+          }
+        }
+      });
+    }
+  }
+
+  zfNotification.$inject = ['FoundationApi', '$sce'];
+
+  function zfNotification(foundationApi, $sce) {
+    var directive = {
+      restrict: 'EA',
+      templateUrl: 'components/notification/notification.html',
+      replace: true,
+      transclude: true,
+      require: '^zfNotificationSet',
+      controller: function() { },
+      scope: {
+        title: '=?',
+        content: '=?',
+        image: '=?',
+        notifId: '=',
+        color: '=?',
+        autoclose: '=?'
+      },
+      compile: compile
+    };
+
+    return directive;
+
+    function compile() {
+
+      return {
+        pre: preLink,
+        post: postLink
+      };
+
+      function preLink(scope, iElement, iAttrs) {
+        iAttrs.$set('zf-closable', 'notification');
+        if (iAttrs['title']) {
+          scope.$watch('title', function(value) {
+            if (value) {
+              scope.trustedTitle = $sce.trustAsHtml(value);
+            }
+          });
+        }
+      }
+
+      function postLink(scope, element, attrs, controller) {
+        scope.active = false;
+        var animationIn  = attrs.animationIn || 'fadeIn';
+        var animationOut = attrs.animationOut || 'fadeOut';
+        var animate = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
+        var hammerElem;
+
+        //due to dynamic insertion of DOM, we need to wait for it to show up and get working!
+        setTimeout(function() {
+          scope.active = true;
+          animate(element, scope.active, animationIn, animationOut);
+        }, 50);
+
+        scope.hide = function() {
+          scope.active = false;
+          animate(element, scope.active, animationIn, animationOut);
+          setTimeout(function() {
+            controller.removeNotification(scope.notifId);
+          }, 50);
+        };
+
+        // close if autoclose
+        if (scope.autoclose) {
+          setTimeout(function() {
+            if (scope.active) {
+              scope.hide();
+            }
+          }, parseInt(scope.autoclose));
+        };
+
+        // close on swipe
+        if (typeof(Hammer) !== 'undefined') {
+          hammerElem = new Hammer(element[0]);
+          // set the options for swipe (to make them a bit more forgiving in detection)
+          hammerElem.get('swipe').set({
+            direction: Hammer.DIRECTION_ALL,
+            threshold: 5, // this is how far the swipe has to travel
+            velocity: 0.5 // and this is how fast the swipe must travel
+          });
+        }
+        if(typeof(hammerElem) !== 'undefined') {
+          hammerElem.on('swipe', function() {
+            if (scope.active) {
+              scope.hide();
+            }
+          });
+        }
+      }
+    }
+  }
+
+  zfNotificationStatic.$inject = ['FoundationApi', '$sce'];
+
+  function zfNotificationStatic(foundationApi, $sce) {
+    var directive = {
+      restrict: 'EA',
+      templateUrl: 'components/notification/notification-static.html',
+      replace: true,
+      transclude: true,
+      scope: {
+        title: '@?',
+        content: '@?',
+        image: '@?',
+        color: '@?',
+        autoclose: '@?'
+      },
+      compile: compile
+    };
+
+    return directive;
+
+    function compile() {
+      var type = 'notification';
+
+      return {
+        pre: preLink,
+        post: postLink
+      };
+
+      function preLink(scope, iElement, iAttrs, controller) {
+        iAttrs.$set('zf-closable', type);
+        if (iAttrs['title']) {
+          scope.trustedTitle = $sce.trustAsHtml(iAttrs['title']);
+        }
+      }
+
+      function postLink(scope, element, attrs, controller) {
+        scope.position = attrs.position ? attrs.position.split(' ').join('-') : 'top-right';
+
+        var animationIn = attrs.animationIn || 'fadeIn';
+        var animationOut = attrs.animationOut || 'fadeOut';
+        var animateFn = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
+
+        //setup
+        foundationApi.subscribe(attrs.id, function(msg) {
+          if(msg == 'show' || msg == 'open') {
+            scope.show();
+            // close if autoclose
+            if (scope.autoclose) {
+              setTimeout(function() {
+                if (scope.active) {
+                  scope.hide();
+                }
+              }, parseInt(scope.autoclose));
+            };
+          } else if (msg == 'close' || msg == 'hide') {
+            scope.hide();
+          } else if (msg == 'toggle') {
+            scope.toggle();
+            // close if autoclose
+            if (scope.autoclose) {
+              setTimeout(function() {
+                if (scope.active) {
+                  scope.toggle();
+                }
+              }, parseInt(scope.autoclose));
+            }
+          }
+          return;
+        });
+
+        scope.hide = function() {
+          scope.active = false;
+          animateFn(element, scope.active, animationIn, animationOut);
+          return;
+        };
+
+        scope.show = function() {
+          scope.active = true;
+          animateFn(element, scope.active, animationIn, animationOut);
+          return;
+        };
+
+        scope.toggle = function() {
+          scope.active = !scope.active;
+          animateFn(element, scope.active, animationIn, animationOut);
+          return;
+        };
+
+      }
+    }
+  }
+
+  zfNotify.$inject = ['FoundationApi'];
+
+  function zfNotify(foundationApi) {
+    var directive = {
+      restrict: 'A',
+      scope: {
+        title: '@?',
+        content: '@?',
+        color: '@?',
+        image: '@?',
+        autoclose: '@?'
+      },
+      link: link
+    };
+
+    return directive;
+
+    function link(scope, element, attrs, controller) {
+      element.on('click', function(e) {
+        foundationApi.publish(attrs.zfNotify, {
+          title: scope.title,
+          content: scope.content,
+          color: scope.color,
+          image: scope.image,
+          autoclose: scope.autoclose
+        });
+        e.preventDefault();
+      });
+    }
+  }
+
+  NotificationFactory.$inject = ['$http', '$templateCache', '$rootScope', '$compile', '$timeout', 'FoundationApi', '$sce'];
+
+  function NotificationFactory($http, $templateCache, $rootScope, $compile, $timeout, foundationApi, $sce) {
+    return notificationFactory;
+
+    function notificationFactory(config) {
+      var self = this, //for prototype functions
+          container = angular.element(config.container || document.body),
+          id = config.id || foundationApi.generateUuid(),
+          attached = false,
+          destroyed = false,
+          html,
+          element,
+          scope,
+          contentScope
+      ;
+
+      var props = [
+        'position'
+      ];
+
+      assembleDirective();
+
+      self.addNotification = addNotification;
+      self.clearAll = clearAll;
+      self.destroy = destroy;
+
+      return {
+        addNotification: addNotification,
+        clearAll: clearAll,
+        destroy: destroy
+      };
+
+      function checkStatus() {
+        if(destroyed) {
+          throw "Error: Notification Set was destroyed. Delete the object and create a new NotificationFactory instance."
+        }
+      }
+
+      function addNotification(notification) {
+        checkStatus();
+        $timeout(function() {
+          foundationApi.publish(id, notification);
+        }, 0, false);
+      }
+
+      function clearAll() {
+        checkStatus();
+        $timeout(function() {
+          foundationApi.publish(id, 'clearall');
+        }, 0, false);
+      }
+
+      function init(state) {
+        if(!attached && html.length > 0) {
+          var modalEl = container.append(element);
+
+          scope.active = state;
+          $compile(element)(scope);
+
+          attached = true;
+        }
+      }
+
+      function assembleDirective() {
+        // check for duplicate element to prevent factory from cloning notification sets
+        if (document.getElementById(id)) {
+          return;
+        }
+        html = '<zf-notification-set id="' + id + '"></zf-notification-set>';
+
+        element = angular.element(html);
+
+        scope = $rootScope.$new();
+
+        for(var i = 0; i < props.length; i++) {
+          if(config[props[i]]) {
+            element.attr(props[i], config[props[i]]);
+          }
+        }
+
+        // access view scope variables
+        if (config.contentScope) {
+          contentScope = config.contentScope;
+          for (var prop in contentScope) {
+            if (contentScope.hasOwnProperty(prop)) {
+              scope[prop] = contentScope[prop];
+            }
+          }
+        }
+        init(true);
+      }
+
+      function destroy() {
+        self.clearAll();
+        setTimeout(function() {
+          scope.$destroy();
+          element.remove();
+          destroyed = true;
+        }, 3000);
+        foundationApi.unsubscribe(id);
+      }
+
+    }
+
+  }
+})();
 
 (function() {
   'use strict';
@@ -54425,262 +55164,6 @@ angular.module('markdown', [])
       scope.activate = function() {
         controller.select(scope);
       };
-
-    }
-  }
-
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('foundation.actionsheet', ['foundation.core'])
-    .controller('ZfActionSheetController', zfActionSheetController)
-    .directive('zfActionSheet', zfActionSheet)
-    .directive('zfAsContent', zfAsContent)
-    .directive('zfAsButton', zfAsButton)
-    .service('FoundationActionSheet', FoundationActionSheet)
-  ;
-
-  FoundationActionSheet.$inject = ['FoundationApi'];
-
-  function FoundationActionSheet(foundationApi) {
-    var service    = {};
-
-    service.activate = activate;
-    service.deactivate = deactivate;
-
-    return service;
-
-    //target should be element ID
-    function activate(target) {
-      foundationApi.publish(target, 'show');
-    }
-
-    //target should be element ID
-    function deactivate(target) {
-      foundationApi.publish(target, 'hide');
-    }
-  }
-
-  zfActionSheetController.$inject = ['$scope', 'FoundationApi'];
-
-  function zfActionSheetController($scope, foundationApi) {
-    var controller = this;
-    var content = controller.content = $scope.content;
-    var container = controller.container = $scope.container;
-    var body = angular.element(document.body);
-
-    controller.registerContent = function(scope) {
-      content = scope;
-      content.active = false;
-    };
-
-    controller.registerContainer = function(scope) {
-      container = scope;
-      container.active = false;
-    };
-
-    controller.toggle = toggle;
-    controller.hide = hide;
-    controller.show = show;
-
-    controller.registerListener = function() {
-      document.body.addEventListener('click', listenerLogic);
-    };
-
-    controller.deregisterListener = function() {
-      document.body.removeEventListener('click', listenerLogic);
-    }
-
-    function listenerLogic(e) {
-      var el = e.target;
-      var insideActionSheet = false;
-
-      do {
-        if(el.classList && el.classList.contains('action-sheet-container')) {
-          insideActionSheet = true;
-          break;
-        }
-
-      } while ((el = el.parentNode));
-
-      if(!insideActionSheet) {
-        // if the element has a toggle attribute, do nothing
-        if (e.target.attributes['zf-toggle'] || e.target.attributes['zf-hard-toggle']) {
-          return;
-        };
-        // if the element is outside the action sheet and is NOT a toggle element, hide
-        hide();
-      }
-    }
-
-    function hide() {
-      content.hide();
-      container.hide();
-
-      if (!$scope.$$phase) {
-        content.$apply();
-        container.$apply();
-      }
-    }
-
-    function toggle() {
-      content.toggle();
-      container.toggle();
-
-      if (!$scope.$$phase) {
-        content.$apply();
-        container.$apply();
-      }
-    }
-
-    function show() {
-      content.show();
-      container.show();
-
-      if (!$scope.$$phase) {
-        content.$apply();
-        container.$apply();
-      }
-    }
-  }
-
-  zfActionSheet.$inject = ['FoundationApi'];
-
-  function zfActionSheet(foundationApi) {
-    var directive = {
-      restrict: 'EA',
-      transclude: true,
-      replace: true,
-      templateUrl: 'components/actionsheet/actionsheet.html',
-      controller: 'ZfActionSheetController',
-      compile: compile
-    };
-
-    return directive;
-
-    function compile() {
-
-      return {
-        pre: preLink,
-        post: postLink
-      };
-
-      function preLink(scope, iElement, iAttrs) {
-        iAttrs.$set('zf-closable', 'actionsheet');
-      }
-
-      function postLink(scope, element, attrs, controller) {
-        var id = attrs.id || foundationApi.generateUuid();
-        attrs.$set('id', id);
-
-        scope.active = false;
-
-        foundationApi.subscribe(id, function(msg) {
-          if (msg === 'toggle') {
-            controller.toggle();
-          }
-
-          if (msg === 'hide' || msg === 'close') {
-            controller.hide();
-          }
-
-          if (msg === 'show' || msg === 'open') {
-            controller.show();
-          }
-        });
-
-        controller.registerContainer(scope);
-
-        scope.toggle = function() {
-          scope.active = !scope.active;
-          return;
-        };
-
-        scope.hide = function() {
-          scope.active = false;
-          return;
-        };
-
-        scope.show = function() {
-          scope.active = true;
-          return;
-        };
-      }
-    }
-  }
-
-  zfAsContent.$inject = ['FoundationApi'];
-
-  function zfAsContent(foundationApi) {
-    var directive = {
-      restrict: 'EA',
-      transclude: true,
-      replace: true,
-      templateUrl: 'components/actionsheet/actionsheet-content.html',
-      require: '^zfActionSheet',
-      scope: {
-        position: '@?'
-      },
-      link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, controller) {
-      scope.active = false;
-      scope.position = scope.position || 'bottom';
-      controller.registerContent(scope);
-
-      scope.toggle = function() {
-        scope.active = !scope.active;
-        if(scope.active) {
-          controller.registerListener();
-        } else {
-          controller.deregisterListener();
-        }
-
-        return;
-      };
-
-      scope.hide = function() {
-        scope.active = false;
-        controller.deregisterListener();
-        return;
-      };
-
-      scope.show = function() {
-        scope.active = true;
-        controller.registerListener();
-        return;
-      };
-    }
-  }
-
-  zfAsButton.$inject = ['FoundationApi'];
-
-  function zfAsButton(foundationApi) {
-    var directive = {
-      restrict: 'EA',
-      transclude: true,
-      replace: true,
-      templateUrl: 'components/actionsheet/actionsheet-button.html',
-      require: '^zfActionSheet',
-      scope: {
-        title: '@?'
-      },
-      link: link
-    }
-
-    return directive;
-
-    function link(scope, element, attrs, controller) {
-
-      element.on('click', function(e) {
-        controller.toggle();
-        e.preventDefault();
-      });
 
     }
   }
@@ -55755,433 +56238,6 @@ angular.module('markdown', [])
 (function() {
   'use strict';
 
-  angular.module('foundation.notification', ['foundation.core'])
-    .controller('ZfNotificationController', ZfNotificationController)
-    .directive('zfNotificationSet', zfNotificationSet)
-    .directive('zfNotification', zfNotification)
-    .directive('zfNotificationStatic', zfNotificationStatic)
-    .directive('zfNotify', zfNotify)
-    .factory('NotificationFactory', NotificationFactory)
-    .service('FoundationNotification', FoundationNotification)
-  ;
-
-  FoundationNotification.$inject = ['FoundationApi', 'NotificationFactory'];
-
-  function FoundationNotification(foundationApi, NotificationFactory) {
-    var service    = {};
-
-    service.activate = activate;
-    service.deactivate = deactivate;
-
-    return service;
-
-    //target should be element ID
-    function activate(target) {
-      foundationApi.publish(target, 'show');
-    }
-
-    //target should be element ID
-    function deactivate(target) {
-      foundationApi.publish(target, 'hide');
-    }
-
-    function toggle(target) {
-      foundationApi.publish(target, 'toggle');
-    }
-
-    function createNotificationSet(config) {
-      return new NotificationFactory(config);
-    }
-  }
-
-
-  ZfNotificationController.$inject = ['$scope', 'FoundationApi'];
-
-  function ZfNotificationController($scope, foundationApi) {
-    var controller    = this;
-    controller.notifications = $scope.notifications = $scope.notifications || [];
-
-    controller.addNotification = function(info) {
-      var id  = foundationApi.generateUuid();
-      info.id = id;
-      $scope.notifications.push(info);
-    };
-
-    controller.removeNotification = function(id) {
-      $scope.notifications.forEach(function(notification) {
-        if(notification.id === id) {
-          var ind = $scope.notifications.indexOf(notification);
-          $scope.notifications.splice(ind, 1);
-        }
-      });
-    };
-
-    controller.clearAll = function() {
-      while($scope.notifications.length > 0) {
-        $scope.notifications.pop();
-      }
-    };
-  }
-
-  zfNotificationSet.$inject = ['FoundationApi'];
-
-  function zfNotificationSet(foundationApi) {
-    var directive = {
-      restrict: 'EA',
-      templateUrl: 'components/notification/notification-set.html',
-      controller: 'ZfNotificationController',
-      replace: true,
-      scope: {
-        position: '@'
-      },
-      link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, controller) {
-      scope.position = scope.position ? scope.position.split(' ').join('-') : 'top-right';
-
-      foundationApi.subscribe(attrs.id, function(msg) {
-        if(msg === 'clearall') {
-          controller.clearAll();
-        }
-        else {
-          controller.addNotification(msg);
-          if (!scope.$root.$$phase) {
-            scope.$apply();
-          }
-        }
-      });
-    }
-  }
-
-  zfNotification.$inject = ['FoundationApi', '$sce'];
-
-  function zfNotification(foundationApi, $sce) {
-    var directive = {
-      restrict: 'EA',
-      templateUrl: 'components/notification/notification.html',
-      replace: true,
-      transclude: true,
-      require: '^zfNotificationSet',
-      controller: function() { },
-      scope: {
-        title: '=?',
-        content: '=?',
-        image: '=?',
-        notifId: '=',
-        color: '=?',
-        autoclose: '=?'
-      },
-      compile: compile
-    };
-
-    return directive;
-
-    function compile() {
-
-      return {
-        pre: preLink,
-        post: postLink
-      };
-
-      function preLink(scope, iElement, iAttrs) {
-        iAttrs.$set('zf-closable', 'notification');
-        if (iAttrs['title']) {
-          scope.$watch('title', function(value) {
-            if (value) {
-              scope.trustedTitle = $sce.trustAsHtml(value);
-            }
-          });
-        }
-      }
-
-      function postLink(scope, element, attrs, controller) {
-        scope.active = false;
-        var animationIn  = attrs.animationIn || 'fadeIn';
-        var animationOut = attrs.animationOut || 'fadeOut';
-        var animate = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
-        var hammerElem;
-
-        //due to dynamic insertion of DOM, we need to wait for it to show up and get working!
-        setTimeout(function() {
-          scope.active = true;
-          animate(element, scope.active, animationIn, animationOut);
-        }, 50);
-
-        scope.hide = function() {
-          scope.active = false;
-          animate(element, scope.active, animationIn, animationOut);
-          setTimeout(function() {
-            controller.removeNotification(scope.notifId);
-          }, 50);
-        };
-
-        // close if autoclose
-        if (scope.autoclose) {
-          setTimeout(function() {
-            if (scope.active) {
-              scope.hide();
-            }
-          }, parseInt(scope.autoclose));
-        };
-
-        // close on swipe
-        if (typeof(Hammer) !== 'undefined') {
-          hammerElem = new Hammer(element[0]);
-          // set the options for swipe (to make them a bit more forgiving in detection)
-          hammerElem.get('swipe').set({
-            direction: Hammer.DIRECTION_ALL,
-            threshold: 5, // this is how far the swipe has to travel
-            velocity: 0.5 // and this is how fast the swipe must travel
-          });
-        }
-        if(typeof(hammerElem) !== 'undefined') {
-          hammerElem.on('swipe', function() {
-            if (scope.active) {
-              scope.hide();
-            }
-          });
-        }
-      }
-    }
-  }
-
-  zfNotificationStatic.$inject = ['FoundationApi', '$sce'];
-
-  function zfNotificationStatic(foundationApi, $sce) {
-    var directive = {
-      restrict: 'EA',
-      templateUrl: 'components/notification/notification-static.html',
-      replace: true,
-      transclude: true,
-      scope: {
-        title: '@?',
-        content: '@?',
-        image: '@?',
-        color: '@?',
-        autoclose: '@?'
-      },
-      compile: compile
-    };
-
-    return directive;
-
-    function compile() {
-      var type = 'notification';
-
-      return {
-        pre: preLink,
-        post: postLink
-      };
-
-      function preLink(scope, iElement, iAttrs, controller) {
-        iAttrs.$set('zf-closable', type);
-        if (iAttrs['title']) {
-          scope.trustedTitle = $sce.trustAsHtml(iAttrs['title']);
-        }
-      }
-
-      function postLink(scope, element, attrs, controller) {
-        scope.position = attrs.position ? attrs.position.split(' ').join('-') : 'top-right';
-
-        var animationIn = attrs.animationIn || 'fadeIn';
-        var animationOut = attrs.animationOut || 'fadeOut';
-        var animateFn = attrs.hasOwnProperty('zfAdvise') ? foundationApi.animateAndAdvise : foundationApi.animate;
-
-        //setup
-        foundationApi.subscribe(attrs.id, function(msg) {
-          if(msg == 'show' || msg == 'open') {
-            scope.show();
-            // close if autoclose
-            if (scope.autoclose) {
-              setTimeout(function() {
-                if (scope.active) {
-                  scope.hide();
-                }
-              }, parseInt(scope.autoclose));
-            };
-          } else if (msg == 'close' || msg == 'hide') {
-            scope.hide();
-          } else if (msg == 'toggle') {
-            scope.toggle();
-            // close if autoclose
-            if (scope.autoclose) {
-              setTimeout(function() {
-                if (scope.active) {
-                  scope.toggle();
-                }
-              }, parseInt(scope.autoclose));
-            }
-          }
-          return;
-        });
-
-        scope.hide = function() {
-          scope.active = false;
-          animateFn(element, scope.active, animationIn, animationOut);
-          return;
-        };
-
-        scope.show = function() {
-          scope.active = true;
-          animateFn(element, scope.active, animationIn, animationOut);
-          return;
-        };
-
-        scope.toggle = function() {
-          scope.active = !scope.active;
-          animateFn(element, scope.active, animationIn, animationOut);
-          return;
-        };
-
-      }
-    }
-  }
-
-  zfNotify.$inject = ['FoundationApi'];
-
-  function zfNotify(foundationApi) {
-    var directive = {
-      restrict: 'A',
-      scope: {
-        title: '@?',
-        content: '@?',
-        color: '@?',
-        image: '@?',
-        autoclose: '@?'
-      },
-      link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, controller) {
-      element.on('click', function(e) {
-        foundationApi.publish(attrs.zfNotify, {
-          title: scope.title,
-          content: scope.content,
-          color: scope.color,
-          image: scope.image,
-          autoclose: scope.autoclose
-        });
-        e.preventDefault();
-      });
-    }
-  }
-
-  NotificationFactory.$inject = ['$http', '$templateCache', '$rootScope', '$compile', '$timeout', 'FoundationApi', '$sce'];
-
-  function NotificationFactory($http, $templateCache, $rootScope, $compile, $timeout, foundationApi, $sce) {
-    return notificationFactory;
-
-    function notificationFactory(config) {
-      var self = this, //for prototype functions
-          container = angular.element(config.container || document.body),
-          id = config.id || foundationApi.generateUuid(),
-          attached = false,
-          destroyed = false,
-          html,
-          element,
-          scope,
-          contentScope
-      ;
-
-      var props = [
-        'position'
-      ];
-
-      assembleDirective();
-
-      self.addNotification = addNotification;
-      self.clearAll = clearAll;
-      self.destroy = destroy;
-
-      return {
-        addNotification: addNotification,
-        clearAll: clearAll,
-        destroy: destroy
-      };
-
-      function checkStatus() {
-        if(destroyed) {
-          throw "Error: Notification Set was destroyed. Delete the object and create a new NotificationFactory instance."
-        }
-      }
-
-      function addNotification(notification) {
-        checkStatus();
-        $timeout(function() {
-          foundationApi.publish(id, notification);
-        }, 0, false);
-      }
-
-      function clearAll() {
-        checkStatus();
-        $timeout(function() {
-          foundationApi.publish(id, 'clearall');
-        }, 0, false);
-      }
-
-      function init(state) {
-        if(!attached && html.length > 0) {
-          var modalEl = container.append(element);
-
-          scope.active = state;
-          $compile(element)(scope);
-
-          attached = true;
-        }
-      }
-
-      function assembleDirective() {
-        // check for duplicate element to prevent factory from cloning notification sets
-        if (document.getElementById(id)) {
-          return;
-        }
-        html = '<zf-notification-set id="' + id + '"></zf-notification-set>';
-
-        element = angular.element(html);
-
-        scope = $rootScope.$new();
-
-        for(var i = 0; i < props.length; i++) {
-          if(config[props[i]]) {
-            element.attr(props[i], config[props[i]]);
-          }
-        }
-
-        // access view scope variables
-        if (config.contentScope) {
-          contentScope = config.contentScope;
-          for (var prop in contentScope) {
-            if (contentScope.hasOwnProperty(prop)) {
-              scope[prop] = contentScope[prop];
-            }
-          }
-        }
-        init(true);
-      }
-
-      function destroy() {
-        self.clearAll();
-        setTimeout(function() {
-          scope.$destroy();
-          element.remove();
-          destroyed = true;
-        }, 3000);
-        foundationApi.unsubscribe(id);
-      }
-
-    }
-
-  }
-})();
-
-(function() {
-  'use strict';
-
   angular.module('foundation.offcanvas', ['foundation.core'])
     .directive('zfOffcanvas', zfOffcanvas)
     .service('FoundationOffcanvas', FoundationOffcanvas)
@@ -56613,24 +56669,21 @@ angular.module('markdown', [])
 (function() {
   'use strict';
 
-  angular.module('foundation.tabs', ['foundation.core'])
-    .controller('ZfTabsController', ZfTabsController)
-    .directive('zfTabs', zfTabs)
-    .directive('zfTabContent', zfTabContent)
-    .directive('zfTab', zfTab)
-    .directive('zfTabIndividual', zfTabIndividual)
-    .directive('zfTabHref', zfTabHref)
-    .directive('zfTabCustom', zfTabCustom)
-    .directive('zfTabContentCustom', zfTabContentCustom)
-    .service('FoundationTabs', FoundationTabs)
+  angular.module('foundation.actionsheet', ['foundation.core'])
+    .controller('ZfActionSheetController', zfActionSheetController)
+    .directive('zfActionSheet', zfActionSheet)
+    .directive('zfAsContent', zfAsContent)
+    .directive('zfAsButton', zfAsButton)
+    .service('FoundationActionSheet', FoundationActionSheet)
   ;
 
-  FoundationTabs.$inject = ['FoundationApi'];
+  FoundationActionSheet.$inject = ['FoundationApi'];
 
-  function FoundationTabs(foundationApi) {
+  function FoundationActionSheet(foundationApi) {
     var service    = {};
 
     service.activate = activate;
+    service.deactivate = deactivate;
 
     return service;
 
@@ -56639,59 +56692,171 @@ angular.module('markdown', [])
       foundationApi.publish(target, 'show');
     }
 
+    //target should be element ID
+    function deactivate(target) {
+      foundationApi.publish(target, 'hide');
+    }
   }
 
-  ZfTabsController.$inject = ['$scope', 'FoundationApi'];
+  zfActionSheetController.$inject = ['$scope', 'FoundationApi'];
 
-  function ZfTabsController($scope, foundationApi) {
+  function zfActionSheetController($scope, foundationApi) {
     var controller = this;
-    var tabs       = controller.tabs = $scope.tabs = [];
-    var id         = '';
+    var content = controller.content = $scope.content;
+    var container = controller.container = $scope.container;
+    var body = angular.element(document.body);
 
-    controller.select = function(selectTab) {
-      tabs.forEach(function(tab) {
-        tab.active = false;
-        tab.scope.active = false;
+    controller.registerContent = function(scope) {
+      content = scope;
+      content.active = false;
+    };
 
-        if(tab.scope === selectTab) {
-          foundationApi.publish(id, ['activate', tab]);
+    controller.registerContainer = function(scope) {
+      container = scope;
+      container.active = false;
+    };
 
-          tab.active = true;
-          tab.scope.active = true;
+    controller.toggle = toggle;
+    controller.hide = hide;
+    controller.show = show;
+
+    controller.registerListener = function() {
+      document.body.addEventListener('click', listenerLogic);
+    };
+
+    controller.deregisterListener = function() {
+      document.body.removeEventListener('click', listenerLogic);
+    }
+
+    function listenerLogic(e) {
+      var el = e.target;
+      var insideActionSheet = false;
+
+      do {
+        if(el.classList && el.classList.contains('action-sheet-container')) {
+          insideActionSheet = true;
+          break;
         }
-      });
 
-    };
+      } while ((el = el.parentNode));
 
-    controller.addTab = function addTab(tabScope) {
-      tabs.push({ scope: tabScope, active: false, parentContent: controller.id });
-
-      if(tabs.length === 1) {
-        tabs[0].active = true;
-        tabScope.active = true;
+      if(!insideActionSheet) {
+        // if the element has a toggle attribute, do nothing
+        if (e.target.attributes['zf-toggle'] || e.target.attributes['zf-hard-toggle']) {
+          return;
+        };
+        // if the element is outside the action sheet and is NOT a toggle element, hide
+        hide();
       }
-    };
+    }
 
-    controller.getId = function() {
-      return id;
-    };
+    function hide() {
+      content.hide();
+      container.hide();
 
-    controller.setId = function(newId) {
-      id = newId;
-    };
+      if (!$scope.$$phase) {
+        content.$apply();
+        container.$apply();
+      }
+    }
+
+    function toggle() {
+      content.toggle();
+      container.toggle();
+
+      if (!$scope.$$phase) {
+        content.$apply();
+        container.$apply();
+      }
+    }
+
+    function show() {
+      content.show();
+      container.show();
+
+      if (!$scope.$$phase) {
+        content.$apply();
+        container.$apply();
+      }
+    }
   }
 
-  zfTabs.$inject = ['FoundationApi'];
+  zfActionSheet.$inject = ['FoundationApi'];
 
-  function zfTabs(foundationApi) {
+  function zfActionSheet(foundationApi) {
     var directive = {
       restrict: 'EA',
-      transclude: 'true',
+      transclude: true,
       replace: true,
-      templateUrl: 'components/tabs/tabs.html',
-      controller: 'ZfTabsController',
+      templateUrl: 'components/actionsheet/actionsheet.html',
+      controller: 'ZfActionSheetController',
+      compile: compile
+    };
+
+    return directive;
+
+    function compile() {
+
+      return {
+        pre: preLink,
+        post: postLink
+      };
+
+      function preLink(scope, iElement, iAttrs) {
+        iAttrs.$set('zf-closable', 'actionsheet');
+      }
+
+      function postLink(scope, element, attrs, controller) {
+        var id = attrs.id || foundationApi.generateUuid();
+        attrs.$set('id', id);
+
+        scope.active = false;
+
+        foundationApi.subscribe(id, function(msg) {
+          if (msg === 'toggle') {
+            controller.toggle();
+          }
+
+          if (msg === 'hide' || msg === 'close') {
+            controller.hide();
+          }
+
+          if (msg === 'show' || msg === 'open') {
+            controller.show();
+          }
+        });
+
+        controller.registerContainer(scope);
+
+        scope.toggle = function() {
+          scope.active = !scope.active;
+          return;
+        };
+
+        scope.hide = function() {
+          scope.active = false;
+          return;
+        };
+
+        scope.show = function() {
+          scope.active = true;
+          return;
+        };
+      }
+    }
+  }
+
+  zfAsContent.$inject = ['FoundationApi'];
+
+  function zfAsContent(foundationApi) {
+    var directive = {
+      restrict: 'EA',
+      transclude: true,
+      replace: true,
+      templateUrl: 'components/actionsheet/actionsheet-content.html',
+      require: '^zfActionSheet',
       scope: {
-        displaced: '@?'
+        position: '@?'
       },
       link: link
     };
@@ -56699,224 +56864,59 @@ angular.module('markdown', [])
     return directive;
 
     function link(scope, element, attrs, controller) {
-      scope.id = attrs.id || foundationApi.generateUuid();
-      scope.showTabContent = scope.displaced !== 'true';
-      attrs.$set('id', scope.id);
-      controller.setId(scope.id);
-
-      //update tabs in case tab-content doesn't have them
-      var updateTabs = function() {
-        foundationApi.publish(scope.id + '-tabs', scope.tabs);
-      };
-
-      foundationApi.subscribe(scope.id + '-get-tabs', function() {
-        updateTabs();
-      });
-    }
-  }
-
-  zfTabContent.$inject = ['FoundationApi'];
-
-  function zfTabContent(foundationApi) {
-    var directive = {
-      restrict: 'A',
-      transclude: 'true',
-      replace: true,
-      scope: {
-        tabs: '=?',
-        target: '@'
-      },
-      templateUrl: 'components/tabs/tab-content.html',
-      link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, ctrl) {
-      scope.tabs = scope.tabs || [];
-      var id = scope.target;
-
-      foundationApi.subscribe(id, function(msg) {
-        if(msg[0] === 'activate') {
-          var tabId = msg[1];
-          scope.tabs.forEach(function (tab) {
-            tab.scope.active = false;
-            tab.active = false;
-
-            if(tab.scope.id === id) {
-              tab.scope.active = true;
-              tab.active = true;
-            }
-          });
-        }
-      });
-
-      //if tabs empty, request tabs
-      if(scope.tabs.length === 0) {
-        foundationApi.subscribe(id + '-tabs', function(tabs) {
-          scope.tabs = tabs;
-        });
-
-        foundationApi.publish(id + '-get-tabs', '');
-      }
-    }
-  }
-
-  zfTab.$inject = ['FoundationApi'];
-
-  function zfTab(foundationApi) {
-    var directive = {
-      restrict: 'EA',
-      templateUrl: 'components/tabs/tab.html',
-      transclude: true,
-      scope: {
-        title: '@'
-      },
-      require: '^zfTabs',
-      replace: true,
-      link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, controller, transclude) {
-      scope.id = attrs.id || foundationApi.generateUuid();
       scope.active = false;
-      scope.transcludeFn = transclude;
-      controller.addTab(scope);
+      scope.position = scope.position || 'bottom';
+      controller.registerContent(scope);
 
-      foundationApi.subscribe(scope.id, function(msg) {
-        if(msg === 'show' || msg === 'open' || msg === 'activate') {
-          scope.makeActive();
+      scope.toggle = function() {
+        scope.active = !scope.active;
+        if(scope.active) {
+          controller.registerListener();
+        } else {
+          controller.deregisterListener();
         }
-      });
 
-      scope.makeActive = function() {
-        controller.select(scope);
+        return;
+      };
+
+      scope.hide = function() {
+        scope.active = false;
+        controller.deregisterListener();
+        return;
+      };
+
+      scope.show = function() {
+        scope.active = true;
+        controller.registerListener();
+        return;
       };
     }
   }
 
-  zfTabIndividual.$inject = ['FoundationApi'];
+  zfAsButton.$inject = ['FoundationApi'];
 
-  function zfTabIndividual(foundationApi) {
+  function zfAsButton(foundationApi) {
     var directive = {
       restrict: 'EA',
-      transclude: 'true',
-      link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, ctrl, transclude) {
-      var tab = scope.$eval(attrs.tab);
-      var id = tab.scope.id;
-
-      tab.scope.transcludeFn(tab.scope, function(tabContent) {
-        element.append(tabContent);
-      });
-
-      foundationApi.subscribe(tab.scope.id, function(msg) {
-        foundationApi.publish(tab.parentContent, ['activate', tab.scope.id]);
-        scope.$apply();
-      });
-
-    }
-  }
-
-  //custom tabs
-
-  zfTabHref.$inject = ['FoundationApi'];
-
-  function zfTabHref(foundationApi) {
-    var directive = {
-      restrict: 'A',
-      replace: false,
+      transclude: true,
+      replace: true,
+      templateUrl: 'components/actionsheet/actionsheet-button.html',
+      require: '^zfActionSheet',
+      scope: {
+        title: '@?'
+      },
       link: link
     }
 
     return directive;
 
-    function link(scope, element, attrs, ctrl) {
-      var target = attrs.zfTabHref;
-
-      foundationApi.subscribe(target, function(msg) {
-        if(msg === 'activate' || msg === 'show' || msg === 'open') {
-          makeActive();
-        }
-      });
-
+    function link(scope, element, attrs, controller) {
 
       element.on('click', function(e) {
-        foundationApi.publish(target, 'activate');
-        makeActive();
+        controller.toggle();
         e.preventDefault();
       });
 
-      function makeActive() {
-        element.parent().children().removeClass('is-active');
-        element.addClass('is-active');
-      }
-    }
-  }
-
-  zfTabCustom.$inject = ['FoundationApi'];
-
-  function zfTabCustom(foundationApi) {
-    var directive = {
-      restrict: 'A',
-      replace: false,
-      link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, ctrl, transclude) {
-      var children = element.children();
-      angular.element(children[0]).addClass('is-active');
-    }
-  }
-
-  zfTabContentCustom.$inject = ['FoundationApi'];
-
-  function zfTabContentCustom(foundationApi) {
-    return {
-      restrict: 'A',
-      link: link
-    };
-
-    function link(scope, element, attrs) {
-      var tabs = [];
-      var children = element.children();
-
-      angular.forEach(children, function(node) {
-        if(node.id) {
-          var tabId = node.id;
-          tabs.push(tabId);
-          foundationApi.subscribe(tabId, function(msg) {
-            if(msg === 'activate' || msg === 'show' || msg === 'open') {
-              activateTabs(tabId);
-            }
-          });
-
-          if(tabs.length === 1) {
-            var el = angular.element(node);
-            el.addClass('is-active');
-          }
-        }
-      });
-
-      function activateTabs(tabId) {
-        var tabNodes = element.children();
-        angular.forEach(tabNodes, function(node) {
-          var el = angular.element(node);
-          el.removeClass('is-active');
-          if(el.attr('id') === tabId) {
-            el.addClass('is-active');
-          }
-
-        });
-      }
     }
   }
 
