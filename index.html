@@ -12,55 +12,8 @@
 	</head>
 	<body zf-esc-close zf-close-all>
 		<div class="grid-frame vertical"  ng-controller="mainController">
-			<div class="grid-content shrink" style="padding: 0;">
-				<ul class="primary condense menu-bar">
-					<li class="pageTitle desktop">
-						<a href="./">
-							<img src="assets/img/rocketview-logo.png">
-							<strong>RocketView</strong>
-						</a>
-					</li>
-					<li class="">
-						<a href="https://www.rocketbeans.tv/" target="_blank">
-							RBTV
-						</a>
-					</li>
-					<li class="">
-						<a href="https://www.youtube.com/user/ROCKETBEANSTV" target="_blank">
-							Youtube
-						</a>
-					</li>
-					<li class="">
-						<a href="https://www.reddit.com/r/rocketbeans" target="_blank">
-							Reddit
-						</a>
-					</li>
-					<li class="">
-						<a href="https://twitter.com/therocketbeans" target="_blank">
-							Twitter
-						</a>
-					</li>
-					<li class="">
-						<a href="https://forum.rocketbeans.tv/" target="_blank">
-							Forum
-						</a>
-					</li>
-					<li class="clock">
-						<a ng-cloak title="Clock">{{clock.now}}</a>
-					</li>
-
-					<li class="optionsTitle" >
-						<a zf-open="optionsModal" class="button openModal"></a>
-						<img zf-iconic="" icon="cog" size="medium" >
-					</li>
-
-					<li class="scheduleTitle">
-						<a href="#" zf-toggle="schedulePanel" class="button schedule"></a>
-					</li>
-					<li class="disclaimerTitle">
-						<a zf-open="showDisclaimerModal" class="disclaimer">Info</a>
-					</li>
-				</ul>
+			<div class="grid-content shrink menu-container" style="padding: 0;" ng-class="{'fixed-menu':options.isAppMenu}">
+				<div menu></div>
 			</div>
 
 			<div ui-view class="grid-content uiview" id="uiview">
