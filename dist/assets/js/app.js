@@ -10231,6 +10231,7 @@ return jQuery;
 			this.domain = 'https://gaming.youtube.com/watch?v=';
 			this.id = $scope.streamVideoId;
 			this.url = this.domain + this.id;
+			this.defaultUrl = 'https://gaming.youtube.com/user/ROCKETBEANSTV/live',
 			this.title = {
 				part: '',
 				summary: '',
@@ -10243,7 +10244,8 @@ return jQuery;
 		$scope.chat = new function() {
 			this.domain = 'https://www.youtube.com/live_chat?v=';
 			this.id = $scope.streamVideoId;
-			this.embedDomain = 'embed_domain=' + 'eruyome.github.io';
+			//this.embedDomain = 'embed_domain=' + 'eruyome.github.io';
+			this.embedDomain = 'embed_domain=' + window.location.hostname;
 			this.theme = 'dark_theme=1';
 			this.gaming = 'from_gaming=1';
 			this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme + '&' + this.gaming + '&enablejsapi=1';
@@ -10608,6 +10610,7 @@ return jQuery;
 				*/
 
 				$scope.defaultStreamId = data.feed.entry[0].gsx$videoid.$t;
+				$scope.streamVideoId = $scope.defaultStreamId;
 				$scope.streams = streams;
 				// Load Stream with most viewers
 
@@ -10956,6 +10959,7 @@ return jQuery;
 		$scope.changeVideo = function (videoId) {
 			$scope.video.id = videoId;
 			$scope.video.url = $scope.video.domain + $scope.video.id;
+			$scope.video.defaultUrl = $scope.video.url;
 			$scope.getData("video");
 		};
 		$scope.changeStream = function(item){
@@ -11068,6 +11072,10 @@ return jQuery;
 						.duScrollTo(0, 50, 350);
 				}
 			}
+		};
+
+		$scope.refreshIframe = function(){
+			$scope.chat.refresh = true;
 		};
 
 		function initData() {
@@ -11204,6 +11212,27 @@ return jQuery;
 			replace: true
 		};
 	});
+
+	appModule.directive('refreshable', [function () {
+		return {
+			restrict: 'A',
+			scope: {
+				refresh: "=refreshable"
+			},
+			link: function (scope, element, attr) {
+				var refreshMe = function () {
+					element.attr('src', element.attr('src'));
+				};
+
+				scope.$watch('refresh', function (newVal, oldVal) {
+					if (scope.refresh) {
+						scope.refresh = false;
+						refreshMe();
+					}
+				});
+			}
+		};
+	}]);
 /*----------------------------------------------------------------------------------------------------------------------
  * END Custom Directives
  * --------------------------------------------------------------------------------------------------------------------*/

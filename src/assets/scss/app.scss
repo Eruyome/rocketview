@@ -7,7 +7,7 @@ body {
 
 	a {
 		color: rgb(212, 212, 212);
-		&:hover {
+		&:hover, &:focus {
 			color: rgb(212, 212, 212);
 		}
 	}
@@ -406,6 +406,14 @@ body {
 	position: relative;
 	iframe {
 		position: absolute;
+	}
+
+	.refreshFrame {
+		position: absolute;
+		right: 18px;
+		cursor: pointer;
+		padding: 3px;
+		z-index: 1;
 	}
 }
 

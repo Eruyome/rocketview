@@ -26,7 +26,8 @@
 			<div class="video grow" id="videoPlayer">
 				<div class="embed-responsive embed-responsive-16by9">
 					<ng-youtube-embed
-							url="video.url" autoplay="{{video.autoplay}}" rel="false" showinfo="false" gaming="true">
+							url="video.defaultUrl" autoplay="{{video.autoplay}}" rel="false" showinfo="false" gaming="true"
+							controls="true" disablekb="false">
 					</ng-youtube-embed>
 				</div>
 			</div>
@@ -53,19 +54,13 @@
 					</a>
 				</div>
 			</div>
-
-			<!--
-			<a href="#" ng-click="vote('up')" class="thumb up">
-				<img src="assets/img/thumb-light.png"/>
-			</a>
-			<a href="#" ng-click="vote('down')" class="thumb down">
-				<img src="assets/img/thumb-light.png"/>
-			</a>
-			-->
 		</div>
 
 		<div class="right chat-view" id="chatView">
-			<iframe allowfullscreen="" frameborder="0"
+			<div class="refreshFrame" title="Refresh">
+				<img zf-iconic="" icon="reload" size="small" class="" ng-click="refreshIframe()">
+			</div>
+			<iframe allowfullscreen="" frameborder="0" refreshable="chat.refresh"
 					ng-src="{{trustSrc(chat.url)}}" width="100%" height="100%" ng-class="{'chat-small':options.chatSmall}"
 			></iframe>
 		</div>

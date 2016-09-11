@@ -5893,7 +5893,7 @@ body {
   font-size: 1rem; }
   body a {
     color: #d4d4d4; }
-    body a:hover {
+    body a:hover, body a:focus {
       color: #d4d4d4; }
   body .uiview input {
     background-color: #151515;
@@ -6199,6 +6199,12 @@ body {
   position: relative; }
   .chat-view iframe {
     position: absolute; }
+  .chat-view .refreshFrame {
+    position: absolute;
+    right: 18px;
+    cursor: pointer;
+    padding: 3px;
+    z-index: 1; }
 
 .screenWidthCheck-640 {
   display: none;
