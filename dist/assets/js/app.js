@@ -10228,7 +10228,7 @@ return jQuery;
 
 		/* ng youtube embed */
 		$scope.video =  new function() {
-			this.domain = 'https://www.youtube.com/watch?v=';
+			this.domain = 'https://gaming.youtube.com/watch?v=';
 			this.id = $scope.streamVideoId;
 			this.url = this.domain + this.id;
 			this.title = {
@@ -10246,7 +10246,7 @@ return jQuery;
 			this.embedDomain = 'embed_domain=' + 'eruyome.github.io';
 			this.theme = 'dark_theme=1';
 			this.gaming = 'from_gaming=1';
-			this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme + '&' + this.gaming;
+			this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme + '&' + this.gaming + '&enablejsapi=1';
 			this.width = 400;
 		}();
 		/* ng youtube embed */
@@ -10271,7 +10271,9 @@ return jQuery;
 			viewReversed : false,
 			selectedSteam : '',
 			ratio : 'wide',
-			showNotifications : true
+			showNotifications : true,
+			chatSmall: false,
+			isAppMenu: true
 		};
 		$scope.chatState = true;
 		$scope.reloadLinkTitle = 'Reload List manually. Happens every '
@@ -10412,6 +10414,11 @@ return jQuery;
 		}
 
 		function showNotification(){
+			if((new Date() - $scope.lastNotify) < 500) {
+				return
+			}
+			$scope.lastNotify = new Date();
+
 			webNotification.showNotification('Video/Show Update:', {
 				body: concatShows($scope.data.video.recognizedShows),
 				icon: getNotificationImage(),
@@ -11052,8 +11059,14 @@ return jQuery;
 		$scope.scrollToTop = function () {
 			var visible = isElementInViewport(jQuery('#videoPlayer'), 50);
 			if(!visible){
-				angular.element(document.querySelector('#uiview'))
-					.duScrollTo(0, 10, 350);
+				if($scope.options.isAppMenu) {
+					angular.element(document.querySelector('#uiview'))
+						.duScrollTo(0, 10, 350);
+				}
+				else {
+					angular.element(document.querySelector('#uiview'))
+						.duScrollTo(0, 50, 350);
+				}
 			}
 		};
 
@@ -11178,6 +11191,15 @@ return jQuery;
 		return {
 			restrict: 'A',
 			templateUrl: 'templates/directives/disclaimer.html',
+			scope: true,
+			replace: true
+		};
+	});
+
+	appModule.directive('menu', function () {
+		return {
+			restrict: 'A',
+			templateUrl: 'templates/directives/menu.html',
 			scope: true,
 			replace: true
 		};

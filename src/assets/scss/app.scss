@@ -66,7 +66,7 @@ body {
 			padding: 0.75rem;
 		}
 	}
-	@include max-screen(700px){
+	@include max-screen(750px){
 		li a {
 			font-size: rem-calc(14px);
 			padding: 0.75rem;
@@ -74,7 +74,7 @@ body {
 	}
 	@include max-screen(580px){
 		li a {
-			padding: 0.5rem;
+			//padding: 0.5rem;
 		}
 	}
 
@@ -140,11 +140,75 @@ body {
 		}
 
 	}
+	.desktop-hide {
+		display: none;
+	}
+
+	@include max-screen(700px){
+		.desktop-show {
+			display: none;
+		}
+		.desktop-hide {
+			display: block;
+		}
+	}
+	.openMobile {
+		padding: 9px 0 0 5px;
+		margin: 0;
+		div {
+			display: block;
+			width: 20px;
+			height: 3px;
+			background-color: white;
+			margin: 2px 0;
+		}
+		&:hover {
+			background: #101010 !important;
+		}
+	}
+}
+
+.menu-container {
+	display: none !important;
+	position: relative;
+}
+.fixed-menu {
+	display: block !important;
+}
+.scroll-menu {
+	display: block !important;
+	margin: -.5rem -1rem .5rem -1rem;
+}
+
+.mobileMenu {
+	height: auto;
+
+	.desktop-show {
+		display: block;
+	}
+	.desktop-hide {
+		display: none;
+	}
+	ul {
+		flex-direction: column;
+	}
+	li {
+		display: inline-block;
+	}
+	.pageTitle {
+		a strong {
+			//padding: 0;
+		}
+		align-self: flex-start;
+		a:hover {
+			background: #101010 !important;
+		}
+	}
 }
 
 .grid-container {
 	max-width: 93rem;
-	padding: 1rem;
+	padding: .5rem 1rem 1rem 1rem;
 	@include mq($min-width: 2100px) {
 		max-width: 103rem;
 	}
@@ -436,8 +500,11 @@ body {
 		border-radius: 1px;
 		background-color: rgba(255,255,255,.1);
 	}
-	.currentTitle {
-
+	@include max-screen(750px){
+		font-size: 1rem;
+		span {
+			font-size: 1rem;
+		}
 	}
 	.show {
 		font-weight: normal;
@@ -492,6 +559,9 @@ body {
 
 .live-container {
 	display: flex;
+	@include max-screen(750px){
+		flex-direction: column;
+	}
 
 	.right {
 		flex: 0 0 400px;
@@ -500,6 +570,19 @@ body {
 		flex: 1;
 	}
 }
+
+.chat-small {
+	-ms-zoom: 0.85;
+	-moz-transform: scale(0.85);
+	-moz-transform-origin: 0 0;
+	-o-transform: scale(0.85);
+	-o-transform-origin: 0 0;
+	-webkit-transform: scale(0.85);
+	-webkit-transform-origin: 0 0;
+	height: 116%;
+	width: 118%;
+}
+
 .flex-row-reverse {
 	flex-direction: row-reverse;
 }

@@ -13,6 +13,14 @@
 					<input type="checkbox" id="notifications" ng-model="options.showNotifications">
 					<label for="notifications">Video/Show Update Notifications</label>
 				</li>
+				<li>
+					<input type="checkbox" id="chat" ng-model="options.chatSmall">
+					<label for="chat">Small Chat</label>
+				</li>
+				<li>
+					<input type="checkbox" id="appMenu" ng-model="options.isAppMenu">
+					<label for="appMenu">Fixed Menu</label>
+				</li>
 			</ul>
 		</section>
 		<section class="block-list">
@@ -43,18 +51,6 @@
 				-->
 			</ul>
 		</section>
-
-		<!--
-		<section class="block-list">
-			<header>Youtube Live Stream ID
-				<a class="button small" ng-click="changeVideo(options.selectedStream)">Set</a>
-				<a class="button small" ng-click="resetStream()">Default</a>
-			</header>
-			<ul>
-				<li><input type="text" placeholder="Example: 'njCDZWTI-xg'" ng-model="options.selectedStream"></li>
-			</ul>
-		</section>
-		-->
 	</div>
 </div>
 

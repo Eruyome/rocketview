@@ -54326,114 +54326,6 @@ angular.module('markdown', [])
 (function() {
   'use strict';
 
-  angular.module('foundation.accordion', [])
-    .controller('ZfAccordionController', zfAccordionController)
-    .directive('zfAccordion', zfAccordion)
-    .directive('zfAccordionItem', zfAccordionItem)
-  ;
-
-  zfAccordionController.$inject = ['$scope'];
-
-  function zfAccordionController($scope) {
-    var controller = this;
-    var sections = controller.sections = $scope.sections = [];
-    var multiOpen = controller.multiOpen = $scope.multiOpen = $scope.multiOpen || false;
-    var collapsible = controller.collapsible = $scope.collapsible = $scope.multiOpen || $scope.collapsible || true; //multi open infers a collapsible true
-    var autoOpen = controller.autoOpen = $scope.autoOpen = $scope.autoOpen || true; //auto open opens first tab on render
-
-    controller.select = function(selectSection) {
-      sections.forEach(function(section) {
-        //if multi open is allowed, toggle a tab
-        if(controller.multiOpen) {
-          if(section.scope === selectSection) {
-            section.scope.active = !section.scope.active;
-          }
-        } else {
-          //non  multi open will close all tabs and open one
-          if(section.scope === selectSection) {
-            //if collapsible is allowed, a tab will toggle
-            section.scope.active = collapsible ? !section.scope.active : true;
-          } else {
-            section.scope.active = false;
-          }
-        }
-
-      });
-    };
-
-    controller.addSection = function addsection(sectionScope) {
-      sections.push({ scope: sectionScope });
-
-      if(sections.length === 1 && autoOpen === true) {
-        sections[0].active = true;
-        sections[0].scope.active = true;
-      }
-    };
-
-    controller.closeAll = function() {
-      sections.forEach(function(section) {
-        section.scope.active = false;
-      });
-    };
-  }
-
-  function zfAccordion() {
-    var directive = {
-      restrict: 'EA',
-      transclude: 'true',
-      replace: true,
-      templateUrl: 'components/accordion/accordion.html',
-      controller: 'ZfAccordionController',
-      scope: {
-        multiOpen: '@?',
-        collapsible: '@?',
-        autoOpen: '@?'
-      },
-      link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, controller) {
-      scope.multiOpen = controller.multiOpen = scope.multiOpen === "true" ? true : false;
-      scope.collapsible = controller.collapsible = scope.collapsible === "true" ? true : false;
-      scope.autoOpen = controller.autoOpen = scope.autoOpen === "true" ? true : false;
-    }
-  }
-
-  //accordion item
-  function zfAccordionItem() {
-    var directive = {
-        restrict: 'EA',
-        templateUrl: 'components/accordion/accordion-item.html',
-        transclude: true,
-        scope: {
-          title: '@'
-        },
-        require: '^zfAccordion',
-        replace: true,
-        controller: function() {},
-        link: link
-    };
-
-    return directive;
-
-    function link(scope, element, attrs, controller, transclude) {
-      scope.active = false;
-      controller.addSection(scope);
-
-      scope.activate = function() {
-        controller.select(scope);
-      };
-
-    }
-  }
-
-})();
-
-(function() {
-  'use strict';
-
   angular.module('foundation.actionsheet', ['foundation.core'])
     .controller('ZfActionSheetController', zfActionSheetController)
     .directive('zfActionSheet', zfActionSheet)
@@ -54681,6 +54573,114 @@ angular.module('markdown', [])
         controller.toggle();
         e.preventDefault();
       });
+
+    }
+  }
+
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('foundation.accordion', [])
+    .controller('ZfAccordionController', zfAccordionController)
+    .directive('zfAccordion', zfAccordion)
+    .directive('zfAccordionItem', zfAccordionItem)
+  ;
+
+  zfAccordionController.$inject = ['$scope'];
+
+  function zfAccordionController($scope) {
+    var controller = this;
+    var sections = controller.sections = $scope.sections = [];
+    var multiOpen = controller.multiOpen = $scope.multiOpen = $scope.multiOpen || false;
+    var collapsible = controller.collapsible = $scope.collapsible = $scope.multiOpen || $scope.collapsible || true; //multi open infers a collapsible true
+    var autoOpen = controller.autoOpen = $scope.autoOpen = $scope.autoOpen || true; //auto open opens first tab on render
+
+    controller.select = function(selectSection) {
+      sections.forEach(function(section) {
+        //if multi open is allowed, toggle a tab
+        if(controller.multiOpen) {
+          if(section.scope === selectSection) {
+            section.scope.active = !section.scope.active;
+          }
+        } else {
+          //non  multi open will close all tabs and open one
+          if(section.scope === selectSection) {
+            //if collapsible is allowed, a tab will toggle
+            section.scope.active = collapsible ? !section.scope.active : true;
+          } else {
+            section.scope.active = false;
+          }
+        }
+
+      });
+    };
+
+    controller.addSection = function addsection(sectionScope) {
+      sections.push({ scope: sectionScope });
+
+      if(sections.length === 1 && autoOpen === true) {
+        sections[0].active = true;
+        sections[0].scope.active = true;
+      }
+    };
+
+    controller.closeAll = function() {
+      sections.forEach(function(section) {
+        section.scope.active = false;
+      });
+    };
+  }
+
+  function zfAccordion() {
+    var directive = {
+      restrict: 'EA',
+      transclude: 'true',
+      replace: true,
+      templateUrl: 'components/accordion/accordion.html',
+      controller: 'ZfAccordionController',
+      scope: {
+        multiOpen: '@?',
+        collapsible: '@?',
+        autoOpen: '@?'
+      },
+      link: link
+    };
+
+    return directive;
+
+    function link(scope, element, attrs, controller) {
+      scope.multiOpen = controller.multiOpen = scope.multiOpen === "true" ? true : false;
+      scope.collapsible = controller.collapsible = scope.collapsible === "true" ? true : false;
+      scope.autoOpen = controller.autoOpen = scope.autoOpen === "true" ? true : false;
+    }
+  }
+
+  //accordion item
+  function zfAccordionItem() {
+    var directive = {
+        restrict: 'EA',
+        templateUrl: 'components/accordion/accordion-item.html',
+        transclude: true,
+        scope: {
+          title: '@'
+        },
+        require: '^zfAccordion',
+        replace: true,
+        controller: function() {},
+        link: link
+    };
+
+    return directive;
+
+    function link(scope, element, attrs, controller, transclude) {
+      scope.active = false;
+      controller.addSection(scope);
+
+      scope.activate = function() {
+        controller.select(scope);
+      };
 
     }
   }
@@ -56951,12 +56951,12 @@ angular.module('markdown', [])
 */
 angular.module("youtube-embed",[]).service("youtubeEmbedUtils",["$window","$rootScope",function(e,t){function r(e,t){return e.indexOf(t)>-1}function a(){t.$apply(function(){n.ready=!0})}var n={},i=/https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gi,o=/t=(\d+)[ms]?(\d+)?s?/;return n.getIdFromURL=function(e){var t=e.replace(i,"$1");if(r(t,";")){var a=t.split(";");if(r(a[1],"%")){var n=decodeURIComponent(a[1]);t=("http://youtube.com"+n).replace(i,"$1")}else t=a[0]}else r(t,"#")&&(t=t.split("#")[0]);return t},n.getTimeFromURL=function(e){e=e||"";var t=e.match(o);if(!t)return 0;var a=t[0],n=t[1],i=t[2];return"undefined"!=typeof i?(i=parseInt(i,10),n=parseInt(n,10)):r(a,"m")?(n=parseInt(n,10),i=0):(i=parseInt(n,10),n=0),i+60*n},n.ready=!1,"undefined"==typeof YT?e.onYouTubeIframeAPIReady=a:YT.loaded?n.ready=!0:YT.ready(a),n}]).directive("youtubeVideo",["$window","youtubeEmbedUtils",function(e,t){var r=1,a={"-1":"unstarted",0:"ended",1:"playing",2:"paused",3:"buffering",5:"queued"},n="youtube.player.";return e.YTConfig={host:"https://www.youtube.com"},{restrict:"EA",scope:{videoId:"=?",videoUrl:"=?",player:"=?",playerVars:"=?",playerHeight:"=?",playerWidth:"=?"},link:function(e,i,o){function d(){var t=Array.prototype.slice.call(arguments);e.$apply(function(){e.$emit.apply(e,t)})}function u(t){var r=a[t.data];"undefined"!=typeof r&&d(n+r,e.player,t),e.$apply(function(){e.player.currentState=r})}function l(t){d(n+"ready",e.player,t)}function y(t){d(n+"error",e.player,t)}function p(){var t=angular.copy(e.playerVars);t.start=t.start||e.urlStartTime;var r=new YT.Player(c,{height:e.playerHeight,width:e.playerWidth,videoId:e.videoId,playerVars:t,events:{onReady:l,onStateChange:u,onError:y}});return r.id=c,r}function f(){(e.videoId||e.playerVars.list)&&(e.player&&"function"==typeof e.player.destroy&&e.player.destroy(),e.player=p())}e.utils=t;var c=o.playerId||i[0].id||"unique-youtube-embed-id-"+r++;i[0].id=c,e.playerHeight=e.playerHeight||390,e.playerWidth=e.playerWidth||640,e.playerVars=e.playerVars||{};var s=e.$watch(function(){return e.utils.ready&&("undefined"!=typeof e.videoUrl||"undefined"!=typeof e.videoId||"undefined"!=typeof e.playerVars.list)},function(t){t&&(s(),"undefined"!=typeof e.videoUrl?e.$watch("videoUrl",function(t){e.videoId=e.utils.getIdFromURL(t),e.urlStartTime=e.utils.getTimeFromURL(t),f()}):"undefined"!=typeof e.videoId?e.$watch("videoId",function(){e.urlStartTime=null,f()}):e.$watch("playerVars.list",function(){e.urlStartTime=null,f()}))});e.$watchCollection(["playerHeight","playerWidth"],function(){e.player&&e.player.setSize(e.playerWidth,e.playerHeight)}),e.$on("$destroy",function(){e.player&&e.player.destroy()})}}}]);
 /*
-    ng-youtube-embed v0.3.3
+    ng-youtube-embed v0.4.3
     Copyright (c) 2015 Arun Michael Dsouza (amdsouza92@gmail.com)
     Licence: MIT
     Demo on CodePen - http://codepen.io/amdsouza92/pen/yNxyJV
 */
-!function(){"use strict";angular.module("ngYoutubeEmbed",[]).directive("ngYoutubeEmbed",[function(){return{restrict:"E",template:'<div ng-bind-html="youtubeEmbedFrame"></div>',scope:{url:"=",autoplay:"@autoplay",autohide:"@autohide",ccloadpolicy:"@ccloadpolicy",color:"@color",controls:"@controls",disablekb:"@disablekb",end:"@end",fs:"@fs",hl:"@hl",ivloadpolicy:"@ivloadpolicy",playlist:"@playlist",playsinline:"@playsinline",rel:"@rel",showinfo:"@showinfo",start:"@start",theme:"@theme",width:"@width",height:"@height"},controller:["$scope","$sce",function(a,b){function c(a){var b=/^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/,c=/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/,d=(a.match(c),a.match(b));if(null!=d){var e=d[1];return e}}var d=a.url;if(void 0!=d){if(a.playlistArray=[],void 0!=a.playlist)for(var e=a.playlist.split(","),f=0;f<e.length;f++)a.playlistArray.push(c(e[f]));var g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x;g="true"==a.autoplay?1:0,h="true"==a.autohide?1:0,i="true"==a.ccloadpolicy?1:0,j="white"==a.color?"white":"red",k="false"==a.controls?0:1,l="false"==a.disablekb?0:1,m=a.end,n="false"==a.fs?0:1,o=a.hl,p="false"==a.ivloadpolicy?0:1,q=a.playlistArray,r="true"==a.playsinline?1:0,s="false"==a.rel?0:1,t="false"==a.showinfo?0:1,u=a.start,v=a.theme,w=void 0!=a.width?a.width:"500px",x=void 0!=a.height?a.height:"350px",a.$watch("url",function(d){if(d){var e=c(d),f="<iframe width="+w+" height="+x+' src="https://www.youtube.com/embed/'+e+"?autoplay="+g+"&autohide="+h+"&cc_load_policy="+i+"&color="+j+"&controls="+k+"&disablekb="+l+"&end="+m+"&fs="+n+"&hl="+o+"&playlist="+q+"&playsinline="+r+"&rel="+s+"&showinfo="+t+"&start="+u+"&theme="+v+'" frameborder="0" allowfullscreen></iframe>';a.youtubeEmbedFrame=b.trustAsHtml(f)}})}}]}}])}();
+!function(){"use strict";angular.module("ngYoutubeEmbed",[]).directive("ngYoutubeEmbed",[function(){return{restrict:"E",template:'<div ng-bind-html="youtubeEmbedFrame"></div>',scope:{url:"=",autoplay:"@autoplay",autohide:"@autohide",ccloadpolicy:"@ccloadpolicy",color:"@color",controls:"@controls",disablekb:"@disablekb",end:"@end",fs:"@fs",hl:"@hl",ivloadpolicy:"@ivloadpolicy",playlist:"@playlist",playsinline:"@playsinline",rel:"@rel",showinfo:"@showinfo",start:"@start",theme:"@theme",width:"@width",height:"@height",gaming:"@gaming"},controller:["$scope","$sce",function(a,b){function c(b){var c=/^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/,d=/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;"true"===a.gaming&&(c=/^(?:https?:\/\/)?(?:www\.)?(?:gaming.youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/,d=/^.*(\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);var e=(b.match(d),b.match(c));if(null!=e){var f=e[1];return f}}var d=a.url;if(void 0!=d){if(a.playlistArray=[],void 0!=a.playlist)for(var e=a.playlist.split(","),f=0;f<e.length;f++)a.playlistArray.push(c(e[f]));var g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y;g="true"==a.autoplay?1:0,h="true"==a.autohide?1:0,i="true"==a.ccloadpolicy?1:0,j="white"==a.color?"white":"red",k="false"==a.controls?0:1,l="false"==a.disablekb?0:1,m=a.end?a.end:"",n="false"==a.fs?0:1,o=a.hl?a.hl:"",p="false"==a.ivloadpolicy?0:1,q=a.playlistArray,r="true"==a.playsinline?1:0,s="false"==a.rel?0:1,t="false"==a.showinfo?0:1,u=a.start?a.start:"",v=a.theme?a.theme:"",y=a.gaming?a.gaming:"",w=void 0!=a.width?a.width:"500px",x=void 0!=a.height?a.height:"350px",a.$watch("url",function(d){if(d){var e,f=c(d);e=y?"<iframe width="+w+" height="+x+' src="https://gaming.youtube.com/embed/'+f+"?autoplay="+g+"&autohide="+h+"&cc_load_policy="+i+"&color="+j+"&controls="+k+"&disablekb="+l+"&end="+m+"&fs="+n+"&hl="+o+"&playlist="+q+"&playsinline="+r+"&rel="+s+"&showinfo="+t+"&start="+u+"&theme="+v+'" frameborder="0" allowfullscreen></iframe>':"<iframe width="+w+" height="+x+' src="https://www.youtube.com/embed/'+f+"?autoplay="+g+"&autohide="+h+"&cc_load_policy="+i+"&color="+j+"&controls="+k+"&disablekb="+l+"&end="+m+"&fs="+n+"&hl="+o+"&playlist="+q+"&playsinline="+r+"&rel="+s+"&showinfo="+t+"&start="+u+"&theme="+v+'" frameborder="0" allowfullscreen></iframe>',a.youtubeEmbedFrame=b.trustAsHtml(e)}})}}]}}])}();
 /**
  * Copyright 2012 Tsvetan Tsvetkov
  *
