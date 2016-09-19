@@ -6205,6 +6205,9 @@ body {
     cursor: pointer;
     padding: 3px;
     z-index: 1; }
+    .chat-view .refreshFrame .iconic * {
+      fill: #8a8787;
+      stroke: #8a8787; }
 
 .screenWidthCheck-640 {
   display: none;

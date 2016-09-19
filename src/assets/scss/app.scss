@@ -414,6 +414,11 @@ body {
 		cursor: pointer;
 		padding: 3px;
 		z-index: 1;
+
+		.iconic * {
+			fill: #8a8787;
+			stroke: #8a8787;
+		}
 	}
 }
 
