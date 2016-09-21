@@ -21,6 +21,10 @@
 					<input type="checkbox" id="appMenu" ng-model="options.isAppMenu">
 					<label for="appMenu">Fixed Menu</label>
 				</li>
+				<li>
+					<input type="checkbox" id="refreshChat" ng-model="options.refreshChat">
+					<label for="refreshChat">Automatically refresh Chat every {{intervals.refreshChat / (1000 * 60)}} min</label>
+				</li>
 			</ul>
 		</section>
 		<section class="block-list">

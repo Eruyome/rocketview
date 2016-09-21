@@ -10264,7 +10264,8 @@ return jQuery;
 			refreshVideoListData : 60000,
 			scheduleCount : 600000,
 			updateStreamTitle : 60000,
-			viewCount : 30000
+			viewCount : 30000,
+			refreshChat : 1800000
 		};
 
 		$scope.options = {
@@ -10274,7 +10275,8 @@ return jQuery;
 			ratio : 'wide',
 			showNotifications : true,
 			chatSmall: false,
-			isAppMenu: true
+			isAppMenu: true,
+			refreshChat : false
 		};
 		$scope.chatState = true;
 		$scope.reloadLinkTitle = 'Reload List manually. Happens every '
@@ -10777,6 +10779,13 @@ return jQuery;
 		}
 		updateStreamInfo();
 		$interval(function() {updateStreamInfo();}, $scope.intervals.viewCount);
+
+		function autoRefreshChat(){
+			if($scope.options.refreshChat) {
+				$scope.refreshIframe();
+			}
+		}
+		$interval(function() {autoRefreshChat();}, $scope.intervals.refreshChat);
 
 		// Create and update Clock
 		function getTimeFromDate(date) {
