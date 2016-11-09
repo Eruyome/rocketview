@@ -10709,6 +10709,25 @@ return jQuery;
 			return list;
 		}
 
+		function removeDuplicateCalendarEntries(items){
+			var newArray = [];
+
+			items.forEach(function(item, i) {
+				var existsAlready = false;
+				newArray.forEach(function(match){
+					if (item.start.dateTime == match.start.dateTime && item.summary == match.summary) {
+						existsAlready = true;
+					}
+				});
+				if (!existsAlready) {
+					newArray.push(item);
+				}
+			});
+
+			//return items;
+			return newArray;
+		}
+
 		/* Check if Event is the first of the day */
 		function isFirstEventOfTheDay(list, index){
 			if(index === 0){
@@ -10759,7 +10778,8 @@ return jQuery;
 					ga('send', 'event', 'Data', 'Update', 'Calendar');
 				});
 
-				$scope.data.calendar = removePastEvents(items, 2);
+				items = removePastEvents(items, 2);
+				$scope.data.calendar = removeDuplicateCalendarEntries(items);
 				util.out('Requested Calendar Data', 'info');
 				util.out($scope.data, 'log');
 			}).
