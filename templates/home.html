@@ -79,10 +79,17 @@
 						   ng-attr-title="{{reloadLinkTitle}}">
 							<img zf-iconic="" icon="reload" size="small" class="">
 						</a>
-						-->
+
 						<a href="#" class="button" ng-click="switchChannel()" ng-attr-title="{{switchChannelLinkTitle}}">
 							<span class="hide-700 hide-switch">Switch</span>Channel
 						</a>
+						-->
+						<div class="select-wrap">
+							<select ng-change="switchChannel(channelSelect.value)" ng-model="channelSelect.value"
+									ng-options="v for v in channelSelect.display">
+							</select>
+							<div class="arrow">&#9660;</div>
+						</div>
 					</span>
 				</label>
 			</div>
