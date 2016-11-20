@@ -5904,10 +5904,12 @@ body {
       background-color: #131313;
       border-color: #101010;
       color: #d4d4d4; }
-  body .uiview .form-label {
+  body .uiview .form-label, body .uiview select {
     border-color: #101010;
     background-color: #0d0d0d;
     color: #9f9f9f; }
+  body .uiview select:active, body .uiview select:hover {
+    outline: none; }
 
 .pageTitle a {
   position: relative; }
@@ -6113,10 +6115,35 @@ body {
     min-width: 100px; }
   .vlist-controls span {
     margin: 0; }
-  .vlist-controls .button {
+  .vlist-controls .button, .vlist-controls select {
     margin: 0 0 0 .5rem; }
+  .vlist-controls select {
+    margin: 0 0 0 0.25rem;
+    z-index: 2;
+    height: 2rem;
+    font-size: 0.875rem;
+    padding: 0.3rem;
+    background-color: transparent !important;
+    background: none !important;
+    border: none; }
+    .vlist-controls select option {
+      color: #9f9f9f;
+      border-color: #101010;
+      background-color: #0d0d0d; }
+  .vlist-controls .select-wrap {
+    position: relative;
+    height: 2rem;
+    background-color: #0d0d0d;
+    border-color: #101010;
+    margin-left: 0.5rem;
+    padding-right: 1rem; }
+    .vlist-controls .select-wrap .arrow {
+      position: absolute;
+      right: 3px;
+      top: 9px;
+      color: #9f9f9f; }
   @media only screen and (max-width: 600px) {
-    .vlist-controls input, .vlist-controls span, .vlist-controls .button {
+    .vlist-controls input, .vlist-controls span, .vlist-controls .button, .vlist-controls select {
       font-size: 0.75rem; } }
   .vlist-controls .hide-switch {
     padding-right: 4px; }

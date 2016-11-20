@@ -25,10 +25,13 @@ body {
 				color: $body-font-color;
 			}
 		}
-		.form-label {
+		.form-label, select {
 			border-color: #101010;
 			background-color: darken($primary-color, 1%);
 			color:  rgb(159, 159, 159);
+		}
+		select:active, select:hover {
+			outline: none
 		}
 	}
 }
@@ -293,11 +296,43 @@ body {
 	span {
 		margin: 0;
 	}
-	.button {
+	.button, select {
 		margin: 0 0 0 .5rem;
-
 	}
-	input, span, .button {
+	select {
+		margin: 0 0 0 0.25rem;
+		z-index: 2;
+		height: 2rem;
+		font-size: 0.875rem;
+		padding: 0.3rem;
+		//width: 100px;
+		background-color: transparent !important;
+		background: none !important;
+		border: none;
+
+		option {
+			color:  rgb(159, 159, 159);
+			border-color: #101010;
+			background-color: darken($primary-color, 1%);
+		}
+	}
+	.select-wrap {
+		position: relative;
+		height: 2rem;
+		background-color: darken($primary-color, 1%);
+		border-color: #101010;
+		margin-left: 0.5rem;
+		padding-right: 1rem;
+
+		.arrow {
+			position: absolute;
+			right: 3px;
+			top: 9px;
+			color:  rgb(159, 159, 159);
+		}
+	}
+
+	input, span, .button, select {
 		@include mq($max-width: 600px){
 			font-size: rem-calc(12px);
 		}

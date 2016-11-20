@@ -10220,9 +10220,11 @@ return jQuery;
 		$scope.defaultStreamViews = 0;
 		$scope.streamVideoId = $scope.defaultStreamId;
 		$scope.channel = {
-			main : { id: 'UCQvTDmHza8erxZqDkjQ4bQQ', lastUpdate : '' },
-			letsplay : { id : 'UCtSP1OA6jO4quIGLae7Fb4g', lastUpdate : '' }
+			main : { id: 'UCQvTDmHza8erxZqDkjQ4bQQ', lastUpdate : '', key : "main", display : "Main" },
+			letsplay : { id : 'UCtSP1OA6jO4quIGLae7Fb4g', lastUpdate : '', key : "letsplay", display : "Let's Play" },
+			gametwo : { id : 'UCFBapHA35loZ3KZwT_z3BsQ', lastUpdate : '', key : "gametwo", display : "Game Two" }
 		};
+
 		$scope.searchText = "";
 		$scope.currentTitle = $sce.trustAsHtml('<span></span>');
 
@@ -10231,7 +10233,7 @@ return jQuery;
 			this.domain = 'https://gaming.youtube.com/watch?v=';
 			this.id = $scope.streamVideoId;
 			this.url = this.domain + this.id;
-			this.defaultUrl = 'https://gaming.youtube.com/user/ROCKETBEANSTV/live',
+			this.defaultUrl = 'https://gaming.youtube.com/user/ROCKETBEANSTV/live';
 			this.title = {
 				part: '',
 				summary: '',
@@ -10278,6 +10280,21 @@ return jQuery;
 			isAppMenu: true,
 			refreshChat : false
 		};
+
+		$scope.channelSelect = new function() {
+			this.display = ["Main", "Let's Play", "Game Two"];
+			this.options = ["main", "letsplay", "gametwo"];
+			this.value = "";
+		};
+		function setDefaultChannelSelectValue() {
+			$scope.channelSelect.options.forEach(function(value, index){
+				if (value == $scope.options.activeChannel) {
+					$scope.channelSelect.value = $scope.channelSelect.display[index];
+				}
+			})
+		}
+		setDefaultChannelSelectValue();
+
 		$scope.chatState = true;
 		$scope.reloadLinkTitle = 'Reload List manually. Happens every '
 			+ $scope.intervals.refreshVideoListData / ( 1000 * 60 ) + 'min anyway.';
@@ -10316,8 +10333,29 @@ return jQuery;
 		};
 		initData();
 
+		$scope.switchChannel = function(key){
+			$scope.channelSelect.display.forEach(function(value, index){
+				if (value == key) {
+					key = $scope.channelSelect.options[index];
+				}
+			});
 
-		$scope.switchChannel = function(){
+			if (typeof key === 'undefined') {
+				key = 'main';
+			}
+			$scope.options.activeChannel = key;
+
+			// Update List Data only when the last update is older than vlistData update interval.
+			var timeDiff = new Date() - $scope.channel[$scope.options.activeChannel].lastUpdate;
+			if(isNaN(Date.parse(timeDiff)) || timeDiff > $scope.intervals.refreshVideoListData ){
+				$scope.getData('vList');
+			}
+
+			ga('send', 'event', 'UI', 'Switch', 'Channel', $scope.options.activeChannel);
+
+		};
+
+		$scope.switchChannelOld = function(){
 			if($scope.options.activeChannel == 'main') {
 				$scope.options.activeChannel = 'letsplay';
 			}
@@ -10405,7 +10443,6 @@ return jQuery;
 			//var show = $scope.data.video.recognizedShows.last();
 			var path = 'assets/img/notifications/';
 			var show = 'show-' + $scope.data.video.recognizedShows[0].css + '.jpg';
-			console.log(show);
 			return path + show;
 		}
 
@@ -10525,8 +10562,6 @@ return jQuery;
 
 				if(typeof init !== 'undefined') {
 					$scope.changeStream(streams[0]);
-					console.log('change default Stream');
-
 					$scope.getData('video');
 				}
 
@@ -10539,9 +10574,8 @@ return jQuery;
 		/* Get List of last 50 uploaded videos from both channels (main + letsplay) */
 		function getVList(channel, url) {
 			var obj = [];
-
-			$http.get(url).
-			success(function(data) {
+			$http.get(url)
+			.success(function(data) {
 				var info = data.feed.entry;
 				var videos = [];
 				info.forEach(function(value, index) {
@@ -10562,7 +10596,7 @@ return jQuery;
 
 				$scope.data.vList[channel] = videos;
 				ga('send', 'event', 'Data', 'Update', 'Video List', channel);
-			});
+			})
 		}
 
 		$scope.getData = function(kind) {
@@ -10591,6 +10625,7 @@ return jQuery;
 						var arr = [];
 						Array.prototype.push.apply(arr, $scope.data.vList.main);
 						Array.prototype.push.apply(arr, $scope.data.vList.letsplay);
+						Array.prototype.push.apply(arr, $scope.data.vList.gametwo);
 						arr.forEach(function(value){
 							if(value.id == $scope.video.id) {
 								$scope.currentTitle = constructCurrentVideoTitle(value);
@@ -10605,10 +10640,12 @@ return jQuery;
 				var spreadsheetId = '1AgutUpMOUtgofzdYeP6Mu2E_WbdY3HJNp7zZbwhdOFE';
 				var urlMain = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/2/public/values?alt=json';
 				var urlLetsPlay = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/3/public/values?alt=json';
-				var videos = { 'main' : [], 'letsplay' : [] };
+				var urlGameTwo = 'https://spreadsheets.google.com/feeds/list/'+ spreadsheetId +'/4/public/values?alt=json';
+				var videos = { 'main' : [], 'letsplay' : [] , 'gametwo' : []};
 
 				getVList('main', urlMain);
 				getVList('letsplay', urlLetsPlay);
+				getVList('gametwo', urlGameTwo);
 			}
 		};
 
@@ -10910,6 +10947,8 @@ return jQuery;
 					}
 				});
 			}
+
+			setDefaultChannelSelectValue();
 		}
 
 		$scope.$watch('options', function(newVal, oldVal){
