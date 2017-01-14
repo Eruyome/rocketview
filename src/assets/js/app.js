@@ -92,13 +92,10 @@
 			this.height = 432;
 		}();
 		$scope.chat = new function() {
-			this.domain = 'https://www.youtube.com/live_chat?v=';
+			this.domain = 'https://gaming.youtube.com/live_chat?v=';
 			this.id = $scope.streamVideoId;
 			this.embedDomain = 'embed_domain=' + window.location.hostname;
-			this.theme = 'dark_theme=1';
-			this.gaming = 'from_gaming=1';
-			//this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme + '&' + this.gaming + '&enablejsapi=1';
-			this.url = this.domain + this.id + '&' + this.embedDomain + '&' + this.theme + '&enablejsapi=1';
+			this.url = this.domain + this.id + '&' + this.embedDomain  + '&enablejsapi=1';
 			this.width = 400;
 		}();
 		/* ng youtube embed */
@@ -734,8 +731,7 @@
 			$scope.scrollToTop();
 			$scope.data.views = item.views;
 			$scope.chat.id = item.id;
-			$scope.chat.url = $scope.chat.domain + $scope.chat.id + '&' + $scope.chat.embedDomain + '&'
-				+ $scope.chat.theme; // + '&' + $scope.chat.gaming;
+			$scope.chat.url = $scope.chat.domain + $scope.chat.id + '&' + $scope.chat.embedDomain;
 		};
 
 		/* Init Load Data */

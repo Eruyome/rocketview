@@ -6228,7 +6228,8 @@ body {
     position: absolute; }
   .chat-view .refreshFrame {
     position: absolute;
-    right: 18px;
+    right: 45px;
+    top: 11px;
     cursor: pointer;
     padding: 3px;
     z-index: 1; }
